@@ -22,7 +22,7 @@ export function useNavBarData(token: string) {
 
       // 获取爱心币
       const balanceResponse = await Axios.get('http://59.110.62.188:8080/market/balance', {
-       
+
       });
       if (balanceResponse.data.code === 200 && balanceResponse.data.data) {
         generalBalance.value = balanceResponse.data.data.generalBalance;

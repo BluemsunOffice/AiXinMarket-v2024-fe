@@ -1,10 +1,22 @@
 <template>
   <div class="all-goods">
     <div class="content">
-      <div class="item" v-for="product in productlist" :key="product.id" @click="openProductDetail(product)">
-        <ProductInfo :name="product.name" :img-url="product.imageUrlUrl" :is-shelved="product.isShelved">
+      <div
+        class="item"
+        v-for="product in productlist"
+        :key="product.id"
+        @click="openProductDetail(product)"
+      >
+        <ProductInfo
+          :name="product.name"
+          :img-url="product.imageUrlUrl"
+          :is-shelved="product.isShelved"
+        >
           <template #default>
-            <img :src="product.imageUrlUrl" :class="{ 'image-darken': product.isShelved }" />
+            <img
+              :src="product.imageUrlUrl"
+              :class="{ 'image-darken': product.isShelved }"
+            />
           </template>
           <template #title>
             <div v-if="product.isShelved">
@@ -14,32 +26,46 @@
               <el-tag type="success">已上架</el-tag>
             </div>
             <div class="title">
-              <el-text class="w-150px mb-2" size="large" truncated>{{ product.name }}</el-text>
+              <el-text class="w-150px mb-2" size="large" truncated>{{
+                product.name
+              }}</el-text>
             </div>
           </template>
           <template #footer>
             <div class="details">
-              <div class="price"><el-text class="mx-1" size="large">{{ product.currencyType }}:{{ product.price }}</el-text></div>
-              <div class="num"><el-text class="mx-1" size="large">库存：{{ product.amount }}</el-text></div>
+              <div class="price">
+                <el-text class="mx-1" size="large"
+                  >{{ product.currencyType }}:{{ product.price }}</el-text
+                >
+              </div>
+              <div class="num">
+                <el-text class="mx-1" size="large"
+                  >库存：{{ product.amount }}</el-text
+                >
+              </div>
             </div>
           </template>
         </ProductInfo>
       </div>
     </div>
   </div>
-  <GoodsDetails v-if="detailModalVisible" :productDetail="currentProduct" @close="closeModal" />
+  <GoodsDetails
+    v-if="detailModalVisible"
+    :productDetail="currentProduct"
+    @close="closeModal"
+  />
 </template>
 
 <script setup name="index">
-import { ref, watch } from 'vue';
-import ProductInfo from '@/plugins/ProductInfo/index.vue';
-import GoodsDetails from '@/views/index/GoodsDetails.vue';
+import { ref, watch } from "vue";
+import ProductInfo from "@/plugins/ProductInfo/index.vue";
+import GoodsDetails from "@/views/index/GoodsDetails.vue";
 
 const props = defineProps({
   products: {
     type: Array,
     required: true,
-  }
+  },
 });
 
 const productlist = ref([]);
@@ -48,9 +74,13 @@ productlist.value = props.products;
 const detailModalVisible = ref(false);
 const currentProduct = ref(null);
 
-watch(() => props.products, (newProducts) => {
-  productlist.value = newProducts;
-}, { immediate: true });
+watch(
+  () => props.products,
+  (newProducts) => {
+    productlist.value = newProducts;
+  },
+  { immediate: true }
+);
 
 const openProductDetail = (product) => {
   if (!product.isShelved) {
@@ -93,17 +123,17 @@ function closeModal() {
 .item {
   width: calc(25% - 30px);
   margin-bottom: 30px;
-  box-sizing: border-box; 
-  display: flex; 
-  flex-direction: column; 
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center; 
-  text-align: center; 
+  justify-content: center;
+  text-align: center;
 }
 
 img {
   width: 100%;
-  height:135px;
+  height: 135px;
   border-top-left-radius: 8px; /* 圆角 */
   border-top-right-radius: 8px; /* 圆角 */
 }
@@ -120,15 +150,15 @@ img:hover {
   align-items: center;
   /*padding: 8px;*/
   /* margin-top:1vw; */
-  padding:13px;
-  background-color: rgb(235.9, 245.3, 255); 
-  border-bottom-left-radius: 8px; 
-  border-bottom-right-radius: 8px; 
+  padding: 13px;
+  background-color: rgb(235.9, 245.3, 255);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .price,
 .num {
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
   margin-bottom: 8px;
 }
 
@@ -137,49 +167,50 @@ img:hover {
   display: flex;
   justify-content: center;
   padding: 8px;
-  
 }
 
 .image-darken {
-  filter: grayscale(100%) opacity(0.5); 
+  filter: grayscale(100%) opacity(0.5);
 }
-@media (max-width: 768px) { /* 针对手机端的样式调整 */
+@media (max-width: 768px) {
+  /* 针对手机端的样式调整 */
   .item {
     width: 155px; /* 手机端占满整个屏幕宽度 */
     margin: 5px;
   }
 
   .title {
-    font-size: 15px; 
+    font-size: 15px;
   }
 
   img {
     height: 90px; /* 手机端图片高度固定 */
   }
   .details {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px;
-  background-color: rgb(235.9, 245.3, 255); 
-  border-bottom-left-radius: 8px; 
-  border-bottom-right-radius: 8px; 
-  font-size: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    background-color: rgb(235.9, 245.3, 255);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    font-size: 5px;
   }
-  .price{
-    margin:0px;
-    font-size:5px;
+  .price {
+    margin: 0px;
+    font-size: 5px;
   }
 }
-@media (min-width: 1300px) { /* 大屏幕 */
+@media (min-width: 1300px) {
+  /* 大屏幕 */
   .item {
     width: calc(20% - 30px); /* 一行五个 */
     margin: 15px;
   }
   img {
     width: 100%;
-    height:160px;
+    height: 160px;
     border-top-left-radius: 8px; /* 圆角 */
     border-top-right-radius: 8px; /* 圆角 */
   }
@@ -189,14 +220,15 @@ img:hover {
     flex-direction: column;
     align-items: center;
     padding: 15px;
-    margin-top:25px;
-    background-color: rgb(235.9, 245.3, 255); 
-    border-bottom-left-radius: 8px; 
-    border-bottom-right-radius: 8px; 
+    margin-top: 25px;
+    background-color: rgb(235.9, 245.3, 255);
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
 }
 
-@media (max-width: 767px) { /* 更小屏幕 */
+@media (max-width: 767px) {
+  /* 更小屏幕 */
   .item {
     width: calc(50% - 30px); /* 一行两个 */
     margin: 15px;

@@ -1,4 +1,3 @@
-
 <template>
   <div class="profile-container">
     <div class="profile-box">
@@ -6,20 +5,25 @@
       <div class="avatar">
         <el-row justify="center" align="middle">
           <el-col :span="24">
-            <div class="avatar-wrapper" @mouseenter="isHover = true" @mouseleave="isHover = false" @click="triggerFileInput">
-              <el-avatar 
+            <div
+              class="avatar-wrapper"
+              @mouseenter="isHover = true"
+              @mouseleave="isHover = false"
+              @click="triggerFileInput"
+            >
+              <el-avatar
                 :size="avatarSize"
-                :src="circleUrl" 
+                :src="circleUrl"
                 class="avatar-image"
               />
 
               <div v-if="isHover" class="avatar-overlay">
                 <div class="overlay-text">上传头像</div>
               </div>
-              <input 
-                type="file" 
-                ref="fileInput" 
-                class="file-input" 
+              <input
+                type="file"
+                ref="fileInput"
+                class="file-input"
                 @change="handleFileChange"
                 accept="image/*"
               />
@@ -32,7 +36,7 @@
       <div class="info">
         <h2 class="name">{{ name }}</h2>
         <div class="info-item">
-          <i class="iconfont icon-studentId "></i>
+          <i class="iconfont icon-studentId"></i>
           <span><strong>学号:</strong> {{ studentId }}</span>
         </div>
 
@@ -49,15 +53,12 @@
   </div>
 </template>
 
-
-
-
 <script setup>
-import { ref } from 'vue'
-import axios from 'axios'
-import { onMounted } from 'vue'
-import { reactive, toRefs,computed,watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref } from "vue";
+import axios from "axios";
+import { onMounted } from "vue";
+import { reactive, toRefs, computed, watch } from "vue";
+import { ElMessage } from "element-plus";
 const avatarSize = ref(100);
 
 const handleResize = () => {
@@ -73,95 +74,103 @@ const handleResize = () => {
 
 onMounted(() => {
   handleResize();
-  window.addEventListener('resize', handleResize);
+  window.addEventListener("resize", handleResize);
 });
 
 watch(() => window.innerWidth, handleResize);
 
 const state = reactive({
-  circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-  isHover: false
-})
+  circleUrl:
+    "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+  isHover: false,
+});
 
-const { circleUrl,isHover } = toRefs(state)
-const name = ref('')
-const studentId = ref('')
-const deptName = ref('')
-const role = ref('')
+const { circleUrl, isHover } = toRefs(state);
+const name = ref("");
+const studentId = ref("");
+const deptName = ref("");
+const role = ref("");
 
-const token = localStorage.getItem('token')
-const clientid = localStorage.getItem('client_id')
+const token = localStorage.getItem("token");
+const clientid = localStorage.getItem("client_id");
 
 const fetchUserInfo = async () => {
   try {
-    const response = await axios.get(`http://59.110.62.188:8080/system/user/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        clientid:clientid
-      },
-    })
+    const response = await axios.get(
+      `http://59.110.62.188:8080/system/user/profile`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          clientid: clientid,
+        },
+      }
+    );
 
-    const data = {}
-    data.value = response.data.data.user
-    circleUrl.value = data.value.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
-    name.value = data.value.nickName || '未知'
-    studentId.value = data.value.userName || '未知'
-    deptName.value = data.value.deptName || '未知'
-    role.value = data.value.roles[0].roleName || '未知'
+    const data = {};
+    data.value = response.data.data.user;
+    circleUrl.value =
+      data.value.avatar ||
+      "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png";
+    name.value = data.value.nickName || "未知";
+    studentId.value = data.value.userName || "未知";
+    deptName.value = data.value.deptName || "未知";
+    role.value = data.value.roles[0].roleName || "未知";
   } catch (error) {
-    console.error('获取用户信息失败', error)
+    console.error("获取用户信息失败", error);
   }
-}
+};
 
 // 组件挂载时请求数据
 onMounted(() => {
-  fetchUserInfo()
-})
-
+  fetchUserInfo();
+});
 
 // 上传头像
 const handleFileChange = (event) => {
-  const file = event.target.files[0]
-  if (file && file.type.startsWith('image')) {
-    const reader = new FileReader()
+  const file = event.target.files[0];
+  if (file && file.type.startsWith("image")) {
+    const reader = new FileReader();
     reader.onload = () => {
-      circleUrl.value = reader.result
-    }
-    reader.readAsDataURL(file)
-    uploadAvatar(file)
+      circleUrl.value = reader.result;
+    };
+    reader.readAsDataURL(file);
+    uploadAvatar(file);
   }
-}
+};
 
 // 调用接口上传头像
 const uploadAvatar = async (file) => {
-  const formData = new FormData()
-  formData.append('avatarfile', file)
+  const formData = new FormData();
+  formData.append("avatarfile", file);
 
   try {
-    const response = await axios.post('http://59.110.62.188:8080/system/user/profile/avatar', formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        clientid:clientid,
-      },
-    })
+    const response = await axios.post(
+      "http://59.110.62.188:8080/system/user/profile/avatar",
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          clientid: clientid,
+        },
+      }
+    );
     if (response.data.code === 200) {
-      ElMessage.success('头像上传成功！');
+      ElMessage.success("头像上传成功！");
     } else {
-      ElMessage.error(response.data.msg+'!');
+      ElMessage.error(response.data.msg + "!");
     }
   } catch (error) {
-    ElMessage.error('头像上传请求失败！');
+    ElMessage.error("头像上传请求失败！");
   }
-}
+};
 
 const triggerFileInput = () => {
-  const fileInput = document.querySelector('input[type="file"]')
-  fileInput.click()
-}
+  const fileInput = document.querySelector('input[type="file"]');
+  fileInput.click();
+};
 </script>
 
 <style scoped>
-
 /* 头像外部包裹容器 */
 .avatar-wrapper {
   position: relative;
@@ -217,7 +226,7 @@ const triggerFileInput = () => {
   width: 20vw;
   padding: 2.3vw;
   border-radius: 20px;
-  margin-left:2vw;
+  margin-left: 2vw;
   background-color: #fff;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -229,7 +238,6 @@ const triggerFileInput = () => {
 .profile-box:hover {
   transform: translateY(-10px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-
 }
 
 /* 头像 */
@@ -273,7 +281,7 @@ const triggerFileInput = () => {
   font-size: 1.85vw;
   font-weight: bold;
   color: #2d4059;
-  margin-bottom:4vh;
+  margin-bottom: 4vh;
 }
 
 /* 信息项 */
@@ -299,28 +307,28 @@ strong {
 
 /* Iconfont 样式 */
 .icon-studentId::before {
-  content: '\e67e';
+  content: "\e67e";
 }
 .icon-sex::before {
-  content: '\e7f8';
+  content: "\e7f8";
 }
 .icon-deptName::before {
-  content: '\e76c';
+  content: "\e76c";
 }
 .icon-role::before {
-  content: '\e689';
+  content: "\e689";
 }
 .icon-phonenumber::before {
-  content: '\e840';
+  content: "\e840";
 }
 .icon-email::before {
-  content: '\e605';
+  content: "\e605";
 }
 @font-face {
-  font-family: 'iconfont';
-  src: url('../../assets/iconfont.woff2') format('woff2'),
-       url('../../assets/iconfont.woff') format('woff'),
-       url('../../assets/iconfont.ttf') format('truetype');
+  font-family: "iconfont";
+  src: url("../../assets/iconfont.woff2") format("woff2"),
+    url("../../assets/iconfont.woff") format("woff"),
+    url("../../assets/iconfont.ttf") format("truetype");
 }
 
 .iconfont {
@@ -331,12 +339,11 @@ strong {
   -moz-osx-font-smoothing: grayscale;
 }
 @media (max-width: 768px) {
-
   .profile-box {
     width: 95%;
-    margin-left:0vw;
-    margin-bottom:2vw;
-    display:flex;
+    margin-left: 0vw;
+    margin-bottom: 2vw;
+    display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
@@ -346,8 +353,8 @@ strong {
     transform: none;
   }
   .profile-box:hover {
-     transform: none;
-     box-shadow:none;
+    transform: none;
+    box-shadow: none;
   }
   .name {
     font-size: 3.5vw;

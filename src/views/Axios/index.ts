@@ -11,7 +11,7 @@ instance.interceptors.request.use(
     // 直接从localStorage获取client_id
     const clientId = localStorage.getItem('client_id');
     const token = localStorage.getItem('token');
-    
+
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
       config.headers['Content-Type'] = 'application/json';
@@ -34,7 +34,7 @@ instance.interceptors.response.use(
     // 处理错误
     if (error.response && error.response.status === 401) {
       // 如果 token 过期或无效，可以在这里处理，例如跳转到登录页
-            
+
     }
     return Promise.reject(error);
   }

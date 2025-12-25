@@ -9,7 +9,7 @@ import Order from '@/views/Order/index.vue';
 import Record from '@/views/Record/index.vue'
 // import isLogin from '@/api/isLogin';
 // import index from '@/views/Login/index.vue';
-import { ElMessage } from 'element-plus'; 
+import { ElMessage } from 'element-plus';
 import NotFound from '@/components/NotFound/index.vue'
 import framework from '@/views/Framework/index.vue'
 import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
@@ -20,17 +20,17 @@ import NotFoundView from '@/components/views/NotFoundView.vue';
 import NewFile from '@/views/new-file.vue';
 import StudentsFile from '@/views/StudentsFile.vue';
 function sleep(ms: number | undefined) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 //创建路由器
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-      // 登录
-       {
-      path:'/',
-      component:Login
-    },
+        // 登录
+        {
+            path: '/',
+            component: Login
+        },
         {
             name: 'details',
             path: '/details',
@@ -78,45 +78,45 @@ const router = createRouter({
             component: Record,
             meta: { role: ['超市管理员'] }
         },
-    //     {
-    //       path: '/:pathMatch(.*)*', // 捕捉所有不存在的路径
-    //       component: NotFound, // 显示 404 页面
-    //     },
-   
-    {
-      path: '/framework',
-      name: 'framework',
-      component: framework,
-    },
-    // {
-    //   path: '/personalBox',
-    //   name: 'personalBox',
-    //   component: PersonalBox,
-    // },
-    // {
-     
-    //   path: '/personalText',
-    //   name: 'personalText',
-    //   component: PersonalText,
-    // },
-    // {
-     
-    //   path: '/informationForm',
-    //   name: 'informationForm',
-    //   component: InformationForm,
-    // },
-    // {
-  
-    //   path: '/passwordForm',
-    //   name: 'passwordForm',
-    //   component: PasswordForm,
-    // },
-    // {
-    //   path: '/:pathMatch(.*)*', // 匹配所有未定义的路由
-    //   name: 'NotFound',
-    //   component: NotFoundView,
-    // },
-    //  // 个人成长档案
+        //     {
+        //       path: '/:pathMatch(.*)*', // 捕捉所有不存在的路径
+        //       component: NotFound, // 显示 404 页面
+        //     },
+
+        {
+            path: '/framework',
+            name: 'framework',
+            component: framework,
+        },
+        // {
+        //   path: '/personalBox',
+        //   name: 'personalBox',
+        //   component: PersonalBox,
+        // },
+        // {
+
+        //   path: '/personalText',
+        //   name: 'personalText',
+        //   component: PersonalText,
+        // },
+        // {
+
+        //   path: '/informationForm',
+        //   name: 'informationForm',
+        //   component: InformationForm,
+        // },
+        // {
+
+        //   path: '/passwordForm',
+        //   name: 'passwordForm',
+        //   component: PasswordForm,
+        // },
+        // {
+        //   path: '/:pathMatch(.*)*', // 匹配所有未定义的路由
+        //   name: 'NotFound',
+        //   component: NotFoundView,
+        // },
+        //  // 个人成长档案
         //     {
         //     path: '/index',
         //     name: 'index',
@@ -127,11 +127,11 @@ const router = createRouter({
             name: 'new-file',
             component: NewFile,
         },
-       
+
         {
             path: '/studentFiles',
             name: 'studentFiles',
-            component: () =>  import('@/views/Student/index.vue'),
+            component: () => import('@/views/Student/index.vue'),
             meta: { role: ['老师', '超级管理员'] }
         },
     ]
@@ -145,19 +145,19 @@ const router = createRouter({
 //       const urlParams = new URLSearchParams(window.location.search);
 //       const token = urlParams.get('token');
 //       const role = urlParams.get('role');
-  
+
 //       // 存储 token 和 role
 //       if (token) localStorage.setItem('token', token);
 //       if (role) localStorage.setItem('role', role);
-    
-  
+
+
 //       // 检查登录状态
 //       const isLoggedIn = await isLogin();
 //       if (!isLoggedIn && to.path !== '/') {
 //         const redirectUrl = `${window.location.origin}${to.fullPath}`;
 //         return (window.location.href = `http://localhost:5173/?redirect=${redirectUrl}&role=${role}`);
 //       }
-  
+
 //       // 验证权限
 //       const storedRole = localStorage.getItem('role') || '';
 //       const requiredRoles = to.meta?.role as string[] | undefined; // 类型断言
@@ -165,19 +165,19 @@ const router = createRouter({
 //         ElMessage.error('无访问权限');
 //        window.location.href = `http://localhost:5173/framework`
 //       }
-  
+
 //       next();
 //     } catch (error) {
-    
+
 //       next('/'); // 默认跳转到登录页
 //     }
 //   });
-  
+
 //   router.afterEach((to, from) => {
 //     const query = { ...to.query };
 //     if ('token' in query) delete query.token;
 //     if ('role' in query) delete query.role;
-  
+
 //     if (JSON.stringify(query) !== JSON.stringify(to.query)) {
 //       const newPath = to.path.replace(/\/+/g, '/');
 //       router.replace({ path: newPath, query });

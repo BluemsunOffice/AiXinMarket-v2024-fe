@@ -6,7 +6,7 @@
           <information-form></information-form>
         </div>
       </el-tab-pane>
-      
+
       <el-tab-pane label="修改密码" name="tab2">
         <div class="text-content">
           <password-form></password-form>
@@ -17,16 +17,16 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import InformationForm from './InformationForm.vue'
-import PasswordForm from './PasswordForm.vue'
+import { ref, watch } from "vue";
+import InformationForm from "./InformationForm.vue";
+import PasswordForm from "./PasswordForm.vue";
 
 // const props = defineProps({
 //   message: String
 // })
 // const role = ref(props.message)
-const role = localStorage.getItem('role')
-const activeTab = ref(role === '资助对象' ? 'tab1' : 'tab2')
+const role = localStorage.getItem("role");
+const activeTab = ref(role === "资助对象" ? "tab1" : "tab2");
 // watch(() => props.message, (newMessage) => {
 //   role.value = newMessage
 //   activeTab.value = role.value === '资助对象' ? 'tab1' : 'tab2'
@@ -38,21 +38,21 @@ const activeTab = ref(role === '资助对象' ? 'tab1' : 'tab2')
 .tab-contain {
   max-width: 51vw;
   margin: 0vw 1.5vw;
-  margin-left:1vw;
+  margin-left: 1vw;
   padding: 1.6vw;
   background-color: white;
   /* background-color:red; */
   z-index: 100;
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  height:77vh;
+  height: 77vh;
 }
 
 /* 自定义 Tab 栏样式 */
 :deep(.custom-tabs .el-tabs__header) {
   padding: 0.4vw;
   padding-bottom: 0vw;
-  height:5vh;
+  height: 5vh;
   border-bottom: 1px solid #ccc;
 }
 
@@ -62,9 +62,9 @@ const activeTab = ref(role === '资助对象' ? 'tab1' : 'tab2')
   /* padding: 0.9vw 1.5vw; */
   background-color: transparent;
   transition: all 0.3s ease;
-  height:5vh;
+  height: 5vh;
   font-size: 1vw;
-} 
+}
 
 :deep(.custom-tabs .el-tabs__item:hover) {
   background-color: rgba(0, 123, 255, 0.1);
@@ -86,13 +86,12 @@ const activeTab = ref(role === '资助对象' ? 'tab1' : 'tab2')
   margin-top: 2vh;
   height: 68vh;
   width: 45vw;
-
 }
 @media (max-width: 768px) {
   .tab-contain {
-    max-width: 100%; 
-    padding: 0.2rem; 
-    height: auto; 
+    max-width: 100%;
+    padding: 0.2rem;
+    height: auto;
     margin: 0;
     margin-left: 0;
     border-radius: 0;
@@ -110,5 +109,6 @@ const activeTab = ref(role === '资助对象' ? 'tab1' : 'tab2')
 
   .text-content {
     height: auto;
-  }}
+  }
+}
 </style>

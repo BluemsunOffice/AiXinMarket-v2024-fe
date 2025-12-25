@@ -16,43 +16,43 @@
   </div>
 </template>
 
-  <script lang="ts" setup>
-  import { ArrowDown } from '@element-plus/icons-vue'
-  // 这里加了
-  import { inject, Ref } from 'vue'; // 导入 Ref 类型
-  const category = inject<Ref<string>>('category');
-  const handleSort = (command) => {
+<script lang="ts" setup>
+import { ArrowDown } from "@element-plus/icons-vue";
+// 这里加了
+import { inject, Ref } from "vue"; // 导入 Ref 类型
+const category = inject<Ref<string>>("category");
+const handleSort = (command) => {
   category.value = command;
 };
 // 到这里
-  </script>
-  <style scoped>
-    .example-showcase .el-dropdown + .el-dropdown {
-    margin-left: 15px;
-  }
-  .example-showcase .el-dropdown-link {
-    cursor: pointer;
-    color: var(--el-color-primary);
-    display: flex;
-    align-items: center;
-  }
-  .el-button{
+</script>
+<style scoped>
+.example-showcase .el-dropdown + .el-dropdown {
+  margin-left: 15px;
+}
+.example-showcase .el-dropdown-link {
+  cursor: pointer;
+  color: var(--el-color-primary);
+  display: flex;
+  align-items: center;
+}
+.el-button {
   transition: all 0.3s ease;
-  background-color: #409EFF; 
-  color: white; 
+  background-color: #409eff;
+  color: white;
   font-weight: bold;
 }
 
 .el-button:hover {
   background-color: #3380cc;
 }
-  .example-showcase .el-dropdown + .el-dropdown {
-    margin-left: 15px;
-  }
-  .example-showcase .el-dropdown-link {
-    cursor: pointer;
-    color: var(--el-color-primary);
-    display: flex;
-    align-items: center;
-  }
-  </style>
+.example-showcase .el-dropdown + .el-dropdown {
+  margin-left: 15px;
+}
+.example-showcase .el-dropdown-link {
+  cursor: pointer;
+  color: var(--el-color-primary);
+  display: flex;
+  align-items: center;
+}
+</style>
