@@ -1,0 +1,72 @@
+{
+  "id": "4755143",
+  "name": "个人中心2",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "436000",
+      "name": "性别",
+      "font_class": "xingbie",
+      "unicode": "e7f8",
+      "unicode_decimal": 59384
+    },
+    {
+      "icon_id": "712096",
+      "name": "邮箱",
+      "font_class": "icon-mail",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "4945536",
+      "name": "手机号",
+      "font_class": "shoujihao",
+      "unicode": "e840",
+      "unicode_decimal": 59456
+    },
+    {
+      "icon_id": "6183156",
+      "name": "性别",
+      "font_class": "gender",
+      "unicode": "e63e",
+      "unicode_decimal": 58942
+    },
+    {
+      "icon_id": "6756286",
+      "name": "邮箱",
+      "font_class": "youxiang",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "9588435",
+      "name": "校区",
+      "font_class": "xiaoqu",
+      "unicode": "e76c",
+      "unicode_decimal": 59244
+    },
+    {
+      "icon_id": "11839722",
+      "name": "学号",
+      "font_class": "xuehao",
+      "unicode": "e65a",
+      "unicode_decimal": 58970
+    },
+    {
+      "icon_id": "21053822",
+      "name": "角色",
+      "font_class": "jiaose",
+      "unicode": "e689",
+      "unicode_decimal": 59017
+    },
+    {
+      "icon_id": "32502927",
+      "name": "学号",
+      "font_class": "xuehao1",
+      "unicode": "e67e",
+      "unicode_decimal": 59006
+    }
+  ]
+}
