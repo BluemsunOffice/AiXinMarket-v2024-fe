@@ -1,421 +1,261 @@
 <template>
-  <div :class="container">
-    <form v-if="isPc" class="pc">
-      <div class="form_left">
-        <h1>资助统一身份认证</h1>
-        <div class="uname">
-          <div>
-            <el-icon :size="24"><User /></el-icon>
-          </div>
-          <input type="text" placeholder="学号/账号" v-model="uname" />
-        </div>
-        <div class="password">
-          <div>
-            <el-icon :size="24"><Unlock /></el-icon>
-          </div>
-          <input type="password" placeholder="密码" v-model="password" />
-        </div>
-        <div class="remenber">
+  <div :class="isMobile ? 'container mobile-bg' : 'container pc-bg'">
+    <el-form
+      ref="ruleFormRef"
+      :model="ruleForm"
+      :rules="rules"
+      label-position="top"
+      class="login-form"
+    >
+      <div :class="isMobile ? 'form-mobile' : 'form-pc'">
+        <h1 class="login-title">资助统一身份认证</h1>
+        <el-form-item prop="uname">
+          <el-input
+            v-model="ruleForm.uname"
+            placeholder="学号/账号"
+            :prefix-icon="User"
+            :size="isMobile ? 'default' : 'large'"
+            clearable
+            autocomplete="username"
+          />
+        </el-form-item>
+        <el-form-item prop="password">
+          <el-input
+            v-model="ruleForm.password"
+            placeholder="密码"
+            :prefix-icon="Unlock"
+            show-password
+            :size="isMobile ? 'default' : 'large'"
+            clearable
+            autocomplete="current-password"
+          />
+        </el-form-item>
+        <el-form-item>
           <el-checkbox
-            v-model="remenber"
+            v-model="ruleForm.remenber"
             label="记住密码"
-            size="large"
+            :size="isMobile ? 'default' : 'large'"
             fill="#f5f5f5"
           />
-        </div>
-        <div class="btn">
-          <button class="log" @click.prevent="log">登录</button>
-        </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            class="log"
+            type="primary"
+            :size="isMobile ? 'default' : 'large'"
+            style="width: 100%"
+            :loading="loading"
+            @click="submitForm"
+            >登录</el-button
+          >
+        </el-form-item>
       </div>
-    </form>
-    <form v-if="!isPc" class="mobile">
-      <h1>资助统一身份认证</h1>
-      <div class="uname">
-        <div>
-          <el-icon :size="24"><User /></el-icon>
-        </div>
-        <input type="text" placeholder="学号/账号" v-model="uname" />
-      </div>
-      <div class="password">
-        <div>
-          <el-icon :size="24"><Unlock /></el-icon>
-        </div>
-        <input type="password" placeholder="密码" v-model="password" />
-      </div>
-      <div class="remenber" style="margin-left: 45%; margin-top: -3%">
-        <el-checkbox
-          v-model="remenber"
-          label="记住密码"
-          size="large"
-          fill="#f5f5f5"
-        />
-      </div>
-      <div class="btn">
-        <button class="log" @click.prevent="log">登录</button>
-      </div>
-    </form>
+    </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import axios from "axios";
-import { ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
-import { User, Unlock } from "@element-plus/icons-vue";
-import isLogin from "@/api/isLogin";
+import { ref, onMounted } from 'vue'
+import type { FormInstance, FormRules } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { User, Unlock } from '@element-plus/icons-vue'
+import isLogin from '@/api/isLogin'
+import { useUserStore } from '@/stores/userStore'
 
-const router = useRouter();
+const router = useRouter()
+const userStore = useUserStore()
+const loading = ref(false)
+const clientId = ref('')
+const isMobile = ref(false)
+const ruleFormRef = ref<FormInstance>()
+const ruleForm = ref({
+  uname: userStore.uname || '',
+  password: userStore.password || '',
+  remenber: userStore.remenber,
+})
 
-// 表单数据与状态
-const uname = ref("");
-const password = ref("");
-const remenber = ref(false);
-const loading = ref(false);
+const savedUsername = localStorage.getItem('savedUsername') || ''
+const savedPassword = localStorage.getItem('savedPassword') || ''
 
-const clientId = ref("");
-let isPc = ref(true);
-let container = ref("");
-
-const token = localStorage.getItem("token");
-const role = localStorage.getItem("role");
-const redirect = router.currentRoute.value.query.redirect;
-
-const savedUsername = localStorage.getItem("savedUsername") || "";
-const savedPassword = localStorage.getItem("savedPassword") || "";
-
-// 登录判断与跳转
-onMounted(async () => {
-  detectDeviceType();
-  setClientId();
-  // 设置 container 类名，避免抖动
-  container.value = isPc.value
-    ? "container container1"
-    : "container container2";
-
-  if (savedPassword && savedUsername) {
-    uname.value = savedUsername;
-    password.value = savedPassword;
-    remenber.value = true;
-  }
-  // 检查登录状态
-  const isLoggedIn = await isLogin();
-  if (!isLoggedIn) {
-    localStorage.removeItem("role");
-    localStorage.removeItem("token");
-  }
-  if (localStorage.getItem("token") && localStorage.getItem("role")) {
-    router.push("/framework");
-  }
-});
-
-// 检测设备类型并设置 isPc
+// 更灵活的移动端判断
 const detectDeviceType = () => {
-  const userAgent = navigator.userAgent;
-  const mobileAgents = [
-    /android/i,
-    /iphone|ipad|ipod/i,
-    /windows phone/i,
-    /blackberry/i,
-    /opera mini/i,
-    /mobile/i,
-    /touch/i,
-  ];
-
-  // 默认认为是 PC
-  isPc.value = true;
-
-  // 如果匹配到移动设备的特征，则认为是移动端
-  for (let agent of mobileAgents) {
-    if (agent.test(userAgent)) {
-      isPc.value = false;
-      break;
-    }
+  if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600) {
+    isMobile.value = true
+  } else {
+    isMobile.value = false
   }
-};
-
-// 根据设备类型设置 clientId
-const setClientId = () => {
-  clientId.value = isPc.value
-    ? "e5cd7e4891bf95d1d19206ce24a7b32e"
-    : "428a8310cd442757ae699df5d894f051";
-  localStorage.setItem("client_id", clientId.value);
-};
-
-// 登录处理
-const log = async () => {
-  try {
-    loading.value = true;
-    const config = {
-      headers: {
-        "content-language": "zh_CN",
-      },
-    };
-    let flag = true;
-    if (password.value.length > 20 || password.value.length < 5) {
-      ElMessage.error("用户密码长度必须在5到28个字符之间");
-      flag = false;
-    } else if (password.value.trim() == "") {
-      ElMessage.error("密码不能为空");
-      flag = false;
-    } else if (uname.value.trim() == "") {
-      ElMessage.error("用户名不能为空");
-      flag = false;
-    }
-    if (flag == true) {
-      const response = await axios.post(
-        "http://59.110.62.188:8080/auth/login",
-        {
-          tenantId: "000000",
-          username: uname.value,
-          password: password.value,
-          rememberMe: remenber.value,
-          clientId: clientId.value,
-          grantType: "password",
-        },
-        config
-      );
-
-      if (response.data.code === 200) {
-        ElMessage.success("登录成功");
-        localStorage.setItem("token", response.data.data.access_token);
-        localStorage.setItem("role", response.data.data.roles[0].roleName);
-
-        // 如果勾选了“记住密码”，将用户名和密码保存到 localStorage
-        if (remenber.value) {
-          localStorage.setItem("savedUsername", uname.value);
-          localStorage.setItem("savedPassword", password.value);
-        } else {
-          // 如果没有勾选记住密码，清除之前保存的密码
-          localStorage.removeItem("savedUsername");
-          localStorage.removeItem("savedPassword");
-        }
-
-        router.push("/framework");
-      } else {
-        ElMessage.error(response.data.msg);
-      }
-    }
-  } catch (error) {
-    loading.value = false;
-    ElMessage.error("登录失败，请稍后重试");
-  }
-};
-</script>
-
-<style scoped>
-input {
-  -webkit-box-shadow: 0 0 0 1000px #f5f5f5 inset;
-  border: 0;
-  outline: none;
 }
 
+const setClientId = () => {
+  clientId.value = isMobile.value
+    ? '428a8310cd442757ae699df5d894f051'
+    : 'e5cd7e4891bf95d1d19206ce24a7b32e'
+  localStorage.setItem('client_id', clientId.value)
+}
+
+onMounted(async () => {
+  detectDeviceType()
+  setClientId()
+  window.addEventListener('resize', detectDeviceType)
+  // pinia持久化记住密码
+  if (userStore.remenber && userStore.uname && userStore.password) {
+    ruleForm.value.uname = userStore.uname
+    ruleForm.value.password = userStore.password
+    ruleForm.value.remenber = true
+  }
+  // 检查登录状态
+  const isLoggedIn = await isLogin()
+  if (!isLoggedIn) {
+    localStorage.removeItem('role')
+    localStorage.removeItem('token')
+  }
+  if (localStorage.getItem('token') && localStorage.getItem('role')) {
+    router.push('/framework')
+  }
+})
+
+const rules = ref<FormRules>({
+  uname: [
+    { required: true, message: '请输入学号/账号', trigger: 'blur' },
+    { min: 2, max: 32, message: '长度2-32位', trigger: 'blur' },
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 5, max: 20, message: '密码长度5-20位', trigger: 'blur' },
+  ],
+})
+
+// 登录处理（带校验+pinia）
+const submitForm = async () => {
+  if (!ruleFormRef.value) return
+  await ruleFormRef.value.validate(async (valid) => {
+    if (!valid) return
+    loading.value = true
+    const success = await userStore.login({
+      uname: ruleForm.value.uname,
+      password: ruleForm.value.password,
+      remenber: ruleForm.value.remenber,
+      clientId: clientId.value,
+    })
+    loading.value = false
+    if (success) {
+      router.push('/framework')
+    }
+  })
+}
+</script>
+
+<style scoped lang="css">
 * {
   padding: 0;
   margin: 0;
-  /* 改盒子高度和长度的计算 */
   box-sizing: border-box;
-}
-
-img {
-  /* 除掉图片底端的空隙 */
-  border: 0;
-  /* 图片和文字中心对齐 */
-  vertical-align: middle;
-}
-
-button {
-  /* 让鼠标变小手 */
-  cursor: pointer;
-}
-
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-span,
-form {
-  cursor: default;
-}
-
-button,
-input {
-  font-family: 微软雅黑;
-}
-input[type="text"]:focus {
-  background-color: #f5f5f5;
-}
-.clearfix::after {
-  visibility: hidden;
-  clear: both;
-  display: block;
-  content: "";
-  height: 0;
 }
 
 .container {
   width: 100vw;
   height: 100vh;
-
   display: flex;
-  /* 交叉轴：竖直 */
   align-items: center;
-  /* 主轴水平 */
   justify-content: center;
+  min-height: 100vh;
+  min-width: 100vw;
 }
-.container1 {
-  background: url(./../../../image/pc登录背景.jpg) no-repeat;
+.pc-bg {
+  background: url(./../../../image/pc登录背景.jpg) center center no-repeat;
   background-size: cover;
-  width: 100vw;
-  height: 100vh;
 }
-.container2 {
-  background: url(./../../../image/mobile登录背景.jpg) fixed no-repeat;
+.mobile-bg {
+  background: url(./../../../image/mobile登录背景.jpg) center center no-repeat fixed;
   background-size: cover;
-  width: 100vw;
-  height: 100vh;
 }
-.container::-webkit-scrollbar {
-  display: none !important;
-}
-.container .pc {
-  width: 430px;
-  height: 400px;
-  backdrop-filter: blur(80px);
-  background-color: #fff;
-  border-radius: 5px;
-}
-.container .pc .form_left {
+.login-form {
   width: 100%;
-  height: 100%;
-  float: right;
-  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.container .pc .form_left h1 {
+.form-pc {
+  width: 420px;
+  padding: 36px 36px 20px 36px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+.form-pc:hover {
+  box-shadow: 0 12px 40px 0 rgba(0, 54, 133, 0.13);
+}
+.form-mobile {
+  width: 94vw;
+  max-width: 340px;
+  padding: 24px 10px 10px 10px;
+  background: rgba(255, 255, 255, 0.99);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px 0 rgba(0, 54, 133, 0.1);
+}
+.login-title {
   font-size: 24px;
   text-align: center;
-  letter-spacing: 0.05em;
-  padding-bottom: 15px;
+  margin-bottom: 22px;
+  letter-spacing: 0.08em;
+  color: #003685;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0, 54, 133, 0.06);
 }
-.container .pc .form_left h3 {
-  font-size: 20px;
-  text-align: center;
-  padding-top: 15px;
-  letter-spacing: 0.05em;
+.el-form-item {
+  margin-bottom: 18px;
 }
-
-.container .uname,
-.password {
-  background-color: #f5f5f5;
-  width: 70%;
-  height: 12%;
-  margin: 6% auto;
-  padding: 0;
-  border-radius: 5px;
-  vertical-align: middle;
+.el-input__wrapper {
+  background: #f5f7fa;
+  border-radius: 6px;
+  box-shadow: none;
+  border: 1px solid #e4e7ed;
+  transition: border-color 0.2s;
 }
-.remenber {
-  width: 34%;
-  height: 2%;
-  float: right;
+.el-input__wrapper:focus-within {
+  border-color: #003685;
 }
-.el-checkbox.el-checkbox--large {
-  height: 24px;
+.el-input__inner {
+  background: transparent;
+  font-size: 16px;
 }
-.container .pc .form_left .uname input,
-.password input {
-  width: 80%;
-  border: none;
-  outline: none;
-  background-color: #f5f5f5;
-}
-input:focus {
-  background-color: #f5f5f5 !important;
-}
-.container .pc .form_left .uname span,
-.password span {
-  height: 120%;
-  width: 40%;
-}
-.btn {
-  margin: auto;
-  width: 70%;
-  height: 12%;
-  margin: 11% 15%;
+.el-checkbox {
+  --el-checkbox-checked-bg-color: #003685;
+  --el-checkbox-checked-border-color: #003685;
+  font-size: 15px;
 }
 .log {
   width: 100%;
-  height: 100%;
-  background-color: #003685;
-  border-radius: 5px;
+  background: linear-gradient(90deg, #003685 0%, #0056b3 100%);
+  border-radius: 6px;
   color: #fff;
-  letter-spacing: 0.05em;
-  outline: none;
+  letter-spacing: 0.08em;
+  font-size: 17px;
   border: none;
-  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px 0 rgba(0, 54, 133, 0.1);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
 }
-.uname div,
-.password div {
-  display: inline-block;
-  width: 15%;
-  vertical-align: middle;
-  padding: 10px;
+.log:hover,
+.log:focus {
+  background: linear-gradient(90deg, #0056b3 0%, #003685 100%);
+  box-shadow: 0 4px 16px 0 rgba(0, 54, 133, 0.13);
 }
-
-/* 移动端 */
-.mobile {
-  background-color: #fff;
-  border-radius: 10px;
-  width: 250px;
-  height: 280px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.el-button.is-loading .log {
+  opacity: 0.7;
 }
-
-.mobile h1 {
-  font-size: 22px;
-  text-align: center;
-  line-height: 24px;
-  padding: 20px 0;
-}
-
-.mobile .uname,
-.mobile .password {
-  background-color: #f5f5f5;
-  width: 80%;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-}
-
-.mobile .uname input,
-.mobile .password input {
-  width: 80%;
-  border: none;
-  outline: none;
-  background-color: transparent;
-  padding-left: 10px;
-}
-
-.mobile .btn {
-  width: 100%;
-  margin-top: 12%;
-  text-align: center;
-}
-
-.mobile .btn .log {
-  width: 80%;
-  background-color: #003685;
-  border-radius: 5px;
-  color: #fff;
-  font-size: 16px;
-  outline: none;
-  border: none;
+@media (max-width: 600px) {
+  .form-pc {
+    width: 98vw;
+    min-width: unset;
+    padding: 18px 2vw 10px 2vw;
+  }
+  .login-title {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
 }
 </style>
