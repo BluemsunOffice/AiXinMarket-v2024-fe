@@ -16,9 +16,16 @@
           <input type="password" placeholder="密码" v-model="password" />
         </div>
         <div class="remenber">
-          <el-checkbox v-model="remenber" label="记住密码" size="large" fill="#f5f5f5" />
+          <el-checkbox
+            v-model="remenber"
+            label="记住密码"
+            size="large"
+            fill="#f5f5f5"
+          />
         </div>
-        <div class="btn"><button class="log" @click.prevent="log">登录</button></div>
+        <div class="btn">
+          <button class="log" @click.prevent="log">登录</button>
+        </div>
       </div>
     </form>
     <form v-if="!isPc" class="mobile">
@@ -27,7 +34,7 @@
         <div>
           <el-icon :size="24"><User /></el-icon>
         </div>
-        <input type="text" placeholder="学号/账号" v-model="uname"/>
+        <input type="text" placeholder="学号/账号" v-model="uname" />
       </div>
       <div class="password">
         <div>
@@ -35,148 +42,165 @@
         </div>
         <input type="password" placeholder="密码" v-model="password" />
       </div>
-      <div class="remenber" style="margin-left:45%;margin-top:-3%">
-        <el-checkbox v-model="remenber" label="记住密码" size="large" fill="#f5f5f5" />
+      <div class="remenber" style="margin-left: 45%; margin-top: -3%">
+        <el-checkbox
+          v-model="remenber"
+          label="记住密码"
+          size="large"
+          fill="#f5f5f5"
+        />
       </div>
-      <div class="btn"><button class="log" @click.prevent="log">登录</button></div>
+      <div class="btn">
+        <button class="log" @click.prevent="log">登录</button>
+      </div>
     </form>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
-import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
-import { User, Unlock } from '@element-plus/icons-vue'
-import isLogin from '@/api/isLogin'
+import { onMounted, ref } from "vue";
+import axios from "axios";
+import { ElMessage } from "element-plus";
+import { useRouter } from "vue-router";
+import { User, Unlock } from "@element-plus/icons-vue";
+import isLogin from "@/api/isLogin";
 
-const router = useRouter()
+const router = useRouter();
 
 // 表单数据与状态
-const uname = ref('')
-const password = ref('')
-const remenber = ref(false)
-const loading = ref(false)
+const uname = ref("");
+const password = ref("");
+const remenber = ref(false);
+const loading = ref(false);
 
-const clientId = ref('')
-let isPc = ref(true)
-let container = ref('')
+const clientId = ref("");
+let isPc = ref(true);
+let container = ref("");
 
-const token = localStorage.getItem('token')
-const role = localStorage.getItem('role')
-const redirect = router.currentRoute.value.query.redirect
+const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
+const redirect = router.currentRoute.value.query.redirect;
 
-const savedUsername = localStorage.getItem('savedUsername') || ''
-const savedPassword = localStorage.getItem('savedPassword') || ''
+const savedUsername = localStorage.getItem("savedUsername") || "";
+const savedPassword = localStorage.getItem("savedPassword") || "";
 
 // 登录判断与跳转
 onMounted(async () => {
-  detectDeviceType()
-  setClientId()
+  detectDeviceType();
+  setClientId();
   // 设置 container 类名，避免抖动
-  container.value = isPc.value ? 'container container1' : 'container container2'
+  container.value = isPc.value
+    ? "container container1"
+    : "container container2";
 
-  if(savedPassword&&savedUsername){
-    uname.value=savedUsername
-    password.value=savedPassword
-    remenber.value=true
+  if (savedPassword && savedUsername) {
+    uname.value = savedUsername;
+    password.value = savedPassword;
+    remenber.value = true;
   }
   // 检查登录状态
-  const isLoggedIn = await isLogin()
+  const isLoggedIn = await isLogin();
   if (!isLoggedIn) {
-    localStorage.removeItem('role')
-    localStorage.removeItem('token')
+    localStorage.removeItem("role");
+    localStorage.removeItem("token");
   }
-  if (localStorage.getItem('token') && localStorage.getItem('role')) {
-    router.push('/framework')
+  if (localStorage.getItem("token") && localStorage.getItem("role")) {
+    router.push("/framework");
   }
-})
+});
 
 // 检测设备类型并设置 isPc
 const detectDeviceType = () => {
-  const userAgent = navigator.userAgent
+  const userAgent = navigator.userAgent;
   const mobileAgents = [
-    /android/i, /iphone|ipad|ipod/i, /windows phone/i,
-    /blackberry/i, /opera mini/i, /mobile/i, /touch/i
-  ]
+    /android/i,
+    /iphone|ipad|ipod/i,
+    /windows phone/i,
+    /blackberry/i,
+    /opera mini/i,
+    /mobile/i,
+    /touch/i,
+  ];
 
   // 默认认为是 PC
-  isPc.value = true
+  isPc.value = true;
 
   // 如果匹配到移动设备的特征，则认为是移动端
   for (let agent of mobileAgents) {
     if (agent.test(userAgent)) {
-      isPc.value = false
-      break
+      isPc.value = false;
+      break;
     }
   }
-}
+};
 
 // 根据设备类型设置 clientId
 const setClientId = () => {
-  clientId.value = isPc.value ? 'e5cd7e4891bf95d1d19206ce24a7b32e' : '428a8310cd442757ae699df5d894f051'
-  localStorage.setItem('client_id', clientId.value)
-}
+  clientId.value = isPc.value
+    ? "e5cd7e4891bf95d1d19206ce24a7b32e"
+    : "428a8310cd442757ae699df5d894f051";
+  localStorage.setItem("client_id", clientId.value);
+};
 
 // 登录处理
 const log = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const config = {
       headers: {
-        'content-language': 'zh_CN'
-      }
+        "content-language": "zh_CN",
+      },
+    };
+    let flag = true;
+    if (password.value.length > 20 || password.value.length < 5) {
+      ElMessage.error("用户密码长度必须在5到28个字符之间");
+      flag = false;
+    } else if (password.value.trim() == "") {
+      ElMessage.error("密码不能为空");
+      flag = false;
+    } else if (uname.value.trim() == "") {
+      ElMessage.error("用户名不能为空");
+      flag = false;
     }
-    let flag=true
-    if(password.value.length>20||password.value.length<5){
-      ElMessage.error('用户密码长度必须在5到28个字符之间')
-      flag=false
-    }
-    else if(password.value.trim()=='')
-    {
-      ElMessage.error('密码不能为空')
-      flag=false
-    }
-    else if(uname.value.trim()==''){
-      ElMessage.error('用户名不能为空')
-      flag=false
-    }
-    if(flag==true){
-      const response = await axios.post('http://59.110.62.188:8080/auth/login', {
-      tenantId: '000000',
-      username: uname.value,
-      password: password.value,
-      rememberMe: remenber.value,
-      clientId: clientId.value,
-      grantType: 'password',
-    }, config)
+    if (flag == true) {
+      const response = await axios.post(
+        "http://59.110.62.188:8080/auth/login",
+        {
+          tenantId: "000000",
+          username: uname.value,
+          password: password.value,
+          rememberMe: remenber.value,
+          clientId: clientId.value,
+          grantType: "password",
+        },
+        config
+      );
 
-    if (response.data.code === 200) {
-      ElMessage.success('登录成功')
-      localStorage.setItem('token', response.data.data.access_token)
-      localStorage.setItem('role', response.data.data.roles[0].roleName)
+      if (response.data.code === 200) {
+        ElMessage.success("登录成功");
+        localStorage.setItem("token", response.data.data.access_token);
+        localStorage.setItem("role", response.data.data.roles[0].roleName);
 
-      // 如果勾选了“记住密码”，将用户名和密码保存到 localStorage
-      if (remenber.value) {
-        localStorage.setItem('savedUsername', uname.value)
-        localStorage.setItem('savedPassword', password.value)
+        // 如果勾选了“记住密码”，将用户名和密码保存到 localStorage
+        if (remenber.value) {
+          localStorage.setItem("savedUsername", uname.value);
+          localStorage.setItem("savedPassword", password.value);
+        } else {
+          // 如果没有勾选记住密码，清除之前保存的密码
+          localStorage.removeItem("savedUsername");
+          localStorage.removeItem("savedPassword");
+        }
+
+        router.push("/framework");
       } else {
-        // 如果没有勾选记住密码，清除之前保存的密码
-        localStorage.removeItem('savedUsername')
-        localStorage.removeItem('savedPassword')
+        ElMessage.error(response.data.msg);
       }
-
-      router.push('/framework')
-    } else {
-      ElMessage.error(response.data.msg)
-    }
     }
   } catch (error) {
-    loading.value = false
-    ElMessage.error('登录失败，请稍后重试')
+    loading.value = false;
+    ElMessage.error("登录失败，请稍后重试");
   }
-}
+};
 </script>
 
 <style scoped>
@@ -220,14 +244,14 @@ button,
 input {
   font-family: 微软雅黑;
 }
-input[type='text']:focus {
+input[type="text"]:focus {
   background-color: #f5f5f5;
 }
 .clearfix::after {
   visibility: hidden;
   clear: both;
   display: block;
-  content: '';
+  content: "";
   height: 0;
 }
 
@@ -241,16 +265,16 @@ input[type='text']:focus {
   /* 主轴水平 */
   justify-content: center;
 }
-.container1{
-   background: url(./../../../image/pc登录背景.jpg) no-repeat;
-   background-size: cover;
-   width: 100vw;
+.container1 {
+  background: url(./../../../image/pc登录背景.jpg) no-repeat;
+  background-size: cover;
+  width: 100vw;
   height: 100vh;
 }
-.container2{
-   background: url(./../../../image/mobile登录背景.jpg) fixed no-repeat;
-   background-size: cover;
-   width: 100vw;
+.container2 {
+  background: url(./../../../image/mobile登录背景.jpg) fixed no-repeat;
+  background-size: cover;
+  width: 100vw;
   height: 100vh;
 }
 .container::-webkit-scrollbar {
@@ -394,5 +418,4 @@ input:focus {
   outline: none;
   border: none;
 }
-
 </style>

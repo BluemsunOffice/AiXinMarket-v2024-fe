@@ -12,12 +12,12 @@
 </template>
 
 <script setup>
-import { inject} from 'vue';
-import { ref } from 'vue';
-const search = inject('searchTerm');
-const searchTerm = ref('');
+import { inject } from "vue";
+import { ref } from "vue";
+const search = inject("searchTerm");
+const searchTerm = ref("");
 const onSearch = () => {
-  search.value=searchTerm.value
+  search.value = searchTerm.value;
 };
 </script>
 
@@ -26,13 +26,13 @@ const onSearch = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 10vh; 
+  height: 10vh;
   margin-left: 50px;
   padding-bottom: 13px;
 }
 
 .search-input {
-  outline:none;
+  outline: none;
   width: 30vw;
   padding: 10px;
   font-size: 16px;
@@ -45,7 +45,7 @@ const onSearch = () => {
   padding: 10px 15px;
   font-size: 16px;
   font-weight: 700;
-  background-color: #409EFF;
+  background-color: #409eff;
   color: white;
   border: none;
   border-radius: 4px;
@@ -54,7 +54,7 @@ const onSearch = () => {
 }
 
 .search-button:hover {
-  background-color: rgb(51.2, 126.4, 204); 
+  background-color: rgb(51.2, 126.4, 204);
 }
 /* 移动端适配 */
 @media (max-width: 768px) {

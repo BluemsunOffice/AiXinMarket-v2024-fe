@@ -1,7 +1,7 @@
 <template>
-<div>
+  <div>
     <el-container class="layout-container-demo" style="height: 100vh">
-     <!-- 侧边栏显示/隐藏按钮 -->
+      <!-- 侧边栏显示/隐藏按钮 -->
       <el-button class="menu-toggle" @click="toggleSidebar" v-if="isMobile">
         <el-icon v-if="sidebarVisible">
           <ArrowLeft />
@@ -11,125 +11,145 @@
         </el-icon>
       </el-button>
       <!-- 左侧边栏 -->
-    <el-aside v-if="sidebarVisible || !isMobile" :width="isMobile ? '60vw' : '16vw'" class="sidebar">
-      <el-scrollbar style="height: 100%">
-        <el-menu :default-active="activeMenu" :default-openeds="['1']" class="sidebar-menu">
-          <!-- 侧边栏标题 -->
-          <div index="0" class="sidebar-title" disabled>{{ role }}-导航</div>
-
-          <!-- 个人中心 -->
-          <el-menu-item
-            index="1"
-            :class="{ active: currentPage === 'personalCenter' }"
-            class="menu-item"
+      <el-aside
+        v-if="sidebarVisible || !isMobile"
+        :width="isMobile ? '60vw' : '16vw'"
+        class="sidebar"
+      >
+        <el-scrollbar style="height: 100%">
+          <el-menu
+            :default-active="activeMenu"
+            :default-openeds="['1']"
+            class="sidebar-menu"
           >
-            个人中心
-          </el-menu-item>
+            <!-- 侧边栏标题 -->
+            <div index="0" class="sidebar-title" disabled>{{ role }}-导航</div>
 
-          <!-- 爱心超市 -->
-          <el-menu-item
-            v-show="role == '资助对象'||role=='超级管理员'"
-            index="2"
-            @click="handleMenuClick('superMarket')"
-            :class="{ active: currentPage === 'superMarket' }"
-            class="menu-item"
-          >
-            爱心超市
-          </el-menu-item>
-          <!-- 超市管理员 -->
-          <el-menu-item
-            v-show="role == '超市管理员'||role=='超级管理员'"
-            index="3"
-            @click="handleMenuClick('superMarketManage')"
-            :class="{ active: currentPage === 'superMarketManage' }"
-            class="menu-item"
-          >
-            爱心超市管理员
-          </el-menu-item>
+            <!-- 个人中心 -->
+            <el-menu-item
+              index="1"
+              :class="{ active: currentPage === 'personalCenter' }"
+              class="menu-item"
+            >
+              个人中心
+            </el-menu-item>
 
-          <!-- 个人档案 -->
-          <el-menu-item
-            v-show="role == '资助对象'||role=='超级管理员'"
-            index="4"
-            @click="handleMenuClick('personalProfile')"
-            :class="{ active: currentPage === 'personalProfile' }"
-            class="menu-item"
-          >
-            个人档案
-          </el-menu-item>
+            <!-- 爱心超市 -->
+            <el-menu-item
+              v-show="role == '资助对象' || role == '超级管理员'"
+              index="2"
+              @click="handleMenuClick('superMarket')"
+              :class="{ active: currentPage === 'superMarket' }"
+              class="menu-item"
+            >
+              爱心超市
+            </el-menu-item>
+            <!-- 超市管理员 -->
+            <el-menu-item
+              v-show="role == '超市管理员' || role == '超级管理员'"
+              index="3"
+              @click="handleMenuClick('superMarketManage')"
+              :class="{ active: currentPage === 'superMarketManage' }"
+              class="menu-item"
+            >
+              爱心超市管理员
+            </el-menu-item>
 
-          <!-- 个人档案管理员端 -->
-          <el-menu-item
-            v-show="role == '老师'||role=='超级管理员'"
-            index="5"
-            @click="handleMenuClick('studentsProfile')"
-            :class="{ active: currentPage === 'studentsProfile' }"
-            class="menu-item"
-          >
-            学生档案
-          </el-menu-item>
+            <!-- 个人档案 -->
+            <el-menu-item
+              v-show="role == '资助对象' || role == '超级管理员'"
+              index="4"
+              @click="handleMenuClick('personalProfile')"
+              :class="{ active: currentPage === 'personalProfile' }"
+              class="menu-item"
+            >
+              个人档案
+            </el-menu-item>
 
-          <!-- 退出登录 -->
-          <el-menu-item index="6" plain @click="outerVisible = true" class="logout-button">
-            退出登录
-          </el-menu-item>
-        </el-menu>
-      </el-scrollbar>
-    </el-aside>
+            <!-- 个人档案管理员端 -->
+            <el-menu-item
+              v-show="role == '老师' || role == '超级管理员'"
+              index="5"
+              @click="handleMenuClick('studentsProfile')"
+              :class="{ active: currentPage === 'studentsProfile' }"
+              class="menu-item"
+            >
+              学生档案
+            </el-menu-item>
 
-    <el-container>
-      <!-- 顶部导航栏 -->
-      <el-header class="header">
-        <div class="title">个人中心</div>
-      </el-header>
+            <!-- 退出登录 -->
+            <el-menu-item
+              index="6"
+              plain
+              @click="outerVisible = true"
+              class="logout-button"
+            >
+              退出登录
+            </el-menu-item>
+          </el-menu>
+        </el-scrollbar>
+      </el-aside>
 
-      <!-- 主内容区 -->
-      <el-main>
-        <div v-if="currentPage === 'personalCenter'" class="content">
-          <div class="personal-container">
+      <el-container>
+        <!-- 顶部导航栏 -->
+        <el-header class="header">
+          <div class="title">个人中心</div>
+        </el-header>
+
+        <!-- 主内容区 -->
+        <el-main>
+          <div v-if="currentPage === 'personalCenter'" class="content">
+            <div class="personal-container">
               <personal-box></personal-box>
               <personal-text></personal-text>
             </div>
-        </div>
-      </el-main>
+          </div>
+        </el-main>
+      </el-container>
     </el-container>
-  </el-container>
 
-  <!-- 退出登录确认模态框 -->
-  <el-dialog v-model="outerVisible" title="" :before-close="handleBeforeClose">
-    <div class="dialog-content">
-      <span>确认退出登录吗？</span>
-    </div>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="outerVisible = false" class="cancel-btn">取消</el-button>
-        <el-button type="primary" @click="handleLogout" class="confirm-btn"> 确认退出 </el-button>
+    <!-- 退出登录确认模态框 -->
+    <el-dialog
+      v-model="outerVisible"
+      title=""
+      :before-close="handleBeforeClose"
+    >
+      <div class="dialog-content">
+        <span>确认退出登录吗？</span>
       </div>
-    </template>
-  </el-dialog>
-</div>
-
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="outerVisible = false" class="cancel-btn"
+            >取消</el-button
+          >
+          <el-button type="primary" @click="handleLogout" class="confirm-btn">
+            确认退出
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref ,onMounted, computed,watch} from 'vue'
-import { ElMessage } from 'element-plus'
-import axios from 'axios' 
-import { useRouter} from 'vue-router'
-import PersonalBox from '@/views/Framework/components/PersonalBox.vue' 
-import PersonalText from '@/views/Framework/components/PersonalText.vue'
-import Axios from '@/views/Axios'
-import isLogin from '@/api/isLogin'
-import { log } from 'console'
-const roleMessage = ref('资助对象')
-const router = useRouter()
-const token = localStorage.getItem('token')
-const role = localStorage.getItem('role')
+import { ref, onMounted, computed, watch } from "vue";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import { useRouter } from "vue-router";
+import PersonalBox from "@/views/Framework/components/PersonalBox.vue";
+import PersonalText from "@/views/Framework/components/PersonalText.vue";
+import Axios from "@/views/Axios";
+import isLogin from "@/api/isLogin";
+import { log } from "console";
+const roleMessage = ref("资助对象");
+const router = useRouter();
+const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
 const sidebarVisible = ref(true);
 const isMobile = ref(window.innerWidth <= 768);
-const outerVisible = ref(false)
-const activeMenu = ref('1')
-const currentPage = ref('personalCenter') 
+const outerVisible = ref(false);
+const activeMenu = ref("1");
+const currentPage = ref("personalCenter");
 
 // 侧边栏
 const toggleSidebar = () => {
@@ -138,58 +158,57 @@ const toggleSidebar = () => {
 
 // 登录状态判断，否则跳转登录页
 onMounted(async () => {
-//   if (!localStorage.getItem('token')) {
-//     console.log('未登录')
-//     router.push('/')
-// }
-  const isLoggedIn = await isLogin()
+  //   if (!localStorage.getItem('token')) {
+  //     console.log('未登录')
+  //     router.push('/')
+  // }
+  const isLoggedIn = await isLogin();
   if (!isLoggedIn) {
-    router.push('/')
+    router.push("/");
+  } else {
+    window.addEventListener("resize", () => {
+      isMobile.value = window.innerWidth <= 768;
+    });
   }
-  else{
-    window.addEventListener('resize', () => {
-    isMobile.value = window.innerWidth <= 768;
-  });
-  }
-})
+});
 // // 点击菜单项时的处理函数
 const handleMenuClick = (page: string) => {
-  if (page === 'superMarket') {
-    router.push('/home')
-  } else if (page === 'personalProfile') {
-    router.push('/new-file')
-  } else if (page === 'studentsProfile')
-    router.push('/studentFiles')
-  else if (page === 'superMarketManage')
-    router.push('/manage')
-}
+  if (page === "superMarket") {
+    router.push("/home");
+  } else if (page === "personalProfile") {
+    router.push("/new-file");
+  } else if (page === "studentsProfile") router.push("/studentFiles");
+  else if (page === "superMarketManage") router.push("/manage");
+};
 
 const handleBeforeClose = (done: Function) => {
-  done()
-}
+  done();
+};
 
 // 退出登录处理函数
 const handleLogout = async () => {
   try {
-    const response = await Axios.post('http://59.110.62.188:8080/auth/logout', {})
+    const response = await Axios.post(
+      "http://59.110.62.188:8080/auth/logout",
+      {}
+    );
     if (response.data.code === 200) {
-      ElMessage.success('退出成功！')
-      outerVisible.value = false
-      localStorage.removeItem('token')
-      localStorage.removeItem('role')
-      localStorage.removeItem('client_id')
+      ElMessage.success("退出成功！");
+      outerVisible.value = false;
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("client_id");
       setTimeout(() => {
-        router.push('/')
-        outerVisible.value = false
-      }, 500)
+        router.push("/");
+        outerVisible.value = false;
+      }, 500);
     } else {
-      ElMessage.error(response.data.msg + '!')
+      ElMessage.error(response.data.msg + "!");
     }
   } catch (error) {
-    ElMessage.error('请求失败！')
+    ElMessage.error("请求失败！");
   }
-}
-
+};
 </script>
 
 <style scoped>
@@ -210,7 +229,7 @@ const handleLogout = async () => {
 
 .title {
   color: #2d4059;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   font-size: 2vw;
   font-weight: bold;
   margin: 1.3vh auto;
@@ -311,8 +330,8 @@ const handleLogout = async () => {
   justify-content: space-between;
   padding: 0.8vw 3.2vh;
 }
-.el-dialog__width{
-  width:450px;
+.el-dialog__width {
+  width: 450px;
 }
 
 .dialog-footer {
@@ -360,13 +379,13 @@ const handleLogout = async () => {
 }
 
 @media (max-width: 768px) {
-  .content{
-    display:block;
+  .content {
+    display: block;
   }
   .personal-container {
     flex-direction: column;
-    padding: 0; 
-    gap:0px;
+    padding: 0;
+    gap: 0px;
   }
 
   .sidebar {
@@ -419,13 +438,12 @@ const handleLogout = async () => {
     padding: 20vw;
   }
   .menu-toggle {
-  top: 0.5vw;
-  left: 0.5vw;
-  z-index: 1000;
-  background: #3498db;
-  color: white;
-  padding: 1vw;
+    top: 0.5vw;
+    left: 0.5vw;
+    z-index: 1000;
+    background: #3498db;
+    color: white;
+    padding: 1vw;
+  }
 }
-}
-
 </style>

@@ -1,281 +1,322 @@
-<template> 
-
+<template>
   <div>
     <NavBar />
     <div class="cart-card">
       <div class="cart-container">
-       
-          <!-- 移除原来的全选按钮 -->
-          <div class="header-container">
-            <div class="selected-count" v-if="selectedItems.length > 0">
-              已选择 {{ selectedItems.length }} 个商品
-            </div>
+        <!-- 移除原来的全选按钮 -->
+        <div class="header-container">
+          <div class="selected-count" v-if="selectedItems.length > 0">
+            已选择 {{ selectedItems.length }} 个商品
           </div>
-          
-          <!-- 商品卡片容器，只在非加载状态且有商品时显示 -->
-          <div v-if="!isLoading && filteredItems.length > 0" class="card-container">
-            <!-- 商品卡片 -->
-            <div v-for="item in filteredItems" 
-                 :key="item.goodsId" 
-                 :class="['item-card', {'item-selected': selectedItems.includes(item.goodsId)}]">
-              <el-checkbox
-                v-model="selectedItems"
-            
-                :value="item.goodsId"
-                @change="updateSelectedTotalPrice" /> 
+        </div>
 
-                <div class="item-image-container">
-                  <img :src="item.imageUrlUrl" alt="商品图片" class="item-image" /> 
-                </div>
-            
-              <div class="item-info">
-                <div class="item-details">
-                  <el-tooltip :content=item.goodsName placement="top">
-                    <h3 class="item-name">{{ item.goodsName }}</h3>
-                  </el-tooltip>
-                  <p class="item-price">{{ formatPrice(item).replace('¥', '') }}</p>
-                  <p class="currency-type">货币类型: {{ item.currencyType === '0' ? '日用币' : '服装币' }}</p>
-                  <p class="stock-info">库存剩余: <span :class="{'low-stock': item.limitNum <= 5}">{{ item.limitNum }}</span></p>
-                </div>
-                
-                <div class="item-actions">
-  <el-input-number
-    v-model="item.num"
-    :min="item.limitNum > 0 ? 1 : 0"
-    :max="item.limitNum"
-    @change="(value) => throttledQuantityChange(item, value)"
-    class="quantity-input"
-    :disabled="item.limitNum === 0"
-  />
-                  <el-button type="danger" @click="showRemoveConfirmation(item.goodsId)" class="remove">移除</el-button>
-                </div>
+        <!-- 商品卡片容器，只在非加载状态且有商品时显示 -->
+        <div
+          v-if="!isLoading && filteredItems.length > 0"
+          class="card-container"
+        >
+          <!-- 商品卡片 -->
+          <div
+            v-for="item in filteredItems"
+            :key="item.goodsId"
+            :class="[
+              'item-card',
+              { 'item-selected': selectedItems.includes(item.goodsId) },
+            ]"
+          >
+            <el-checkbox
+              v-model="selectedItems"
+              :value="item.goodsId"
+              @change="updateSelectedTotalPrice"
+            />
+
+            <div class="item-image-container">
+              <img :src="item.imageUrlUrl" alt="商品图片" class="item-image" />
+            </div>
+
+            <div class="item-info">
+              <div class="item-details">
+                <el-tooltip :content="item.goodsName" placement="top">
+                  <h3 class="item-name">{{ item.goodsName }}</h3>
+                </el-tooltip>
+                <p class="item-price">
+                  {{ formatPrice(item).replace("¥", "") }}
+                </p>
+                <p class="currency-type">
+                  货币类型:
+                  {{ item.currencyType === "0" ? "日用币" : "服装币" }}
+                </p>
+                <p class="stock-info">
+                  库存剩余:
+                  <span :class="{ 'low-stock': item.limitNum <= 5 }">{{
+                    item.limitNum
+                  }}</span>
+                </p>
+              </div>
+
+              <div class="item-actions">
+                <el-input-number
+                  v-model="item.num"
+                  :min="item.limitNum > 0 ? 1 : 0"
+                  :max="item.limitNum"
+                  @change="(value) => throttledQuantityChange(item, value)"
+                  class="quantity-input"
+                  :disabled="item.limitNum === 0"
+                />
+                <el-button
+                  type="danger"
+                  @click="showRemoveConfirmation(item.goodsId)"
+                  class="remove"
+                  >移除</el-button
+                >
               </div>
             </div>
           </div>
-          
-          <!-- 购物车加载中状态 -->
-          <div v-if="isLoading" class="loading-cart">
-            <el-skeleton-item variant="circle" style="width: 100px; height: 100px; margin-bottom: 20px;" />
-            <el-skeleton-item variant="text" style="width: 240px; height: 30px;" />
-            <el-skeleton-item variant="text" style="width: 160px; height: 20px; margin-top: 20px;" />
-            <div class="loading-text">购物车加载中...</div>
-          </div>
-          
-          <!-- 购物车为空的展示 -->
-          <div v-else-if="filteredItems.length === 0" class="empty-cart">
-            <img src="../background/emptyCart.png" alt="空购物车" class="empty-cart-image">
-            <p class="empty-cart-text">您的购物车是空的</p>
-            <el-button type="primary" class="empty-cart-button" @click="toHome">继续购物</el-button>
-          </div>
+        </div>
 
-          <!-- 底部结算区域重新设计，只在非加载状态且有商品时显示 -->
-          <div v-if="!isLoading && filteredItems.length > 0" class="foot">
-            <!-- 添加全选按钮到底部 -->
-            <div class="foot-left">
-              <el-checkbox 
-                class="choose" 
-                v-model="isAllSelected" 
-                @change="toggleSelectAll">全选</el-checkbox>
-            </div>
-            
-            <div class="foot-middle">
-              <div class="currency-info">
-                <span>日用币: {{ dailyTotal.toFixed(2) }}</span>
-                <span>服装币: {{ clothingTotal.toFixed(2) }}</span>
-              </div>
-            </div>
+        <!-- 购物车加载中状态 -->
+        <div v-if="isLoading" class="loading-cart">
+          <el-skeleton-item
+            variant="circle"
+            style="width: 100px; height: 100px; margin-bottom: 20px"
+          />
+          <el-skeleton-item variant="text" style="width: 240px; height: 30px" />
+          <el-skeleton-item
+            variant="text"
+            style="width: 160px; height: 20px; margin-top: 20px"
+          />
+          <div class="loading-text">购物车加载中...</div>
+        </div>
 
-            <div class="foot-right">
-              <el-button 
-                :type="selectedItems.length > 0 ? 'success' : 'info'" 
-                @click="checkout" 
-                class="checkout-button"
-                :disabled="selectedItems.length === 0"
-              >
-                结算 {{ selectedItems.length > 0 ? `(${selectedItems.length})` : '' }}
-              </el-button> 
-            </div>
+        <!-- 购物车为空的展示 -->
+        <div v-else-if="filteredItems.length === 0" class="empty-cart">
+          <img
+            src="../background/emptyCart.png"
+            alt="空购物车"
+            class="empty-cart-image"
+          />
+          <p class="empty-cart-text">您的购物车是空的</p>
+          <el-button type="primary" class="empty-cart-button" @click="toHome"
+            >继续购物</el-button
+          >
+        </div>
 
-            <!-- 确认结算对话框 --> 
-            <el-dialog
-              v-model="checkoutInfo"
-              title="确认结算"
-              width="500px"
-              class="checkout-dialog"
+        <!-- 底部结算区域重新设计，只在非加载状态且有商品时显示 -->
+        <div v-if="!isLoading && filteredItems.length > 0" class="foot">
+          <!-- 添加全选按钮到底部 -->
+          <div class="foot-left">
+            <el-checkbox
+              class="choose"
+              v-model="isAllSelected"
+              @change="toggleSelectAll"
+              >全选</el-checkbox
             >
-              <div class="checkout-details">
-                <div class="checkout-item">
-                  <span>服装币总额:</span>
-                  <span class="price">{{ clothingTotal.toFixed(2) }}</span>
-                </div>
-                <div class="checkout-item">
-                  <span>日用币总额:</span>
-                  <span class="price">{{ dailyTotal.toFixed(2) }}</span>
-                </div>
-                <div class="checkout-item" v-if="selectedItems.length > 0">
-                  <span>已选商品:</span>
-                  <span>{{ selectedItems.length }}件</span>
-                </div>
-              </div>
-              <template #footer>
-                <div class="dialog-footer">
-                  <el-button @click="checkoutInfo = false" :disabled="isSettling">取消</el-button>
-                  <el-button 
-                    type="primary" 
-                    @click="reCheckout" 
-                    :loading="isSettling"
-                    :disabled="isSettling"
-                  >
-                    {{ isSettling ? '处理中...' : '确认结算' }}
-                  </el-button>
-                </div>
-              </template>
-            </el-dialog>
-
-            <!-- 确认移除对话框 -->
-            <el-dialog
-              v-model="removeConfirmVisible"
-              title="确认移除"
-              width="400px"
-              class="checkout-dialog"
-            >
-              <div class="remove-confirm-content">
-                <p>确定要从购物车中移除选中的商品吗？</p>
-              </div>
-              <template #footer>
-                <div class="dialog-footer">
-                  <el-button @click="removeConfirmVisible = false">取消</el-button>
-                  <el-button type="danger" @click="confirmRemove">确认移除</el-button>
-                </div>
-              </template>
-            </el-dialog>
           </div>
+
+          <div class="foot-middle">
+            <div class="currency-info">
+              <span>日用币: {{ dailyTotal.toFixed(2) }}</span>
+              <span>服装币: {{ clothingTotal.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="foot-right">
+            <el-button
+              :type="selectedItems.length > 0 ? 'success' : 'info'"
+              @click="checkout"
+              class="checkout-button"
+              :disabled="selectedItems.length === 0"
+            >
+              结算
+              {{ selectedItems.length > 0 ? `(${selectedItems.length})` : "" }}
+            </el-button>
+          </div>
+
+          <!-- 确认结算对话框 -->
+          <el-dialog
+            v-model="checkoutInfo"
+            title="确认结算"
+            width="500px"
+            class="checkout-dialog"
+          >
+            <div class="checkout-details">
+              <div class="checkout-item">
+                <span>服装币总额:</span>
+                <span class="price">{{ clothingTotal.toFixed(2) }}</span>
+              </div>
+              <div class="checkout-item">
+                <span>日用币总额:</span>
+                <span class="price">{{ dailyTotal.toFixed(2) }}</span>
+              </div>
+              <div class="checkout-item" v-if="selectedItems.length > 0">
+                <span>已选商品:</span>
+                <span>{{ selectedItems.length }}件</span>
+              </div>
+            </div>
+            <template #footer>
+              <div class="dialog-footer">
+                <el-button @click="checkoutInfo = false" :disabled="isSettling"
+                  >取消</el-button
+                >
+                <el-button
+                  type="primary"
+                  @click="reCheckout"
+                  :loading="isSettling"
+                  :disabled="isSettling"
+                >
+                  {{ isSettling ? "处理中..." : "确认结算" }}
+                </el-button>
+              </div>
+            </template>
+          </el-dialog>
+
+          <!-- 确认移除对话框 -->
+          <el-dialog
+            v-model="removeConfirmVisible"
+            title="确认移除"
+            width="400px"
+            class="checkout-dialog"
+          >
+            <div class="remove-confirm-content">
+              <p>确定要从购物车中移除选中的商品吗？</p>
+            </div>
+            <template #footer>
+              <div class="dialog-footer">
+                <el-button @click="removeConfirmVisible = false"
+                  >取消</el-button
+                >
+                <el-button type="danger" @click="confirmRemove"
+                  >确认移除</el-button
+                >
+              </div>
+            </template>
+          </el-dialog>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-  import NavBar from '@/components/NavBar/index.vue'
-  import { useCartStore } from '@/stores/cartStore';
-  import { storeToRefs } from 'pinia';
-  import { onMounted, ref } from 'vue';
-  import isLogin from '@/api/isLogin'
-  import { ElMessage } from 'element-plus';
+import NavBar from "@/components/NavBar/index.vue";
+import { useCartStore } from "@/stores/cartStore";
+import { storeToRefs } from "pinia";
+import { onMounted, ref } from "vue";
+import isLogin from "@/api/isLogin";
+import { ElMessage } from "element-plus";
 
-  const cartStore = useCartStore();
-  const { 
-    cartItems, 
-    filteredItems,
-    selectedItems,
-    clothingTotal,
-    dailyTotal,
-    checkoutInfo,
-    isAllSelected,
-    isSettling,
-    router,
-    isLoading,
-  } = storeToRefs(cartStore);
+const cartStore = useCartStore();
+const {
+  cartItems,
+  filteredItems,
+  selectedItems,
+  clothingTotal,
+  dailyTotal,
+  checkoutInfo,
+  isAllSelected,
+  isSettling,
+  router,
+  isLoading,
+} = storeToRefs(cartStore);
 
-  const { 
-    getItem,
-    getCurrency,
-    removeSelectedItems,
-    checkout,
-    reCheckout,
-    toggleSelectAll, 
-    updateSelectedTotalPrice,
-    formatPrice,
-    toHome
-  } = cartStore;
+const {
+  getItem,
+  getCurrency,
+  removeSelectedItems,
+  checkout,
+  reCheckout,
+  toggleSelectAll,
+  updateSelectedTotalPrice,
+  formatPrice,
+  toHome,
+} = cartStore;
 
-  // 节流函数实现
-  const throttle = (fn, delay) => {
-    let timer = null;
-    let lastTime = 0;
-    
-    return function(...args) {
-      const now = Date.now();
-      const remaining = delay - (now - lastTime);
-      
-      if (remaining <= 0) {
-        if (timer) {
-          clearTimeout(timer);
-          timer = null;
-        }
-        lastTime = now;
-        fn.apply(this, args);
-      } else if (!timer) {
-        timer = setTimeout(() => {
-          lastTime = Date.now();
-          fn.apply(this, args);
-          timer = null;
-        }, remaining);
+// 节流函数实现
+const throttle = (fn, delay) => {
+  let timer = null;
+  let lastTime = 0;
+
+  return function (...args) {
+    const now = Date.now();
+    const remaining = delay - (now - lastTime);
+
+    if (remaining <= 0) {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
       }
-    };
-  };
-
-  // 移除商品的确认对话框
-  const removeConfirmVisible = ref(false);
-  const itemToRemove = ref(null);
-
-  // 显示移除确认对话框
-  const showRemoveConfirmation = (goodsId) => {
-    itemToRemove.value = goodsId;
-    removeConfirmVisible.value = true;
-  };
-
-  // 确认移除
-  const confirmRemove = () => {
-    if (itemToRemove.value) {
-      removeSelectedItems(itemToRemove.value);
-      removeConfirmVisible.value = false;
-      itemToRemove.value = null;
+      lastTime = now;
+      fn.apply(this, args);
+    } else if (!timer) {
+      timer = setTimeout(() => {
+        lastTime = Date.now();
+        fn.apply(this, args);
+        timer = null;
+      }, remaining);
     }
   };
+};
 
-  // 使用节流函数包装handleQuantityChange
-  const handleQuantityChange = (item, value) => {
-    // 检查输入的数量是否超过库存限制，本地进行限制
-    if (value > item.limitNum) {
-      value = item.limitNum;
-      item.num = item.limitNum;
-      ElMessage.warning({
-        message: `商品"${item.goodsName}"的数量不能超过库存上限(${item.limitNum})`,
-        duration: 3000,
-        showClose: true,
-        type: 'warning'
-      });
-    }
-    
-    // 更新总价（本地立即更新UI）
-    updateSelectedTotalPrice(); 
-    
-    // 调用 Pinia 方法更新数量（它会处理2秒内只发一次请求的逻辑）
-    cartStore.updateItemQuantity(item.goodsId, value); 
-  };
+// 移除商品的确认对话框
+const removeConfirmVisible = ref(false);
+const itemToRemove = ref(null);
 
-  // 我们可以使用更短的节流时间，因为实际防抖逻辑已在store中实现
-  const throttledQuantityChange = throttle(handleQuantityChange, 100);
+// 显示移除确认对话框
+const showRemoveConfirmation = (goodsId) => {
+  itemToRemove.value = goodsId;
+  removeConfirmVisible.value = true;
+};
 
-  onMounted(() => {
-    console.log('开始挂载')
-    getItem();
-    getCurrency();
-    isLogin();  
-  });  
+// 确认移除
+const confirmRemove = () => {
+  if (itemToRemove.value) {
+    removeSelectedItems(itemToRemove.value);
+    removeConfirmVisible.value = false;
+    itemToRemove.value = null;
+  }
+};
 
-  // 确保全选功能正常
-  const handleSelectAll = (val) => {
-    toggleSelectAll(val);
-  };
+// 使用节流函数包装handleQuantityChange
+const handleQuantityChange = (item, value) => {
+  // 检查输入的数量是否超过库存限制，本地进行限制
+  if (value > item.limitNum) {
+    value = item.limitNum;
+    item.num = item.limitNum;
+    ElMessage.warning({
+      message: `商品"${item.goodsName}"的数量不能超过库存上限(${item.limitNum})`,
+      duration: 3000,
+      showClose: true,
+      type: "warning",
+    });
+  }
 
-  // 确保单个选择正常
-  const handleItemSelect = () => {
-    updateSelectedTotalPrice();
-  };
-</script> 
+  // 更新总价（本地立即更新UI）
+  updateSelectedTotalPrice();
 
+  // 调用 Pinia 方法更新数量（它会处理2秒内只发一次请求的逻辑）
+  cartStore.updateItemQuantity(item.goodsId, value);
+};
+
+// 我们可以使用更短的节流时间，因为实际防抖逻辑已在store中实现
+const throttledQuantityChange = throttle(handleQuantityChange, 100);
+
+onMounted(() => {
+  console.log("开始挂载");
+  getItem();
+  getCurrency();
+  isLogin();
+});
+
+// 确保全选功能正常
+const handleSelectAll = (val) => {
+  toggleSelectAll(val);
+};
+
+// 确保单个选择正常
+const handleItemSelect = () => {
+  updateSelectedTotalPrice();
+};
+</script>
 
 <style lang="css" scoped>
 /* 整体页面样式 */
@@ -755,7 +796,8 @@
 
 /* 优雅的动画效果 */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -802,7 +844,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
   }
   50% {

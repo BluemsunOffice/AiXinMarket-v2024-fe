@@ -2,27 +2,49 @@
   <el-header height="85px">
     <div class="header-content">
       <div class="top_hello">
-        <span class="hello" style="font-size: 40px;"> 爱心超市 </span>
+        <span class="hello" style="font-size: 40px"> 爱心超市 </span>
         <span class="campus">* {{ campusName }}</span>
       </div>
       <div class="header_menu">
         <span class="cloud"></span>
 
-        <div class="menuList" :class="{ 'mobile-menu': isMobile, 'mobile-hidden': isMobile && !isMenuVisible }"
-          v-show="!isMobile || (isMobile && isMenuVisible)">
+        <div
+          class="menuList"
+          :class="{
+            'mobile-menu': isMobile,
+            'mobile-hidden': isMobile && !isMenuVisible,
+          }"
+          v-show="!isMobile || (isMobile && isMenuVisible)"
+        >
           <span class="hello"> 爱心超市 </span>
           <div class="divider"></div>
-          <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)"><span
-              class="iconfont icon-shouye"></span> 首页</li>
-          <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)"><span
-              class="iconfont icon-icon-test1"></span> 购物车</li>
-          <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)"><span
-              class="iconfont icon-icon-test"></span> 订单</li>
-          <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-qianbao"></span> 日用币：{{ generalBalance }}
+          <li
+            :class="{ active: activeIndex === 0 }"
+            @click="navigateToIndex(0)"
+          >
+            <span class="iconfont icon-shouye"></span> 首页
+          </li>
+          <li
+            :class="{ active: activeIndex === 1 }"
+            @click="navigateToIndex(1)"
+          >
+            <span class="iconfont icon-icon-test1"></span> 购物车
+          </li>
+          <li
+            :class="{ active: activeIndex === 2 }"
+            @click="navigateToIndex(2)"
+          >
+            <span class="iconfont icon-icon-test"></span> 订单
           </li>
           <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-yifu"></span> 服饰币：{{ clothingBalance }}
+            <span class="iconfont icon-qianbao"></span> 日用币：{{
+              generalBalance
+            }}
+          </li>
+          <li v-if="isMobile" class="money-item">
+            <span class="iconfont icon-yifu"></span> 服饰币：{{
+              clothingBalance
+            }}
           </li>
         </div>
       </div>
@@ -31,18 +53,31 @@
         <span>服饰币：{{ clothingBalance }}</span>
       </div>
       <div class="right">
-        <el-button class="logout" type="primary" size="large" @click="centerDialogVisible = true">退出登录</el-button>
-        <button v-if="isMobile" class="iconfont icon-menu" @click="toggleMenu"></button>
+        <el-button
+          class="logout"
+          type="primary"
+          size="large"
+          @click="centerDialogVisible = true"
+          >退出登录</el-button
+        >
+        <button
+          v-if="isMobile"
+          class="iconfont icon-menu"
+          @click="toggleMenu"
+        ></button>
       </div>
-
     </div>
-    <el-dialog v-model="centerDialogVisible" title="确认退出吗？" width="370" center align-center>
+    <el-dialog
+      v-model="centerDialogVisible"
+      title="确认退出吗？"
+      width="370"
+      center
+      align-center
+    >
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="centerDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleLogout()">
-            确认
-          </el-button>
+          <el-button type="primary" @click="handleLogout()"> 确认 </el-button>
         </div>
       </template>
     </el-dialog>
@@ -50,19 +85,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, toRefs, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useNavBarData } from '@/stores/useNavBarData';
-import { ElMessage } from 'element-plus';
-import axios from 'axios';
-import Axios from '@/views/Axios';
+import { ref, reactive, toRefs, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useNavBarData } from "@/stores/useNavBarData";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import Axios from "@/views/Axios";
 
 const router = useRouter();
-const authToken = localStorage.getItem('token');
+const authToken = localStorage.getItem("token");
 const token = `${authToken}`;
 const activeIndex = ref(0);
 const centerDialogVisible = ref(false);
-const role = localStorage.getItem('role');
+const role = localStorage.getItem("role");
 
 // 定义 isMobile 和 isMenuVisible
 const isMenuVisible = ref(false);
@@ -75,10 +110,10 @@ const checkIfMobile = () => {
 
 onMounted(() => {
   checkIfMobile();
-  window.addEventListener('resize', checkIfMobile);
+  window.addEventListener("resize", checkIfMobile);
   onMounted(() => {
-    if (!localStorage.getItem('token')) {
-      window.location.href = 'http://localhost:5173/'
+    if (!localStorage.getItem("token")) {
+      window.location.href = "http://localhost:5173/";
     }
   });
 });
@@ -90,32 +125,36 @@ const toggleMenu = () => {
 const handleLogout = async () => {
   //退出登录
   try {
-    const response = await Axios.post('http://59.110.62.188:8080/auth/logout', {});
+    const response = await Axios.post(
+      "http://59.110.62.188:8080/auth/logout",
+      {}
+    );
     if (response.data.code === 200) {
-      ElMessage.success('退出成功！');
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      localStorage.removeItem('client_id');
+      ElMessage.success("退出成功！");
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("client_id");
       setTimeout(() => {
-        router.push('/');
+        router.push("/");
       }, 60);
     } else {
-      ElMessage.error(response.data.msg + '!');
+      ElMessage.error(response.data.msg + "!");
     }
   } catch (error) {
-    ElMessage.error('请求失败！');
+    ElMessage.error("请求失败！");
   }
 };
 
 // 使用自定义 Hook 获取数据
-const { generalBalance, clothingBalance, campusName, avatarUrl } = useNavBarData(token);
+const { generalBalance, clothingBalance, campusName, avatarUrl } =
+  useNavBarData(token);
 
 // 初始化第一个菜单项为激活状态
 onMounted(() => {
   const pathToIndexMap: Record<string, number> = {
-    '/home': 0,
-    '/cart': 1,
-    '/orderList': 2,
+    "/home": 0,
+    "/cart": 1,
+    "/orderList": 2,
   };
 
   const currentPath = router.currentRoute.value.path;
@@ -124,7 +163,7 @@ onMounted(() => {
 
 const navigateToIndex = (index: number) => {
   activeIndex.value = index; // 更新激活项
-  const path = ['home', 'cart', 'orderList'][index];
+  const path = ["home", "cart", "orderList"][index];
   router.push(`/${path}`);
 };
 </script>
@@ -140,7 +179,6 @@ const navigateToIndex = (index: number) => {
 }
 
 .header-content {
-
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -152,16 +190,14 @@ const navigateToIndex = (index: number) => {
 }
 
 .hello {
-  color: #409EFF;
+  color: #409eff;
   font-family: 黑体;
   font-weight: 700;
 }
 
-
 .menuList .hello {
   display: none;
   line-height: 85px;
-
 }
 
 .campus {
@@ -198,14 +234,12 @@ const navigateToIndex = (index: number) => {
   box-sizing: border-box;
 }
 
-
-
 .icon-menu {
   border: none;
   font-size: 30px;
 }
 
-@media(max-width: 800px) {
+@media (max-width: 800px) {
   .header-content {
     position: relative;
     z-index: 10;
@@ -221,7 +255,7 @@ const navigateToIndex = (index: number) => {
     top: 0;
     display: flex;
     flex-direction: column;
-    background-color: #409EFF;
+    background-color: #409eff;
     list-style-type: none;
     height: 100vh;
     width: 30%;
@@ -305,7 +339,7 @@ const navigateToIndex = (index: number) => {
   }
 
   .mobile-menu .money-item:first-of-type::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -5px;
     left: 15%;
@@ -319,14 +353,13 @@ const navigateToIndex = (index: number) => {
   src: url(../../../font/ChillLongCangKaiShu_Bold.otf);
 }
 
-@media(max-width: 1250px) {
+@media (max-width: 1250px) {
   .top_hello .hello {
     display: none;
   }
 
   .campus {
     display: none;
-
   }
 
   .money {
