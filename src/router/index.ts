@@ -1,117 +1,69 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import GoodsDetails from '@/views/index/GoodsDetails.vue'
-import Home from '@/views/index/index.vue'; // 首页组件
-import ShopCart from '@/views/ShopCart/index.vue';
-import Login from '@/views/Login/index.vue';
-import Manage from '@/views/Manage/index.vue';
-import Order from '@/views/Order/index.vue';
-import Record from '@/views/Record/index.vue'
-import framework from '@/views/Framework/index.vue'
-import NewFile from '@/views/new-file.vue';
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     // 登录
     {
       path: '/',
-      component: Login
+      component: () => import('@/views/Login/index.vue')
     },
     {
       name: 'details',
       path: '/details',
-      component: GoodsDetails,
-      meta: { role: ['资助对象'] }
+      component: () => import('@/views/index/GoodsDetails.vue'),
+      meta: { role: ['Beneficiary'] }
     },
     {
       path: '/cart',
-      component: ShopCart,
-      meta: { role: ['资助对象'] }
+      component: () => import('@/views/ShopCart/index.vue'),
+      meta: { role: ['Beneficiary'] }
     },
     {
       name: 'OrderList',
       path: '/orderList',
       component: () => import('@/views/OrderList/OrderListIndex.vue'),
-      meta: { role: ['资助对象'] }
+      meta: { role: ['Beneficiary'] }
     },
     {//首页
       path: '/home',
       name: 'home',
-      component: Home,
-      meta: { role: ['资助对象'] }
+      component: () => import('@/views/index/index.vue'),
+      meta: { role: ['Beneficiary'] }
     },
     {
       name: 'shopcart',
       path: '/shopcart',
       component: () => import('@/views/ShopCart/index.vue'),
-      meta: { role: ['资助对象'] }
+      meta: { role: ['Beneficiary'] }
     },
     {
       path: '/manage',
       name: 'manage',
-      component: Manage,
+      component: () => import('@/views/Manage/index.vue'),
       meta: { role: ['超市管理员'] }
     },
     {
       path: '/order',
       name: 'order',
-      component: Order,
+      component: () => import('@/views/Order/index.vue'),
       meta: { role: ['超市管理员'] }
     },
     {
       path: '/record',
       name: 'record',
-      component: Record,
+      component: () => import('@/views/Record/index.vue'),
       meta: { role: ['超市管理员'] }
     },
-    //     {
-    //       path: '/:pathMatch(.*)*', // 捕捉所有不存在的路径
-    //       component: NotFound, // 显示 404 页面
-    //     },
-
     {
       path: '/framework',
       name: 'framework',
-      component: framework,
+      component: () => import('@/views/Framework/index.vue'),
     },
-    // {
-    //   path: '/personalBox',
-    //   name: 'personalBox',
-    //   component: PersonalBox,
-    // },
-    // {
-
-    //   path: '/personalText',
-    //   name: 'personalText',
-    //   component: PersonalText,
-    // },
-    // {
-
-    //   path: '/informationForm',
-    //   name: 'informationForm',
-    //   component: InformationForm,
-    // },
-    // {
-
-    //   path: '/passwordForm',
-    //   name: 'passwordForm',
-    //   component: PasswordForm,
-    // },
-    // {
-    //   path: '/:pathMatch(.*)*', // 匹配所有未定义的路由
-    //   name: 'NotFound',
-    //   component: NotFoundView,
-    // },
-    //  // 个人成长档案
-    //     {
-    //     path: '/index',
-    //     name: 'index',
-    //     component: index,
-    // },
     {
       path: '/new-file',
       name: 'new-file',
-      component: NewFile,
+      component: () => import('@/views/new-file.vue'),
     },
 
     {
@@ -122,56 +74,6 @@ const router = createRouter({
     },
   ]
 })
-
-
-
-// router.beforeEach(async (to, from, next) => {
-//     try {
-//       // 获取 URL 参数
-//       const urlParams = new URLSearchParams(window.location.search);
-//       const token = urlParams.get('token');
-//       const role = urlParams.get('role');
-
-//       // 存储 token 和 role
-//       if (token) localStorage.setItem('token', token);
-//       if (role) localStorage.setItem('role', role);
-
-
-//       // 检查登录状态
-//       const isLoggedIn = await isLogin();
-//       if (!isLoggedIn && to.path !== '/') {
-//         const redirectUrl = `${window.location.origin}${to.fullPath}`;
-//         return (window.location.href = `http://localhost:5173/?redirect=${redirectUrl}&role=${role}`);
-//       }
-
-//       // 验证权限
-//       const storedRole = localStorage.getItem('role') || '';
-//       const requiredRoles = to.meta?.role as string[] | undefined; // 类型断言
-//       if (requiredRoles && !requiredRoles.includes(storedRole)) {
-//         ElMessage.error('无访问权限');
-//        window.location.href = `http://localhost:5173/framework`
-//       }
-
-//       next();
-//     } catch (error) {
-
-//       next('/'); // 默认跳转到登录页
-//     }
-//   });
-
-//   router.afterEach((to, from) => {
-//     const query = { ...to.query };
-//     if ('token' in query) delete query.token;
-//     if ('role' in query) delete query.role;
-
-//     if (JSON.stringify(query) !== JSON.stringify(to.query)) {
-//       const newPath = to.path.replace(/\/+/g, '/');
-//       router.replace({ path: newPath, query });
-//     }
-//   });
-
-
-
 
 //暴露出去router
 export default router
