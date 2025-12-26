@@ -74,10 +74,6 @@ const ruleForm = ref({
   remenber: userStore.remenber,
 })
 
-const savedUsername = localStorage.getItem('savedUsername') || ''
-const savedPassword = localStorage.getItem('savedPassword') || ''
-
-// 更灵活的移动端判断
 const detectDeviceType = () => {
   if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600) {
     isMobile.value = true
