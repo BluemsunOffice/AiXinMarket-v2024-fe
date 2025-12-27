@@ -158,11 +158,11 @@ const submitForm = async () => {
   min-width: 100vw;
 }
 .pc-bg {
-  background: url(./../../../image/pc登录背景.jpg) center center no-repeat;
+  background: url('@/assets/image/pc-login-bg.jpg') center center no-repeat;
   background-size: cover;
 }
 .mobile-bg {
-  background: url(./../../../image/mobile登录背景.jpg) center center no-repeat fixed;
+  background: url('@/assets/image/mobile-login-bg.jpg') center center no-repeat fixed;
   background-size: cover;
 }
 .login-form {
