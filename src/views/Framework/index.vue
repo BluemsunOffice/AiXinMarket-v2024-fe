@@ -84,15 +84,21 @@
       <el-container>
         <!-- 顶部导航栏 -->
         <el-header class="header">
-          <div class="title">个人中心</div>
+          <div class="title">爱心超市管理系统</div>
         </el-header>
 
         <!-- 主内容区 -->
         <el-main>
           <div v-if="currentPage === 'personalCenter'" class="content">
             <div class="personal-container">
-              <personal-box></personal-box>
-              <personal-text></personal-text>
+              <personal-box
+                :student-id="fundUserProfile.studentId"
+                :campus="userProfile.deptName"
+                :role="userRole"
+                :avatar-url="userProfile.avatar"
+                @avatar-changed="handleUploadAvatar"
+              />
+              <personal-text :role="userRole" :fund-user-info="fundUserProfile" />
             </div>
           </div>
         </el-main>
@@ -122,11 +128,17 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
 import PersonalText from '@/views/Framework/components/PersonalText.vue'
-import Axios from '@/views/Axios'
-import { isLogin } from '@/utils/auth'
+import { authConfig } from '@/config/request.config'
+import { userApi } from '@/api/user.api'
+import { isLoggedIn } from '@/utils/auth'
+import { useUserStore } from '@/stores/userStore'
+import { storeToRefs } from 'pinia'
+const userStore = useUserStore()
+const { roleGroup: userRole, userProfile, fundUserProfile } = storeToRefs(userStore)
+
 const roleMessage = ref('资助对象')
 const router = useRouter()
-const token = localStorage.getItem('token')
+const token = localStorage.getItem(authConfig.tokenKey)
 const role = localStorage.getItem('role')
 const sidebarVisible = ref(true)
 const isMobile = ref(window.innerWidth <= 768)
@@ -141,6 +153,12 @@ const toggleSidebar = () => {
 
 // 登录状态判断，否则跳转登录页
 onMounted(async () => {
+  const res = await isLoggedIn()
+  if (!res) {
+    router.push('/')
+    return
+  }
+  await userStore.getProfile()
 })
 const handleMenuClick = (page: string) => {
   if (page === 'superMarket') {
@@ -151,26 +169,24 @@ const handleMenuClick = (page: string) => {
   else if (page === 'superMarketManage') router.push('/manage')
 }
 
-const handleBeforeClose = (done: Function) => {
-  done()
+const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
+  userStore.updateAvatar(payload.file)
 }
 
 // 退出登录处理函数
 const handleLogout = async () => {
   try {
-    const response = await Axios.post('http://59.110.62.188:8080/auth/logout', {})
-    if (response.data.code === 200) {
+    const { code, message: msg } = await userApi.logout()
+    if (code === 200) {
       ElMessage.success('退出成功！')
       outerVisible.value = false
-      localStorage.removeItem('token')
-      localStorage.removeItem('role')
-      localStorage.removeItem('client_id')
+      userStore.logout()
       setTimeout(() => {
         router.push('/')
         outerVisible.value = false
       }, 500)
     } else {
-      ElMessage.error(response.data.msg + '!')
+      ElMessage.error(msg + '!')
     }
   } catch (error) {
     ElMessage.error('请求失败！')
@@ -344,8 +360,9 @@ const handleLogout = async () => {
 }
 
 .personal-container {
+  width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 10px;
 }
 

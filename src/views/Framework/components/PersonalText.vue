@@ -1,15 +1,22 @@
 <template>
-  <div class="tab-contain">
+  <div class="tab-container">
     <el-tabs v-model="activeTab" class="custom-tabs" type="card">
-      <el-tab-pane v-if="role === '资助对象'" label="基本信息" name="tab1">
+      <el-tab-pane v-if="role === '资助对象'" label="基本信息" name="profile">
+        <h2>
+          <font-awesome-icon icon="fa-solid fa-user-graduate" style="color: #2d4059" />
+          学生信息
+        </h2>
         <div class="text-content">
-          <information-form></information-form>
+          <information-form v-model="studentInfo" />
         </div>
       </el-tab-pane>
-
-      <el-tab-pane label="修改密码" name="tab2">
+      <el-tab-pane label="修改密码" name="account">
+        <h2>
+          <font-awesome-icon icon="fa-solid fa-key" style="color: #2d4059" />
+          修改密码
+        </h2>
         <div class="text-content">
-          <password-form></password-form>
+          <password-form />
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -17,98 +24,156 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import InformationForm from "./InformationForm.vue";
-import PasswordForm from "./PasswordForm.vue";
+import { onMounted, ref } from 'vue'
+import InformationForm from './InformationForm.vue'
+import PasswordForm from './PasswordForm.vue'
+import type { FundUserInfo } from '@/api/user.api'
 
-// const props = defineProps({
-//   message: String
-// })
-// const role = ref(props.message)
-const role = localStorage.getItem("role");
-const activeTab = ref(role === "资助对象" ? "tab1" : "tab2");
-// watch(() => props.message, (newMessage) => {
-//   role.value = newMessage
-//   activeTab.value = role.value === '资助对象' ? 'tab1' : 'tab2'
-// })
+const studentInfo = defineModel('fundUserInfo', {
+  default: {} as FundUserInfo,
+  required: false,
+})
+const role = defineModel('role', {
+  default: '' as string,
+  required: false,
+})
+
+const activeTab = ref('profile')
 </script>
-
-<style scoped>
-/* Tab 整体容器 */
-.tab-contain {
-  max-width: 51vw;
-  margin: 0vw 1.5vw;
-  margin-left: 1vw;
-  padding: 1.6vw;
-  background-color: white;
-  /* background-color:red; */
-  z-index: 100;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  height: 77vh;
+<style scoped lang="scss">
+/* 标题样式 */
+h2 {
+  position: relative;
+  grid-column: span 2;
+  text-align: center;
+  font-size: 2.1vw;
+  color: #2d4059;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+h2:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, #3498db, #2ecc71);
+  border-radius: 2px;
 }
 
-/* 自定义 Tab 栏样式 */
-:deep(.custom-tabs .el-tabs__header) {
-  padding: 0.4vw;
-  padding-bottom: 0vw;
-  height: 5vh;
-  border-bottom: 1px solid #ccc;
-}
+.tab-container {
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 
-:deep(.custom-tabs .el-tabs__item) {
-  font-weight: bold;
-  color: #000;
-  /* padding: 0.9vw 1.5vw; */
-  background-color: transparent;
-  transition: all 0.3s ease;
-  height: 5vh;
-  font-size: 1vw;
-}
+  :deep(.custom-tabs) {
+    .el-tabs__header {
+      margin: 0 0 24px;
+      border-bottom: 2px solid #e2e8f0;
 
-:deep(.custom-tabs .el-tabs__item:hover) {
-  background-color: rgba(0, 123, 255, 0.1);
-  cursor: pointer;
-}
+      .el-tabs__nav {
+        border: none;
+        border-radius: 12px 12px 0 0;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
 
-:deep(.custom-tabs .el-tabs__item.is-active) {
-  background-color: #5ab2ecf7;
-  color: #fff;
-}
+      .el-tabs__item {
+        position: relative;
+        padding: 16px 32px;
+        height: auto;
+        font-size: 15px;
+        font-weight: 500;
+        color: #64748b;
+        background: #ffffff;
+        border: none;
+        border-right: 1px solid #f1f5f9;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-:deep(.custom-tabs .el-tabs__nav) {
-  border-bottom: none;
-}
+        &:hover {
+          color: #3b82f6;
+          background: #f8fafc;
+        }
 
-/* Tab 内容区样式 */
-.text-content {
-  border-radius: 10px;
-  margin-top: 2vh;
-  height: 68vh;
-  width: 45vw;
-}
-@media (max-width: 768px) {
-  .tab-contain {
-    max-width: 100%;
-    padding: 0.2rem;
-    height: auto;
-    margin: 0;
-    margin-left: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
+        &.is-active {
+          color: #3b82f6;
+          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+          font-weight: 600;
+          box-shadow: inset 0 -3px 0 #3b82f6;
 
-  :deep(.custom-tabs .el-tabs__header) {
-    height: 40px;
-  }
+          &:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 2px 2px 0 0;
+          }
+        }
 
-  :deep(.custom-tabs .el-tabs__item) {
-    font-size: 12px;
-    height: 40px;
+        &:last-child {
+          border-right: none;
+        }
+      }
+
+      .el-tabs__active-bar {
+        display: none; // 使用自定义样式
+      }
+    }
+
+    .el-tabs__content {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.05),
+        0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow:
+          0 6px 25px rgba(0, 0, 0, 0.08),
+          0 2px 6px rgba(0, 0, 0, 0.12);
+      }
+    }
   }
 
   .text-content {
-    height: auto;
+    animation: fadeIn 0.5s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .tab-container {
+    padding: 16px;
+
+    :deep(.custom-tabs) {
+      .el-tabs__header {
+        .el-tabs__item {
+          padding: 12px 20px;
+          font-size: 14px;
+        }
+      }
+
+      .el-tabs__content {
+        padding: 20px;
+      }
+    }
   }
 }
 </style>

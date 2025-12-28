@@ -1,12 +1,12 @@
 <template>
-  <div :class="isMobile ? 'container mobile-bg' : 'container pc-bg'">
+  <div :class="ruleForm.isMobile ? 'container mobile-bg' : 'container pc-bg'">
     <el-form
       ref="ruleFormRef"
       :model="ruleForm"
       :rules="rules"
       label-position="top"
       class="login-form"
-      :class="isMobile ? 'form-mobile' : 'form-pc'"
+      :class="ruleForm.isMobile ? 'form-mobile' : 'form-pc'"
     >
       <h1 class="login-title">资助统一身份认证</h1>
       <el-form-item prop="username">
@@ -14,7 +14,7 @@
           v-model="ruleForm.username"
           placeholder="学号/账号"
           :prefix-icon="User"
-          :size="isMobile ? 'default' : 'large'"
+          :size="ruleForm.isMobile ? 'default' : 'large'"
           clearable
           autocomplete="username"
         />
@@ -25,7 +25,7 @@
           placeholder="密码"
           :prefix-icon="Unlock"
           show-password
-          :size="isMobile ? 'default' : 'large'"
+          :size="ruleForm.isMobile ? 'default' : 'large'"
           clearable
           autocomplete="current-password"
         />
@@ -34,7 +34,7 @@
         <el-checkbox
           v-model="ruleForm.rememberMe"
           label="记住密码"
-          :size="isMobile ? 'default' : 'large'"
+          :size="ruleForm.isMobile ? 'default' : 'large'"
           fill="#f5f5f5"
         />
       </el-form-item>
@@ -42,7 +42,7 @@
         <el-button
           class="log"
           type="primary"
-          :size="isMobile ? 'default' : 'large'"
+          :size="ruleForm.isMobile ? 'default' : 'large'"
           style="width: 100%"
           :loading="loading"
           @click="submitForm"
@@ -59,16 +59,16 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Unlock } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 
 const router = useRouter()
 
 const userStore = useUserStore()
 
-const isMobile = ref(false)
 const ruleFormRef = ref<FormInstance>()
 
-const { loading, ruleForm, detectDeviceType } = userStore
-
+const { loginBtnLoading: loading, ruleForm } = storeToRefs(userStore)
+const { login, detectDeviceType } = userStore
 onMounted(async () => {
   detectDeviceType()
   window.addEventListener('resize', detectDeviceType)
@@ -90,7 +90,7 @@ const submitForm = async () => {
   if (!ruleFormRef.value) return
   await ruleFormRef.value.validate(async (valid) => {
     if (!valid) return
-    const { success, message } = await userStore.login()
+    const { success, message } = await login()
     if (success) {
       ElMessage.success('登录成功')
       router.push('/framework')

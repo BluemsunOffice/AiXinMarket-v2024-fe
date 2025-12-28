@@ -17,11 +17,16 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-regular-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/vue-fontawesome": "^3.1.2",
     "amfe-flexible": "^2.2.1",
     "axios": "^1.13.2",
     "element-plus": "^2.13.0",
     "pinia": "^2.3.1",
     "postcss-pxtorem": "^6.1.0",
+    "sass": "^1.97.1",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },

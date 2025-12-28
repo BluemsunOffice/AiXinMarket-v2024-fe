@@ -1,319 +1,404 @@
 <template>
-  <div class="password-form-container">
-    <div class="form-title">修改密码</div>
+  <div class="password-container">
+    <div class="password-header">
+      <p class="subtitle">为了账户安全，请定期更新密码</p>
+    </div>
 
-    <el-form :model="form" :rules="rules" ref="formRef" label-width="10vw" class="password-form">
-      <el-form-item label="旧密码" prop="oldPassword">
-        <template #label>
-          <span class="required-label">旧密码</span>
-        </template>
+    <el-form
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      @submit.prevent="handleSave"
+      class="password-form"
+      label-width="100px"
+    >
+      <el-form-item label="旧密码" prop="oldPassword" class="form-item">
         <el-input
           v-model="form.oldPassword"
-          :type="passwordTypes.oldPassword"
-          placeholder="请输入旧密码"
+          :type="showPassword.old ? 'text' : 'password'"
+          placeholder="请输入当前密码"
+          size="large"
         >
+          <template #prefix>
+            <el-icon><Lock /></el-icon>
+          </template>
           <template #append>
-            <el-icon @click="togglePasswordType('oldPassword')">
-              <View v-if="passwordTypes.oldPassword === 'text'" />
-              <Hide v-if="passwordTypes.oldPassword === 'password'" />
-            </el-icon>
+            <el-button
+              :icon="showPassword.old ? View : Hide"
+              @click="showPassword.old = !showPassword.old"
+              class="pwd-toggle"
+              link
+            />
           </template>
         </el-input>
       </el-form-item>
 
-      <el-form-item label="新密码" prop="newPassword">
-        <template #label>
-          <span class="required-label">新密码</span>
-        </template>
+      <el-form-item label="新密码" prop="newPassword" class="form-item">
         <el-input
           v-model="form.newPassword"
-          :type="passwordTypes.newPassword"
-          placeholder="长度应为5-20位"
+          :type="showPassword.new ? 'text' : 'password'"
+          placeholder="5-20位字符"
+          size="large"
+          @input="checkPasswordRules"
         >
+          <template #prefix>
+            <el-icon><Key /></el-icon>
+          </template>
           <template #append>
-            <el-icon @click="togglePasswordType('newPassword')">
-              <View v-if="passwordTypes.newPassword === 'text'" />
-              <Hide v-if="passwordTypes.newPassword === 'password'" />
-            </el-icon>
+            <el-button
+              :icon="showPassword.new ? View : Hide"
+              @click="showPassword.new = !showPassword.new"
+              class="pwd-toggle"
+              link
+            />
           </template>
         </el-input>
+
+        <div class="password-rules" v-if="form.newPassword">
+          <div class="rule-item" :class="{ 'rule-pass': rulesPass.length }">
+            <el-icon :size="12">
+              <Check v-if="rulesPass.length" />
+              <Close v-else />
+            </el-icon>
+            长度5-20位
+          </div>
+        </div>
       </el-form-item>
 
-      <el-form-item label="确认新密码" prop="confirmPassword">
-        <template #label>
-          <span class="required-label">确认新密码</span>
-        </template>
+      <el-form-item label="确认密码" prop="confirmPassword" class="form-item">
         <el-input
           v-model="form.confirmPassword"
-          :type="passwordTypes.confirmPassword"
-          placeholder="长度应为5-20位"
+          :type="showPassword.confirm ? 'text' : 'password'"
+          placeholder="请再次输入新密码"
+          size="large"
         >
+          <template #prefix>
+            <el-icon><Check /></el-icon>
+          </template>
           <template #append>
-            <el-icon @click="togglePasswordType('confirmPassword')">
-              <View v-if="passwordTypes.confirmPassword === 'text'" />
-              <Hide v-if="passwordTypes.confirmPassword === 'password'" />
-            </el-icon>
+            <el-button
+              :icon="showPassword.confirm ? View : Hide"
+              @click="showPassword.confirm = !showPassword.confirm"
+              class="pwd-toggle"
+              link
+            />
           </template>
         </el-input>
+
+        <div v-if="form.confirmPassword && form.newPassword" class="match-status">
+          <el-icon :size="14" :color="isPasswordMatch ? '#67c23a' : '#f56c6c'">
+            <Check v-if="isPasswordMatch" />
+            <Close v-else />
+          </el-icon>
+          <span :class="{ 'match-success': isPasswordMatch, 'match-error': !isPasswordMatch }">
+            {{ isPasswordMatch ? '密码一致' : '密码不一致' }}
+          </span>
+        </div>
       </el-form-item>
 
-      <el-form-item class="button-group">
-        <el-button type="primary" class="save-button" @click="handleSave">保存</el-button>
-        <el-button type="danger" class="close-button" @click="handleClose">重置</el-button>
+      <el-form-item class="form-actions">
+        <el-button
+          type="primary"
+          size="large"
+          @click="handleSave"
+          :loading="loading"
+          class="save-btn"
+        >
+          保存修改
+        </el-button>
+        <el-button
+          size="large"
+          @click="handleReset"
+          class="reset-btn"
+        >
+          重置
+        </el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { ElForm, ElFormItem, ElInput, ElButton, ElIcon, ElMessage } from 'element-plus'
-import { View, Hide } from '@element-plus/icons-vue'
+import { ref, reactive, computed } from 'vue'
+import {
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElButton,
+  ElIcon,
+  ElMessage,
+  type FormInstance
+} from 'element-plus'
+import {
+  Lock,
+  Key,
+  Check,
+  Close,
+  View,
+  Hide
+} from '@element-plus/icons-vue'
 import axios from 'axios'
-import Axios from 'axios'
 
-// 获取对表单的引用
-const formRef = ref(null)
+const formRef = ref<FormInstance>()
+const loading = ref(false)
 
-// 表单数据
-const form = ref({
+const form = reactive({
   oldPassword: '',
   newPassword: '',
-  confirmPassword: '',
+  confirmPassword: ''
 })
 
-// 密码类型状态
-const passwordTypes = ref({
-  oldPassword: 'password',
-  newPassword: 'password',
-  confirmPassword: 'password',
+const showPassword = reactive({
+  old: false,
+  new: false,
+  confirm: false
 })
 
-// 切换密码类型
-const togglePasswordType = (passwordType) => {
-  passwordTypes.value[passwordType] =
-    passwordTypes.value[passwordType] === 'password' ? 'text' : 'password'
+const rulesPass = reactive({
+  length: false
+})
+
+const isPasswordMatch = computed(() => {
+  return form.confirmPassword && form.newPassword &&
+         form.confirmPassword === form.newPassword
+})
+
+const checkPasswordRules = () => {
+  rulesPass.length = form.newPassword.length >= 5 && form.newPassword.length <= 20
 }
 
-// 确认新密码验证
-const confirmPasswordValidator = (rule, value, callback) => {
-  if (value !== form.value.newPassword) {
-    callback(new Error('两次输入的新密码不一致'))
+const confirmPasswordValidator = (rule: any, value: string, callback: any) => {
+  if (!value) {
+    callback(new Error('请确认新密码'))
+  } else if (value !== form.newPassword) {
+    callback(new Error('两次输入的密码不一致'))
   } else {
     callback()
   }
 }
 
-// 表单验证规则
-const rules = ref({
-  oldPassword: [{ required: true, message: '旧密码不能为空', trigger: 'blur' }],
-  newPassword: [{ required: true, message: '新密码不能为空', trigger: 'blur' }],
-  confirmPassword: [
-    { required: true, message: '请确认新密码', trigger: 'blur' },
-    { validator: confirmPasswordValidator, trigger: 'blur' },
+const newPasswordValidator = (rule: any, value: string, callback: any) => {
+  if (!value) {
+    callback(new Error('新密码不能为空'))
+  } else if (value.length < 5 || value.length > 20) {
+    callback(new Error('密码长度应为5-20位'))
+  } else if (value === form.oldPassword) {
+    callback(new Error('新密码不能与旧密码相同'))
+  } else {
+    callback()
+  }
+}
+
+const rules = {
+  oldPassword: [
+    { required: true, message: '请输入旧密码', trigger: 'blur' }
   ],
-})
-// 重置密码
-const resetPassword = async (oldPassword, newPassword) => {
+  newPassword: [
+    { required: true, validator: newPasswordValidator, trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, validator: confirmPasswordValidator, trigger: 'blur' }
+  ]
+}
+
+const resetPassword = async (oldPassword: string, newPassword: string) => {
   try {
-    const token = localStorage.getItem('token')
-    const clientid = localStorage.getItem('client_id')
+    loading.value = true
+
+    const token = localStorage.getItem('token') || ''
+    const clientid = localStorage.getItem('client_id') || ''
+
     const response = await axios.put(
       'http://59.110.62.188:8080/system/user/profile/updatePwd',
-      JSON.stringify({
+      {
         oldPassword,
-        newPassword,
-      }),
+        newPassword
+      },
       {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          clientid: clientid,
-        },
-      },
+          'Authorization': `Bearer ${token}`,
+          'clientid': clientid
+        }
+      }
     )
 
     if (response.data.code === 200) {
-      ElMessage.success('密码重置成功！')
-
-      form.value.oldPassword = ''
-      form.value.newPassword = ''
-      form.value.confirmPassword = ''
+      ElMessage.success('密码修改成功')
+      handleReset()
     } else {
-      ElMessage.error(response.data.msg + '!')
+      ElMessage.error(response.data.msg || '密码修改失败')
     }
-  } catch (error) {
-    console.error('请求错误', error)
-    ElMessage.error('密码重置请求失败')
+  } catch (error: any) {
+    console.error('请求错误:', error)
+
+    let errorMessage = '密码修改失败'
+    if (error.response) {
+      if (error.response.status === 401) {
+        errorMessage = '登录已过期'
+      } else if (error.response.data?.msg) {
+        errorMessage = error.response.data.msg
+      }
+    }
+
+    ElMessage.error(errorMessage)
+  } finally {
+    loading.value = false
   }
 }
 
-// 保存操作
 const handleSave = async () => {
+  if (!formRef.value) return
+
   try {
     await formRef.value.validate()
-    await resetPassword(form.value.oldPassword, form.value.newPassword)
+    await resetPassword(form.oldPassword, form.newPassword)
   } catch (error) {
-    console.error('表单验证失败', error)
+    // 验证失败
   }
 }
 
-// 关闭操作
-const handleClose = () => {
-  form.value.oldPassword = ''
-  form.value.newPassword = ''
-  form.value.confirmPassword = ''
+const handleReset = () => {
+  form.oldPassword = ''
+  form.newPassword = ''
+  form.confirmPassword = ''
+
+  showPassword.old = false
+  showPassword.new = false
+  showPassword.confirm = false
+
+  rulesPass.length = false
+
+  formRef.value?.clearValidate()
 }
 </script>
 
 <style scoped>
-.password-form-container {
+.password-container {
   width: 100%;
-  padding-top: 4.5vh;
-  margin: 0px auto;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.form-title {
-  font-size: 2.1vw;
-  font-weight: bold;
+.password-header {
+  margin-bottom: 30px;
   text-align: center;
-  margin-bottom: 4vh;
-  color: #2d4059;
+}
+
+.password-header .subtitle {
+  font-size: 14px;
+  color: #909399;
+  margin: 0;
 }
 
 .password-form {
-  background-color: white;
-  padding: 3vh 0vw;
-  padding-right: 5vw;
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
 }
 
-.el-form-item {
-  margin-bottom: 4vh;
-}
-.required-label {
-  line-height: 5.5vh;
-  font-size: 2vh;
-}
-.el-input {
-  width: 100%;
-  height: 5.5vh;
-  font-size: 2vh;
-  border-radius: 20%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.form-item {
+  margin-bottom: 24px;
 }
 
-.el-input:focus {
-  box-shadow: 0 0 5px 2px rgba(72, 128, 239, 0.5);
+.form-item :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #606266;
+}
+
+.pwd-toggle {
+  padding: 0 12px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-rules {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rule-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #f56c6c;
+}
+
+.rule-item.rule-pass {
+  color: #67c23a;
+}
+
+.rule-item .el-icon {
+  flex-shrink: 0;
+}
+
+.match-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.match-success {
+  color: #67c23a;
+}
+
+.match-error {
+  color: #f56c6c;
+}
+
+.form-actions {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.form-actions .el-button {
+  min-width: 120px;
+}
+
+.save-btn {
+  background-color: #409eff;
   border-color: #409eff;
 }
 
-.el-button {
-  width: 4vw;
-  height: 2.3vw;
-  font-size: 1vw;
-  font-weight: 700;
-  border-radius: 8px;
-  margin-right: 4%;
+.save-btn:hover {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
 }
 
-.el-button--primary {
-  background-color: #5ab2ecf7;
-  border: none;
-  color: white;
+.reset-btn {
+  margin-left: 16px;
 }
 
-.el-button--danger {
-  background-color: #e23e57;
-  border: none;
-  color: white;
-}
-
-.el-button:hover {
-  opacity: 0.9;
-}
-
-.el-button:active {
-  opacity: 0.8;
-}
-
-.el-form-item .el-input__inner {
-  border-radius: 8px;
-  font-size: 1.1vw;
-}
-
-.el-form-item.is-error .el-input__inner {
-  border-color: #f56c6c;
-}
-
-:deep(.el-form-item__error) {
-  font-size: 0.85vw;
-}
-
-.el-form-item label {
-  font-weight: 500;
-}
-
-.button-group {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1.6vh;
-  width: 55%;
-}
-
-:deep(.el-icon) {
-  cursor: pointer;
-  font-size: 1.3vw;
-}
-@media screen and (max-width: 768px) {
-  .password-form-container {
-    width: 180%;
-    padding-top: 0;
-  }
-  .form-title {
-    font-size: 4vw;
-    margin-bottom: 2vh;
+@media (max-width: 768px) {
+  .password-container {
+    padding: 16px;
   }
 
   .password-form {
-    padding: 0vw;
+    padding: 20px;
   }
 
-  .el-input {
-    font-size: 4vw;
-    height: 6vh;
+  .password-header .title {
+    font-size: 20px;
   }
 
-  .el-button {
-    width: 30vw;
-    height: 6vh;
-    font-size: 4vw;
-  }
-
-  .button-group {
-    width: 100%;
+  .form-actions {
+    display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 12px;
   }
 
-  .button-group .el-button {
-    margin-bottom: 0vw;
-    width: 40%;
-  }
-
-  .required-label {
-    font-size: 3.5vw;
-  }
-
-  :deep(.el-icon) {
-    font-size: 5vw;
-  }
-
-  :deep(.el-form-item__error) {
-    font-size: 3vw;
-  }
-  :deep(.el-form-item__label) {
-    font-size: 3vw;
-    flex: 0.3 0 auto;
+  .form-actions .el-button {
+    width: 100%;
+    margin-left: 0 !important;
   }
 }
 </style>

@@ -2,8 +2,10 @@
 
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
-import axios from 'axios'
-import { isLogin } from '@/utils/auth'
+import { userApi, type FundUserInfo, type User } from '@/api/user.api'
+import { authConfig } from '@/config/request.config'
+import { getClientId } from '@/utils/device'
+import { isLoggedIn } from '@/utils/auth'
 
 interface LoginParams {
   isMobile: boolean
@@ -17,9 +19,8 @@ interface LoginParams {
 
 
 export const useUserStore = defineStore('user', () => {
-  const loading = ref(false)
-
-  const token = ref<string>(localStorage.getItem('token') || '')
+  const loginBtnLoading = ref(false)
+  const authToken = ref<string>(localStorage.getItem(authConfig.tokenKey) || '')
   const role = ref<string>(localStorage.getItem('role') || '')
   const ruleForm = reactive<LoginParams>({
     tenantId: '000000',
@@ -29,17 +30,19 @@ export const useUserStore = defineStore('user', () => {
     rememberMe: false,
     grantType: 'password',
   })
+  const userProfile = ref<User>({} as User);
+  const fundUserProfile = ref<FundUserInfo>({} as FundUserInfo);
+  const roleGroup = ref<string>();
+
   const initLoginState = async () => {
     initRemember()
-    const isLoggedIn = await isLogin()
-    if (!isLoggedIn) {
-      localStorage.removeItem('role')
-      localStorage.removeItem('token')
+    if (!isLoggedIn()) {
+      localStorage.removeItem(authConfig.tokenKey)
     }
   }
   const detectDeviceType = () => {
     ruleForm.isMobile = (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600)
-    setClientId(ruleForm.isMobile)
+    setClientId()
   }
 
   // 初始化记住密码
@@ -53,12 +56,10 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  const setClientId = (isMobile: boolean) => {
-    const id = isMobile
-      ? '428a8310cd442757ae699df5d894f051'
-      : 'e5cd7e4891bf95d1d19206ce24a7b32e'
+  const setClientId = () => {
+    const id = getClientId()
     ruleForm.clientId = id
-    localStorage.setItem('client_id', id)
+    localStorage.setItem(authConfig.clientIdKey, id)
   }
 
   const setRememberMe = () => {
@@ -74,29 +75,17 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const login = async () => {
-    loading.value = true
-    setClientId(ruleForm.isMobile)
-
-    const config = {
-      headers: {
-        'content-language': 'zh_CN',
-      },
-    }
-
+    loginBtnLoading.value = true
+    setClientId()
     try {
-      const response = await axios.post(
-        'http://59.110.62.188:8080/auth/login',
-        ruleForm,
-        config
-      )
-
-      if (response.data.code === 200) {
-        token.value = response.data.data.access_token || ''
-        role.value = response.data.data.roles[0].roleName || ''
-        localStorage.setItem('token', token.value)
-        localStorage.setItem('role', role.value)
-
-        setRememberMe()
+      const { code, data, message: msg } = await userApi.login(ruleForm)
+      if (code === 200) {
+        authToken.value = data.access_token || ''
+        role.value = data.roles[0].roleName || ''
+        localStorage.setItem(authConfig.tokenKey, authToken.value)
+        setRememberMe();
+        // 获取用户信息
+        await getProfile();
 
         return Promise.resolve({
           success: true,
@@ -105,7 +94,7 @@ export const useUserStore = defineStore('user', () => {
       } else {
         return Promise.reject({
           success: false,
-          messagge: response.data.msg
+          messagge: msg
         })
       }
     } catch (error) {
@@ -114,26 +103,53 @@ export const useUserStore = defineStore('user', () => {
         message: error
       })
     } finally {
-      loading.value = false
+      loginBtnLoading.value = false
     }
   }
 
+  const getProfile = async () => {
+    try {
+      const { code, data } = await userApi.getCurrentUser()
+      if (code === 200) {
+        userProfile.value = data.user;
+        fundUserProfile.value = data.fundUserInfo;
+        roleGroup.value = data.roleGroup;
+      }
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error)
+    }
+  }
+
+  const updateAvatar = async (file: File) => {
+    return userApi.uploadAvatar(file).then(({ code, data: { imgUrl: string } }) => {
+      if (code === 200) {
+        userProfile.value.avatar = data.imgUrl;
+      }
+    })
+  }
+
   const logout = () => {
-    token.value = ''
+    authToken.value = ''
     role.value = ''
-    localStorage.removeItem('token')
+    localStorage.removeItem(authConfig.tokenKey)
     localStorage.removeItem('role')
   }
 
   return {
-    loading,
-    token,
+    loginBtnLoading,
+    authToken,
     role,
     ruleForm,
+    userProfile,
+    fundUserProfile,
+    roleGroup,
+
     login,
     logout,
     setClientId,
     detectDeviceType,
     initLoginState,
+    getProfile,
+    updateAvatar
   }
 })

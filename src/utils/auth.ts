@@ -1,26 +1,48 @@
 
-import axios from 'axios';
+import { authConfig } from '@/config/request.config';
+import { userApi } from '@/api/user.api';
 
-export async function isLogin() {
+/**
+ * 保存认证令牌
+ */
+export function saveAuthToken(token: string): void {
   try {
-    const res = await axios.get('http://59.110.62.188:8080/auth/isLogin');
-    console.log('isLogin status:', res);
-
-    // 判断登录状态
-    if (res.data.code === 200) {
-      console.log('用户已登录');
-      return true; // 已登录
-    } else {
-      console.log('用户未登录');
-      return false; // 未登录
-    }
+    localStorage.setItem(authConfig.tokenKey, token);
   } catch (error) {
-    console.log('请求出错:', error);
-    return false; // 默认视为未登录
+    console.error('Failed to save auth token:', error);
   }
 }
 
-export function isLoggedIn() {
-  const token = localStorage.getItem('token'); // 从 localStorage 中获取 token
-  return !!token; // 如果 token 存在且有效，返回 true
+/**
+ * 获取认证令牌
+ */
+export function getAuthToken(): string | null {
+  try {
+    return localStorage.getItem(authConfig.tokenKey);
+  } catch (error) {
+    console.error('Failed to get auth token:', error);
+    return null;
+  }
+}
+
+/**
+ * 清除认证信息
+ */
+export function clearAuth(): void {
+  try {
+    localStorage.removeItem(authConfig.tokenKey);
+  } catch (error) {
+    console.error('Failed to clear auth:', error);
+  }
+}
+
+/**
+ * 检查是否已登录
+ */
+export async function isLoggedIn(): Promise<boolean> {
+  if(!getAuthToken()) {
+    return false;
+  }
+  const { code } = await userApi.isLogin();
+  return code === 200;
 }

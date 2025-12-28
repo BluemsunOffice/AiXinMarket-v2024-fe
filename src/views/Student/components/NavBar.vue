@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Axios from "@/views/Axios";
 import { ref } from "vue";
 import { ElMessage } from "element-plus";
