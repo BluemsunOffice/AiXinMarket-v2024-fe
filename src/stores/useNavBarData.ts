@@ -1,6 +1,5 @@
 // useNavBarData.ts
 import { ref, onMounted } from 'vue';
-import Axios from '../views/Axios/index'
 export function useNavBarData(token: string) {
   const generalBalance = ref(0);
   const clothingBalance = ref(0);

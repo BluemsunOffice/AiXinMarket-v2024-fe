@@ -18,33 +18,20 @@
         >
           <span class="hello"> 爱心超市 </span>
           <div class="divider"></div>
-          <li
-            :class="{ active: activeIndex === 0 }"
-            @click="navigateToIndex(0)"
-          >
+          <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)">
             <span class="iconfont icon-shouye"></span> 首页
           </li>
-          <li
-            :class="{ active: activeIndex === 1 }"
-            @click="navigateToIndex(1)"
-          >
+          <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)">
             <span class="iconfont icon-icon-test1"></span> 购物车
           </li>
-          <li
-            :class="{ active: activeIndex === 2 }"
-            @click="navigateToIndex(2)"
-          >
+          <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)">
             <span class="iconfont icon-icon-test"></span> 订单
           </li>
           <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-qianbao"></span> 日用币：{{
-              generalBalance
-            }}
+            <span class="iconfont icon-qianbao"></span> 日用币：{{ generalBalance }}
           </li>
           <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-yifu"></span> 服饰币：{{
-              clothingBalance
-            }}
+            <span class="iconfont icon-yifu"></span> 服饰币：{{ clothingBalance }}
           </li>
         </div>
       </div>
@@ -53,27 +40,13 @@
         <span>服饰币：{{ clothingBalance }}</span>
       </div>
       <div class="right">
-        <el-button
-          class="logout"
-          type="primary"
-          size="large"
-          @click="centerDialogVisible = true"
+        <el-button class="logout" type="primary" size="large" @click="centerDialogVisible = true"
           >退出登录</el-button
         >
-        <button
-          v-if="isMobile"
-          class="iconfont icon-menu"
-          @click="toggleMenu"
-        ></button>
+        <button v-if="isMobile" class="iconfont icon-menu" @click="toggleMenu"></button>
       </div>
     </div>
-    <el-dialog
-      v-model="centerDialogVisible"
-      title="确认退出吗？"
-      width="370"
-      center
-      align-center
-    >
+    <el-dialog v-model="centerDialogVisible" title="确认退出吗？" width="370" center align-center>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="centerDialogVisible = false">取消</el-button>
@@ -85,87 +58,82 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, toRefs, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { useNavBarData } from "@/stores/useNavBarData";
-import { ElMessage } from "element-plus";
-import axios from "axios";
-import Axios from "@/views/Axios";
+import { ref, reactive, toRefs, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useNavBarData } from '@/stores/useNavBarData'
+import { ElMessage } from 'element-plus'
+import { userApi } from '@/api/user.api'
 
-const router = useRouter();
-const authToken = localStorage.getItem("token");
-const token = `${authToken}`;
-const activeIndex = ref(0);
-const centerDialogVisible = ref(false);
-const role = localStorage.getItem("role");
+const router = useRouter()
+const authToken = localStorage.getItem('token')
+const token = `${authToken}`
+const activeIndex = ref(0)
+const centerDialogVisible = ref(false)
+const role = localStorage.getItem('role')
 
 // 定义 isMobile 和 isMenuVisible
-const isMenuVisible = ref(false);
-const isMobile = ref(false);
+const isMenuVisible = ref(false)
+const isMobile = ref(false)
 
 // 检测是否是移动端
 const checkIfMobile = () => {
-  isMobile.value = window.innerWidth <= 800;
-};
+  isMobile.value = window.innerWidth <= 800
+}
 
 onMounted(() => {
-  checkIfMobile();
-  window.addEventListener("resize", checkIfMobile);
+  checkIfMobile()
+  window.addEventListener('resize', checkIfMobile)
   onMounted(() => {
-    if (!localStorage.getItem("token")) {
-      window.location.href = "http://localhost:5173/";
+    if (!localStorage.getItem('token')) {
+      window.location.href = 'http://localhost:5173/'
     }
-  });
-});
+  })
+})
 
 const toggleMenu = () => {
-  isMenuVisible.value = !isMenuVisible.value;
-};
+  isMenuVisible.value = !isMenuVisible.value
+}
 
 const handleLogout = async () => {
   //退出登录
   try {
-    const response = await Axios.post(
-      "http://59.110.62.188:8080/auth/logout",
-      {}
-    );
-    if (response.data.code === 200) {
-      ElMessage.success("退出成功！");
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("client_id");
+    const { code, message: msg } = await userApi.logout()
+    if (code === 200) {
+      ElMessage.success('退出成功！')
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+      localStorage.removeItem('client_id')
       setTimeout(() => {
-        router.push("/");
-      }, 60);
+        router.push('/')
+      }, 60)
     } else {
-      ElMessage.error(response.data.msg + "!");
+      ElMessage.error(msg + '!')
     }
   } catch (error) {
-    ElMessage.error("请求失败！");
+    ElMessage.error('请求失败！')
   }
-};
+}
 
 // 使用自定义 Hook 获取数据
-const { generalBalance, clothingBalance, campusName, avatarUrl } =
-  useNavBarData(token);
+const { generalBalance, clothingBalance, campusName, avatarUrl } = useNavBarData(token)
 
 // 初始化第一个菜单项为激活状态
 onMounted(() => {
   const pathToIndexMap: Record<string, number> = {
-    "/home": 0,
-    "/cart": 1,
-    "/orderList": 2,
-  };
+    '/home': 0,
+    '/cart': 1,
+    '/orderList': 2,
+  }
 
-  const currentPath = router.currentRoute.value.path;
-  activeIndex.value = pathToIndexMap[currentPath] ?? 0;
-});
+  const currentPath = router.currentRoute.value.path
+  activeIndex.value = pathToIndexMap[currentPath] ?? 0
+})
 
 const navigateToIndex = (index: number) => {
-  activeIndex.value = index; // 更新激活项
-  const path = ["home", "cart", "orderList"][index];
-  router.push(`/${path}`);
-};
+  activeIndex.value = index // 更新激活项
+  const path = ['home', 'cart', 'orderList'][index]
+  router.push(`/${path}`)
+}
 </script>
 
 <style scoped>
@@ -339,7 +307,7 @@ const navigateToIndex = (index: number) => {
   }
 
   .mobile-menu .money-item:first-of-type::before {
-    content: "";
+    content: '';
     position: absolute;
     top: -5px;
     left: 15%;
@@ -379,7 +347,10 @@ const navigateToIndex = (index: number) => {
   height: 85px;
   line-height: 85px;
   text-decoration: none;
-  transition: background-color 0.3s, color 0.3s, border-bottom-color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s,
+    border-bottom-color 0.3s;
 }
 
 .menuList li.active {

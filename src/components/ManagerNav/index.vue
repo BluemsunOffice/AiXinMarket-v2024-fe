@@ -17,27 +17,17 @@
       <div class="header_menu">
         <span class="cloud"></span>
         <ul class="menuList" style="font-family: 黑体">
-          <li
-            :class="{ active: activeIndex === 0 }"
-            @click="navigateToIndex(0)"
-            class=""
-          >
+          <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)" class="">
             <span style="vertical-align: middle; margin-right: 5px"
               ><el-icon :size="22"><Box /></el-icon></span
             >货物管理
           </li>
-          <li
-            :class="{ active: activeIndex === 1 }"
-            @click="navigateToIndex(1)"
-          >
+          <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)">
             <span style="vertical-align: middle; margin-right: 5px"
               ><el-icon :size="22"><ShoppingCartFull /></el-icon></span
             >进货记录
           </li>
-          <li
-            :class="{ active: activeIndex === 2 }"
-            @click="navigateToIndex(2)"
-          >
+          <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)">
             <span style="vertical-align: middle; margin-right: 5px"
               ><el-icon :size="22"><Document /></el-icon></span
             >订单管理
@@ -60,13 +50,7 @@
           </div>
         </el-col>
       </el-row>
-      <el-dialog
-        v-model="centerDialogVisible"
-        title="确认退出吗？"
-        width="370"
-        center
-        align-center
-      >
+      <el-dialog v-model="centerDialogVisible" title="确认退出吗？" width="370" center align-center>
         <template #footer>
           <div class="dialog-footer">
             <el-button
@@ -89,73 +73,69 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, toRefs, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { useNavBarData } from "@/stores/useNavBarData";
-import { Box, ShoppingCartFull, Document } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
-import Axios from "@/views/Axios";
-const router = useRouter();
+import { ref, reactive, toRefs, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useNavBarData } from '@/stores/useNavBarData'
+import { Box, ShoppingCartFull, Document } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { userApi } from '@/api/user.api'
+const router = useRouter()
 
-const authToken = localStorage.getItem("token");
+const authToken = localStorage.getItem('token')
 onMounted(() => {
-  if (!localStorage.getItem("token")) {
-    router.push("/");
+  if (!localStorage.getItem('token')) {
+    router.push('/')
   }
-});
-const token = `${authToken}`;
-const activeIndex = ref(0);
-const centerDialogVisible = ref(false);
+})
+const token = `${authToken}`
+const activeIndex = ref(0)
+const centerDialogVisible = ref(false)
 // 使用自定义 Hook 获取数据
-const { generalBalance, clothingBalance, campusName, avatarUrl } =
-  useNavBarData(token);
+const { generalBalance, clothingBalance, campusName, avatarUrl } = useNavBarData(token)
 
 // 初始化第一个菜单项为激活状态
 onMounted(() => {
   const pathToIndexMap: Record<string, number> = {
-    "/manage": 0,
-    "/record": 1,
-    "/order": 2,
-    "/": 3,
-  };
+    '/manage': 0,
+    '/record': 1,
+    '/order': 2,
+    '/': 3,
+  }
 
   // 修复路径判断：使用 router.currentRoute.value.path
-  const currentPath = router.currentRoute.value.path;
-  activeIndex.value = pathToIndexMap[currentPath] ?? 0;
-});
+  const currentPath = router.currentRoute.value.path
+  activeIndex.value = pathToIndexMap[currentPath] ?? 0
+})
 
 const navigateToIndex = (index: number) => {
-  activeIndex.value = index; // 更新激活项
+  activeIndex.value = index // 更新激活项
   // 根据索引跳转到相应的路由
-  const path = ["manage", "record", "order", "/"][index];
-  router.push(`/${path}`);
-};
-const role = localStorage.getItem("role");
+  const path = ['manage', 'record', 'order', '/'][index]
+  router.push(`/${path}`)
+}
+const role = localStorage.getItem('role')
 const handleLogout = async () => {
-  console.log("退出登录");
+  console.log('退出登录')
   try {
-    const response = await Axios.post(
-      "http://59.110.62.188:8080/auth/logout",
-      {}
-    );
-    if (response.data.code === 200) {
-      ElMessage.success("退出成功！");
+    const { code, message: msg } = await userApi.logout()
+    if (code === 200) {
+      ElMessage.success('退出成功！')
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("client_id");
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+      localStorage.removeItem('client_id')
       // 等待2秒跳转到登录
       setTimeout(() => {
         // window.location.href = `http://localhost:5173`
-        navigateToIndex(3);
-      }, 60);
+        navigateToIndex(3)
+      }, 60)
     } else {
-      ElMessage.error(response.data.msg + "!");
+      ElMessage.error(msg + '!')
     }
   } catch (error) {
-    ElMessage.error("请求失败！");
+    ElMessage.error('请求失败！')
   }
-};
+}
 </script>
 <style scoped>
 /* 弹框修改*/
@@ -209,7 +189,10 @@ const handleLogout = async () => {
   display: inline-block;
   padding: 0 3vw;
   text-decoration: none;
-  transition: background-color 0.3s, color 0.3s, border-bottom-color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s,
+    border-bottom-color 0.3s;
   margin: 0 1vw;
 }
 
