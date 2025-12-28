@@ -16,7 +16,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from "vue";
 import InformationForm from "./InformationForm.vue";
 import PasswordForm from "./PasswordForm.vue";

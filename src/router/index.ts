@@ -12,53 +12,54 @@ const router = createRouter({
       name: 'details',
       path: '/details',
       component: () => import('@/views/index/GoodsDetails.vue'),
-      meta: { role: ['Beneficiary'] }
+      meta: { role: ['资助对象'] }
     },
     {
       path: '/cart',
       component: () => import('@/views/ShopCart/index.vue'),
-      meta: { role: ['Beneficiary'] }
+      meta: { role: ['资助对象'] }
     },
     {
       name: 'OrderList',
       path: '/orderList',
       component: () => import('@/views/OrderList/OrderListIndex.vue'),
-      meta: { role: ['Beneficiary'] }
+      meta: { role: ['资助对象'] }
     },
     {//首页
       path: '/home',
       name: 'home',
       component: () => import('@/views/index/index.vue'),
-      meta: { role: ['Beneficiary'] }
+      meta: { role: ['资助对象'] }
     },
     {
       name: 'shopcart',
       path: '/shopcart',
       component: () => import('@/views/ShopCart/index.vue'),
-      meta: { role: ['Beneficiary'] }
+      meta: { role: ['资助对象'] }
     },
     {
       path: '/manage',
       name: 'manage',
       component: () => import('@/views/Manage/index.vue'),
-      meta: { role: ['超市管理员'] }
+      meta: { role: ['MartManager'] }
     },
     {
       path: '/order',
       name: 'order',
       component: () => import('@/views/Order/index.vue'),
-      meta: { role: ['超市管理员'] }
+      meta: { role: ['MartManager'] }
     },
     {
       path: '/record',
       name: 'record',
       component: () => import('@/views/Record/index.vue'),
-      meta: { role: ['超市管理员'] }
+      meta: { role: ['MartManager'] }
     },
     {
       path: '/framework',
       name: 'framework',
       component: () => import('@/views/Framework/index.vue'),
+      meta: { role: ['超市管理员', '资助对象', '老师', '超级管理员'] }
     },
     {
       path: '/new-file',

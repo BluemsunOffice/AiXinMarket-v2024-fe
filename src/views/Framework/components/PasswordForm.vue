@@ -2,13 +2,7 @@
   <div class="password-form-container">
     <div class="form-title">修改密码</div>
 
-    <el-form
-      :model="form"
-      :rules="rules"
-      ref="formRef"
-      label-width="10vw"
-      class="password-form"
-    >
+    <el-form :model="form" :rules="rules" ref="formRef" label-width="10vw" class="password-form">
       <el-form-item label="旧密码" prop="oldPassword">
         <template #label>
           <span class="required-label">旧密码</span>
@@ -64,123 +58,112 @@
       </el-form-item>
 
       <el-form-item class="button-group">
-        <el-button type="primary" class="save-button" @click="handleSave"
-          >保存</el-button
-        >
-        <el-button type="danger" class="close-button" @click="handleClose"
-          >重置</el-button
-        >
+        <el-button type="primary" class="save-button" @click="handleSave">保存</el-button>
+        <el-button type="danger" class="close-button" @click="handleClose">重置</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import {
-  ElForm,
-  ElFormItem,
-  ElInput,
-  ElButton,
-  ElIcon,
-  ElMessage,
-} from "element-plus";
-import { View, Hide } from "@element-plus/icons-vue";
-import axios from "axios";
-import Axios from "axios";
+<script setup lang="ts">
+import { ref } from 'vue'
+import { ElForm, ElFormItem, ElInput, ElButton, ElIcon, ElMessage } from 'element-plus'
+import { View, Hide } from '@element-plus/icons-vue'
+import axios from 'axios'
+import Axios from 'axios'
 
 // 获取对表单的引用
-const formRef = ref(null);
+const formRef = ref(null)
 
 // 表单数据
 const form = ref({
-  oldPassword: "",
-  newPassword: "",
-  confirmPassword: "",
-});
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+})
 
 // 密码类型状态
 const passwordTypes = ref({
-  oldPassword: "password",
-  newPassword: "password",
-  confirmPassword: "password",
-});
+  oldPassword: 'password',
+  newPassword: 'password',
+  confirmPassword: 'password',
+})
 
 // 切换密码类型
 const togglePasswordType = (passwordType) => {
   passwordTypes.value[passwordType] =
-    passwordTypes.value[passwordType] === "password" ? "text" : "password";
-};
+    passwordTypes.value[passwordType] === 'password' ? 'text' : 'password'
+}
 
 // 确认新密码验证
 const confirmPasswordValidator = (rule, value, callback) => {
   if (value !== form.value.newPassword) {
-    callback(new Error("两次输入的新密码不一致"));
+    callback(new Error('两次输入的新密码不一致'))
   } else {
-    callback();
+    callback()
   }
-};
+}
 
 // 表单验证规则
 const rules = ref({
-  oldPassword: [{ required: true, message: "旧密码不能为空", trigger: "blur" }],
-  newPassword: [{ required: true, message: "新密码不能为空", trigger: "blur" }],
+  oldPassword: [{ required: true, message: '旧密码不能为空', trigger: 'blur' }],
+  newPassword: [{ required: true, message: '新密码不能为空', trigger: 'blur' }],
   confirmPassword: [
-    { required: true, message: "请确认新密码", trigger: "blur" },
-    { validator: confirmPasswordValidator, trigger: "blur" },
+    { required: true, message: '请确认新密码', trigger: 'blur' },
+    { validator: confirmPasswordValidator, trigger: 'blur' },
   ],
-});
+})
 // 重置密码
 const resetPassword = async (oldPassword, newPassword) => {
   try {
-    const token = localStorage.getItem("token");
-    const clientid = localStorage.getItem("client_id");
+    const token = localStorage.getItem('token')
+    const clientid = localStorage.getItem('client_id')
     const response = await axios.put(
-      "http://59.110.62.188:8080/system/user/profile/updatePwd",
+      'http://59.110.62.188:8080/system/user/profile/updatePwd',
       JSON.stringify({
         oldPassword,
         newPassword,
       }),
       {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
           clientid: clientid,
         },
-      }
-    );
+      },
+    )
 
     if (response.data.code === 200) {
-      ElMessage.success("密码重置成功！");
+      ElMessage.success('密码重置成功！')
 
-      form.value.oldPassword = "";
-      form.value.newPassword = "";
-      form.value.confirmPassword = "";
+      form.value.oldPassword = ''
+      form.value.newPassword = ''
+      form.value.confirmPassword = ''
     } else {
-      ElMessage.error(response.data.msg + "!");
+      ElMessage.error(response.data.msg + '!')
     }
   } catch (error) {
-    console.error("请求错误", error);
-    ElMessage.error("密码重置请求失败");
+    console.error('请求错误', error)
+    ElMessage.error('密码重置请求失败')
   }
-};
+}
 
 // 保存操作
 const handleSave = async () => {
   try {
-    await formRef.value.validate();
-    await resetPassword(form.value.oldPassword, form.value.newPassword);
+    await formRef.value.validate()
+    await resetPassword(form.value.oldPassword, form.value.newPassword)
   } catch (error) {
-    console.error("表单验证失败", error);
+    console.error('表单验证失败', error)
   }
-};
+}
 
 // 关闭操作
 const handleClose = () => {
-  form.value.oldPassword = "";
-  form.value.newPassword = "";
-  form.value.confirmPassword = "";
-};
+  form.value.oldPassword = ''
+  form.value.newPassword = ''
+  form.value.confirmPassword = ''
+}
 </script>
 
 <style scoped>

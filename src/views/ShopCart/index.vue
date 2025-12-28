@@ -171,7 +171,7 @@ import NavBar from '@/components/NavBar/index.vue'
 import { useCartStore } from '@/stores/cartStore'
 import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
-import isLogin from '@/api/isLogin'
+import { isLogin } from '@/utils/auth'
 import { ElMessage } from 'element-plus'
 
 const cartStore = useCartStore()

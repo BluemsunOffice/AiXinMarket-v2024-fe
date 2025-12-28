@@ -68,7 +68,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { defineEmits } from "vue";
 import { computed } from "vue";
 // 定义父组件传递的事件
 const emit = defineEmits(["roleName"]);

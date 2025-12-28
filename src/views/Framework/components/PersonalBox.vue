@@ -11,11 +11,7 @@
               @mouseleave="isHover = false"
               @click="triggerFileInput"
             >
-              <el-avatar
-                :size="avatarSize"
-                :src="circleUrl"
-                class="avatar-image"
-              />
+              <el-avatar :size="avatarSize" :src="circleUrl" class="avatar-image" />
 
               <div v-if="isHover" class="avatar-overlay">
                 <div class="overlay-text">上传头像</div>
@@ -53,121 +49,116 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import axios from "axios";
-import { onMounted } from "vue";
-import { reactive, toRefs, computed, watch } from "vue";
-import { ElMessage } from "element-plus";
-const avatarSize = ref(100);
+<script setup lang="ts">
+import { ref } from 'vue'
+import axios from 'axios'
+import { onMounted } from 'vue'
+import { reactive, toRefs, computed, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+const avatarSize = ref(100)
 
 const handleResize = () => {
-  const width = window.innerWidth;
+  const width = window.innerWidth
   if (width < 768) {
-    avatarSize.value = 50;
+    avatarSize.value = 50
   } else if (width < 1200) {
-    avatarSize.value = 100;
+    avatarSize.value = 100
   } else {
-    avatarSize.value = 140;
+    avatarSize.value = 140
   }
-};
+}
 
 onMounted(() => {
-  handleResize();
-  window.addEventListener("resize", handleResize);
-});
+  handleResize()
+  window.addEventListener('resize', handleResize)
+})
 
-watch(() => window.innerWidth, handleResize);
+watch(() => window.innerWidth, handleResize)
 
 const state = reactive({
-  circleUrl:
-    "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+  circleUrl: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
   isHover: false,
-});
+})
 
-const { circleUrl, isHover } = toRefs(state);
-const name = ref("");
-const studentId = ref("");
-const deptName = ref("");
-const role = ref("");
+const { circleUrl, isHover } = toRefs(state)
+const name = ref('')
+const studentId = ref('')
+const deptName = ref('')
+const role = ref('')
 
-const token = localStorage.getItem("token");
-const clientid = localStorage.getItem("client_id");
+const token = localStorage.getItem('token')
+const clientid = localStorage.getItem('client_id')
 
 const fetchUserInfo = async () => {
   try {
-    const response = await axios.get(
-      `http://59.110.62.188:8080/system/user/profile`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          clientid: clientid,
-        },
-      }
-    );
+    const response = await axios.get(`http://59.110.62.188:8080/system/user/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        clientid: clientid,
+      },
+    })
 
-    const data = {};
-    data.value = response.data.data.user;
+    const data = {}
+    data.value = response.data.data.user
     circleUrl.value =
-      data.value.avatar ||
-      "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png";
-    name.value = data.value.nickName || "未知";
-    studentId.value = data.value.userName || "未知";
-    deptName.value = data.value.deptName || "未知";
-    role.value = data.value.roles[0].roleName || "未知";
+      data.value.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+    name.value = data.value.nickName || '未知'
+    studentId.value = data.value.userName || '未知'
+    deptName.value = data.value.deptName || '未知'
+    role.value = data.value.roles[0].roleName || '未知'
   } catch (error) {
-    console.error("获取用户信息失败", error);
+    console.error('获取用户信息失败', error)
   }
-};
+}
 
 // 组件挂载时请求数据
 onMounted(() => {
-  fetchUserInfo();
-});
+  fetchUserInfo()
+})
 
 // 上传头像
 const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file && file.type.startsWith("image")) {
-    const reader = new FileReader();
+  const file = event.target.files[0]
+  if (file && file.type.startsWith('image')) {
+    const reader = new FileReader()
     reader.onload = () => {
-      circleUrl.value = reader.result;
-    };
-    reader.readAsDataURL(file);
-    uploadAvatar(file);
+      circleUrl.value = reader.result
+    }
+    reader.readAsDataURL(file)
+    uploadAvatar(file)
   }
-};
+}
 
 // 调用接口上传头像
 const uploadAvatar = async (file) => {
-  const formData = new FormData();
-  formData.append("avatarfile", file);
+  const formData = new FormData()
+  formData.append('avatarfile', file)
 
   try {
     const response = await axios.post(
-      "http://59.110.62.188:8080/system/user/profile/avatar",
+      'http://59.110.62.188:8080/system/user/profile/avatar',
       formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
           clientid: clientid,
         },
-      }
-    );
+      },
+    )
     if (response.data.code === 200) {
-      ElMessage.success("头像上传成功！");
+      ElMessage.success('头像上传成功！')
     } else {
-      ElMessage.error(response.data.msg + "!");
+      ElMessage.error(response.data.msg + '!')
     }
   } catch (error) {
-    ElMessage.error("头像上传请求失败！");
+    ElMessage.error('头像上传请求失败！')
   }
-};
+}
 
 const triggerFileInput = () => {
-  const fileInput = document.querySelector('input[type="file"]');
-  fileInput.click();
-};
+  const fileInput = document.querySelector('input[type="file"]')
+  fileInput.click()
+}
 </script>
 
 <style scoped>
@@ -307,32 +298,26 @@ strong {
 
 /* Iconfont 样式 */
 .icon-studentId::before {
-  content: "\e67e";
+  content: '\e67e';
 }
 .icon-sex::before {
-  content: "\e7f8";
+  content: '\e7f8';
 }
 .icon-deptName::before {
-  content: "\e76c";
+  content: '\e76c';
 }
 .icon-role::before {
-  content: "\e689";
+  content: '\e689';
 }
 .icon-phonenumber::before {
-  content: "\e840";
+  content: '\e840';
 }
 .icon-email::before {
-  content: "\e605";
-}
-@font-face {
-  font-family: "iconfont";
-  src: url("../../assets/iconfont.woff2") format("woff2"),
-    url("../../assets/iconfont.woff") format("woff"),
-    url("../../assets/iconfont.ttf") format("truetype");
+  content: '\e605';
 }
 
+
 .iconfont {
-  font-family: "iconfont" !important;
   font-size: 16px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;

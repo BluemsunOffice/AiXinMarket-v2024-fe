@@ -17,11 +17,7 @@
         class="sidebar"
       >
         <el-scrollbar style="height: 100%">
-          <el-menu
-            :default-active="activeMenu"
-            :default-openeds="['1']"
-            class="sidebar-menu"
-          >
+          <el-menu :default-active="activeMenu" :default-openeds="['1']" class="sidebar-menu">
             <!-- 侧边栏标题 -->
             <div index="0" class="sidebar-title" disabled>{{ role }}-导航</div>
 
@@ -78,12 +74,7 @@
             </el-menu-item>
 
             <!-- 退出登录 -->
-            <el-menu-item
-              index="6"
-              plain
-              @click="outerVisible = true"
-              class="logout-button"
-            >
+            <el-menu-item index="6" plain @click="outerVisible = true" class="logout-button">
               退出登录
             </el-menu-item>
           </el-menu>
@@ -109,22 +100,14 @@
     </el-container>
 
     <!-- 退出登录确认模态框 -->
-    <el-dialog
-      v-model="outerVisible"
-      title=""
-      :before-close="handleBeforeClose"
-    >
+    <el-dialog v-model="outerVisible" title="" :before-close="handleBeforeClose">
       <div class="dialog-content">
         <span>确认退出登录吗？</span>
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="outerVisible = false" class="cancel-btn"
-            >取消</el-button
-          >
-          <el-button type="primary" @click="handleLogout" class="confirm-btn">
-            确认退出
-          </el-button>
+          <el-button @click="outerVisible = false" class="cancel-btn">取消</el-button>
+          <el-button type="primary" @click="handleLogout" class="confirm-btn"> 确认退出 </el-button>
         </div>
       </template>
     </el-dialog>
@@ -132,83 +115,67 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, watch } from "vue";
-import { ElMessage } from "element-plus";
-import axios from "axios";
-import { useRouter } from "vue-router";
-import PersonalBox from "@/views/Framework/components/PersonalBox.vue";
-import PersonalText from "@/views/Framework/components/PersonalText.vue";
-import Axios from "@/views/Axios";
-import isLogin from "@/api/isLogin";
-import { log } from "console";
-const roleMessage = ref("资助对象");
-const router = useRouter();
-const token = localStorage.getItem("token");
-const role = localStorage.getItem("role");
-const sidebarVisible = ref(true);
-const isMobile = ref(window.innerWidth <= 768);
-const outerVisible = ref(false);
-const activeMenu = ref("1");
-const currentPage = ref("personalCenter");
+import { ref, onMounted, computed, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
+import PersonalText from '@/views/Framework/components/PersonalText.vue'
+import Axios from '@/views/Axios'
+import { isLogin } from '@/utils/auth'
+const roleMessage = ref('资助对象')
+const router = useRouter()
+const token = localStorage.getItem('token')
+const role = localStorage.getItem('role')
+const sidebarVisible = ref(true)
+const isMobile = ref(window.innerWidth <= 768)
+const outerVisible = ref(false)
+const activeMenu = ref('1')
+const currentPage = ref('personalCenter')
 
 // 侧边栏
 const toggleSidebar = () => {
-  sidebarVisible.value = !sidebarVisible.value;
-};
+  sidebarVisible.value = !sidebarVisible.value
+}
 
 // 登录状态判断，否则跳转登录页
 onMounted(async () => {
-  //   if (!localStorage.getItem('token')) {
-  //     console.log('未登录')
-  //     router.push('/')
-  // }
-  const isLoggedIn = await isLogin();
-  if (!isLoggedIn) {
-    router.push("/");
-  } else {
-    window.addEventListener("resize", () => {
-      isMobile.value = window.innerWidth <= 768;
-    });
-  }
-});
-// // 点击菜单项时的处理函数
+})
 const handleMenuClick = (page: string) => {
-  if (page === "superMarket") {
-    router.push("/home");
-  } else if (page === "personalProfile") {
-    router.push("/new-file");
-  } else if (page === "studentsProfile") router.push("/studentFiles");
-  else if (page === "superMarketManage") router.push("/manage");
-};
+  if (page === 'superMarket') {
+    router.push('/home')
+  } else if (page === 'personalProfile') {
+    router.push('/new-file')
+  } else if (page === 'studentsProfile') router.push('/studentFiles')
+  else if (page === 'superMarketManage') router.push('/manage')
+}
 
 const handleBeforeClose = (done: Function) => {
-  done();
-};
+  done()
+}
 
 // 退出登录处理函数
 const handleLogout = async () => {
   try {
-    const response = await Axios.post(
-      "http://59.110.62.188:8080/auth/logout",
-      {}
-    );
+    const response = await Axios.post('http://59.110.62.188:8080/auth/logout', {})
     if (response.data.code === 200) {
-      ElMessage.success("退出成功！");
-      outerVisible.value = false;
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("client_id");
+      ElMessage.success('退出成功！')
+      outerVisible.value = false
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
+      localStorage.removeItem('client_id')
       setTimeout(() => {
-        router.push("/");
-        outerVisible.value = false;
-      }, 500);
+        router.push('/')
+        outerVisible.value = false
+      }, 500)
     } else {
-      ElMessage.error(response.data.msg + "!");
+      ElMessage.error(response.data.msg + '!')
     }
   } catch (error) {
-    ElMessage.error("请求失败！");
+    ElMessage.error('请求失败！')
   }
-};
+}
 </script>
 
 <style scoped>
@@ -229,7 +196,7 @@ const handleLogout = async () => {
 
 .title {
   color: #2d4059;
-  font-family: "Arial", sans-serif;
+  font-family: 'Arial', sans-serif;
   font-size: 2vw;
   font-weight: bold;
   margin: 1.3vh auto;
@@ -266,7 +233,9 @@ const handleLogout = async () => {
   color: #bdc3c7;
   padding-left: 1vw;
   background-color: #283142;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* 侧边栏菜单项 hover */
@@ -288,7 +257,9 @@ const handleLogout = async () => {
   color: #e74c3c;
   padding-left: 2vw;
   background-color: #283142;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .logout-button:hover {

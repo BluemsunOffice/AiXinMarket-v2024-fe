@@ -6,112 +6,77 @@
       :rules="rules"
       label-position="top"
       class="login-form"
+      :class="isMobile ? 'form-mobile' : 'form-pc'"
     >
-      <div :class="isMobile ? 'form-mobile' : 'form-pc'">
-        <h1 class="login-title">资助统一身份认证</h1>
-        <el-form-item prop="uname">
-          <el-input
-            v-model="ruleForm.uname"
-            placeholder="学号/账号"
-            :prefix-icon="User"
-            :size="isMobile ? 'default' : 'large'"
-            clearable
-            autocomplete="username"
-          />
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input
-            v-model="ruleForm.password"
-            placeholder="密码"
-            :prefix-icon="Unlock"
-            show-password
-            :size="isMobile ? 'default' : 'large'"
-            clearable
-            autocomplete="current-password"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-checkbox
-            v-model="ruleForm.remenber"
-            label="记住密码"
-            :size="isMobile ? 'default' : 'large'"
-            fill="#f5f5f5"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            class="log"
-            type="primary"
-            :size="isMobile ? 'default' : 'large'"
-            style="width: 100%"
-            :loading="loading"
-            @click="submitForm"
-            >登录</el-button
-          >
-        </el-form-item>
-      </div>
+      <h1 class="login-title">资助统一身份认证</h1>
+      <el-form-item prop="username">
+        <el-input
+          v-model="ruleForm.username"
+          placeholder="学号/账号"
+          :prefix-icon="User"
+          :size="isMobile ? 'default' : 'large'"
+          clearable
+          autocomplete="username"
+        />
+      </el-form-item>
+      <el-form-item prop="password">
+        <el-input
+          v-model="ruleForm.password"
+          placeholder="密码"
+          :prefix-icon="Unlock"
+          show-password
+          :size="isMobile ? 'default' : 'large'"
+          clearable
+          autocomplete="current-password"
+        />
+      </el-form-item>
+      <el-form-item prop="rememberMe">
+        <el-checkbox
+          v-model="ruleForm.rememberMe"
+          label="记住密码"
+          :size="isMobile ? 'default' : 'large'"
+          fill="#f5f5f5"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          class="log"
+          type="primary"
+          :size="isMobile ? 'default' : 'large'"
+          style="width: 100%"
+          :loading="loading"
+          @click="submitForm"
+          >登录</el-button
+        >
+      </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Unlock } from '@element-plus/icons-vue'
-import isLogin from '@/api/isLogin'
 import { useUserStore } from '@/stores/userStore'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
 const userStore = useUserStore()
-const loading = ref(false)
-const clientId = ref('')
+
 const isMobile = ref(false)
 const ruleFormRef = ref<FormInstance>()
-const ruleForm = ref({
-  uname: userStore.uname || '',
-  password: userStore.password || '',
-  remenber: userStore.remenber,
-})
 
-const detectDeviceType = () => {
-  if (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 600) {
-    isMobile.value = true
-  } else {
-    isMobile.value = false
-  }
-}
-
-const setClientId = () => {
-  clientId.value = isMobile.value
-    ? '428a8310cd442757ae699df5d894f051'
-    : 'e5cd7e4891bf95d1d19206ce24a7b32e'
-  localStorage.setItem('client_id', clientId.value)
-}
+const { loading, ruleForm, detectDeviceType } = userStore
 
 onMounted(async () => {
   detectDeviceType()
-  setClientId()
   window.addEventListener('resize', detectDeviceType)
-  // pinia持久化记住密码
-  if (userStore.remenber && userStore.uname && userStore.password) {
-    ruleForm.value.uname = userStore.uname
-    ruleForm.value.password = userStore.password
-    ruleForm.value.remenber = true
-  }
-  // 检查登录状态
-  const isLoggedIn = await isLogin()
-  if (!isLoggedIn) {
-    localStorage.removeItem('role')
-    localStorage.removeItem('token')
-  }
-  if (localStorage.getItem('token') && localStorage.getItem('role')) {
-    router.push('/framework')
-  }
+  await userStore.initLoginState()
 })
 
 const rules = ref<FormRules>({
-  uname: [
+  username: [
     { required: true, message: '请输入学号/账号', trigger: 'blur' },
     { min: 2, max: 32, message: '长度2-32位', trigger: 'blur' },
   ],
@@ -121,21 +86,16 @@ const rules = ref<FormRules>({
   ],
 })
 
-// 登录处理（带校验+pinia）
 const submitForm = async () => {
   if (!ruleFormRef.value) return
   await ruleFormRef.value.validate(async (valid) => {
     if (!valid) return
-    loading.value = true
-    const success = await userStore.login({
-      uname: ruleForm.value.uname,
-      password: ruleForm.value.password,
-      remenber: ruleForm.value.remenber,
-      clientId: clientId.value,
-    })
-    loading.value = false
+    const { success, message } = await userStore.login()
     if (success) {
+      ElMessage.success('登录成功')
       router.push('/framework')
+    } else {
+      ElMessage.error(message)
     }
   })
 }
@@ -168,6 +128,7 @@ const submitForm = async () => {
 .login-form {
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -183,14 +144,13 @@ const submitForm = async () => {
   box-shadow: 0 12px 40px 0 rgba(0, 54, 133, 0.13);
 }
 .form-mobile {
-  width: 94vw;
-  max-width: 340px;
   padding: 24px 10px 10px 10px;
   background: rgba(255, 255, 255, 0.99);
   border-radius: 16px;
   box-shadow: 0 2px 16px 0 rgba(0, 54, 133, 0.1);
 }
 .login-title {
+  width: 100%;
   font-size: 24px;
   text-align: center;
   margin-bottom: 22px;
@@ -200,6 +160,7 @@ const submitForm = async () => {
   text-shadow: 0 2px 8px rgba(0, 54, 133, 0.06);
 }
 .el-form-item {
+  width: 100%;
   margin-bottom: 18px;
 }
 .el-input__wrapper {
