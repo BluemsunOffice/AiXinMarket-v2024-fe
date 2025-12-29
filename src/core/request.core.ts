@@ -99,7 +99,7 @@ export class RequestCore {
 
     // 这里可以添加跳转到登录页的逻辑
     console.warn('Authentication failed, redirecting to login...');
-    // window.location.href = '/login';
+    window.location.href = '/';
   }
 
   /**
