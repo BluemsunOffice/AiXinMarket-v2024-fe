@@ -1,31 +1,29 @@
 <template>
-  <el-carousel :interval="4000" type="card" height="200px">
-    <el-carousel-item
-      v-for="(item, index) in images"
-      :key="index"
-      @click="handleClick(item.link)"
-    >
-      <div
-        class="carousel-image"
-        :style="{ 'background-image': `url(${item.url})` }"
-      ></div>
+  <el-carousel :interval="4000" type="card" height="400px">
+    <el-carousel-item v-for="(item, index) in images" :key="index" @click="handleClick(item.link)">
+      <el-image :src="item.url" alt="轮播图片" class="carousel-image" />
     </el-carousel-item>
   </el-carousel>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ElCarousel, ElCarouselItem } from 'element-plus'
+import { ref } from 'vue'
+import martImage1 from '@/assets/image/mart-1.png'
+import martImage2 from '@/assets/image/mart-2.jpg'
+import martImage3 from '@/assets/image/mart-3.png'
+import martImage4 from '@/assets/image/mart-4.png'
 
 const images = ref([
-  { url: "image/爱心超市4.png", link: "https://www.nenu.edu.cn/" },
-  { url: "image/爱心超市2.jpg", link: "#" },
-  { url: "image/爱心超市1.png", link: "https://clzc.nenu.edu.cn/" },
-  { url: "image/爱心超市3.png", link: "#" },
-]);
+  { url: martImage1, link: 'https://www.nenu.edu.cn/' },
+  { url: martImage2, link: '#' },
+  { url: martImage3, link: 'https://clzc.nenu.edu.cn/' },
+  { url: martImage4, link: 'https://clzc.nenu.edu.cn/' },
+])
 
-const handleClick = (url) => {
-  window.open(url, "_blank");
-};
+const handleClick = (url: string) => {
+  window.open(url, '_blank')
+}
 </script>
 
 <style scoped>
@@ -37,41 +35,39 @@ const handleClick = (url) => {
   padding-top: 50px;
 }
 
-.el-carousel__item {
-  height: 400px; /* 设置轮播项的高度 */
+:deep(.el-carousel__item) {
+  height: 400px;
   display: flex;
-  align-items: center; /* 垂直居中 */
-  justify-content: center; /* 水平居中 */
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  background: #fff;
 }
 
-.el-carousel__item:nth-child(2n) {
-  background-color: #99a9bf;
-}
-
-.el-carousel__item:nth-child(2n + 1) {
-  background-color: #d3dce6;
-}
 .carousel-image {
   height: 100%;
-  width: 90vw;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 16px;
 }
 @media (max-width: 768px) {
   /* 针对手机端的样式调整 */
   .el-carousel {
     width: 90vw;
-    height: 150px;
+    height: 180px;
     margin: 0 auto;
     padding-bottom: 20px;
-    padding-top: 50px;
+    padding-top: 30px;
   }
-  .el-carousel__item {
-    height: 150px; /* 降低高度以适应手机屏幕 */
+  :deep(.el-carousel__item) {
+    height: 180px;
+    border-radius: 12px;
   }
   .carousel-image {
-    height: 150px; /* 降低高度以适应手机屏幕 */
+    height: 180px;
+    border-radius: 12px;
   }
 }
 </style>

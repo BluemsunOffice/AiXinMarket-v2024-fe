@@ -1,5 +1,5 @@
 <template>
-  <section id="productDetailModal" class="modal">
+  <section class="modal">
     <div class="modal-content">
       <div class="title">
         <h2 id="productName">商品详情</h2>
@@ -64,11 +64,11 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import Axios from '../Axios/index'
 import { ElMessage } from 'element-plus'
+import { martApi } from '@/api/mart.api'
 
 const num = ref(1)
-const handleChange = (value) => {
+const handleChange = (value: number) => {
   console.log(value)
 }
 
@@ -91,66 +91,48 @@ watch(
   { immediate: true },
 )
 
-const addToCart = () => {
-  if (productDetail.value.amount > 0) {
-    // 首先检查购物车中是否已有此商品及其数量
-    Axios.get('http://59.110.62.188:8080/market/cart/list')
-      .then((response) => {
-        if (response.data.code === 200 && response.data.data) {
-          const cartItems = response.data.data
-          const existingItem = cartItems.find((item) => item.goodsId === productDetail.value.id)
-
-          // 如果购物车已有该商品
-          if (existingItem) {
-            // 计算当前数量加上要添加的数量是否超过库存
-            const totalQuantity = existingItem.num + num.value
-
-            if (totalQuantity > productDetail.value.amount) {
-              // 超过库存，显示提示
-              ElMessage.warning(
-                `该商品在购物车中已有${existingItem.num}个，库存仅剩${productDetail.value.amount}个，无法继续添加${num.value}个`,
-              )
-              return
-            }
-          }
-
-          // 可以添加商品到购物车
-          const payload = {
-            goodsId: productDetail.value.id,
-            num: num.value,
-          }
-
-          Axios.post('http://59.110.62.188:8080/market/cart', payload)
-            .then((response) => {
-              if (response.data.code === 500) {
-                ElMessage.error(response.data.msg)
-                console.log('商品下架', response)
-              } else if (response.data.code === 200) {
-                console.log('加入购物车成功', response)
-                ElMessage.success('加入购物车成功')
-                emit('close')
-              } else if (response.data.code === 401) {
-                ElMessage.error('认证失败')
-                emit('close')
-              } else if (response.data.code === 403) {
-                ElMessage.error('您没有此权限')
-                emit('close')
-              }
-            })
-            .catch((error) => {
-              console.error('加入购物车失败', error)
-              ElMessage.error('加入购物车失败')
-              emit('close')
-            })
-        }
-      })
-      .catch((error) => {
-        console.error('获取购物车信息失败', error)
-        ElMessage.error('获取购物车信息失败')
-        emit('close')
-      })
-  } else {
+const addToCart = async () => {
+  if (productDetail.value.amount <= 0) {
     ElMessage.error('库存不足，无法加入购物车')
+    emit('close')
+    return
+  }
+
+  try {
+    const listResp = await martApi.cartList()
+    if (listResp.code === 200 && listResp.data) {
+      const cartItems = listResp.data
+      const existingItem = cartItems.find((item: any) => item.goodsId === productDetail.value.id)
+      if (existingItem) {
+        const totalQuantity = existingItem.num + num.value
+        if (totalQuantity > productDetail.value.amount) {
+          ElMessage.warning(
+            `该商品在购物车中已有${existingItem.num}个，库存仅剩${productDetail.value.amount}个，无法继续添加${num.value}个`,
+          )
+          return
+        }
+      }
+    }
+
+    const payload = { goodsId: productDetail.value.id, num: num.value }
+    const addResp = await martApi.addCartItem(payload)
+    if (addResp.code === 500) {
+      ElMessage.error(addResp.message)
+      console.log('商品下架', addResp)
+    } else if (addResp.code === 200) {
+      console.log('加入购物车成功', addResp)
+      ElMessage.success('加入购物车成功')
+      emit('close')
+    } else if (addResp.code === 401) {
+      ElMessage.error('认证失败')
+      emit('close')
+    } else if (addResp.code === 403) {
+      ElMessage.error('您没有此权限')
+      emit('close')
+    }
+  } catch (error) {
+    console.error('加入购物车失败', error)
+    ElMessage.error('加入购物车失败')
     emit('close')
   }
 }

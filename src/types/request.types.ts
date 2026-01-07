@@ -3,6 +3,7 @@ export interface ApiResponse<T = any> {
   message: string;
   data: T;
   success: boolean;
+  [key: string]: any;
 }
 
 export interface ErrorResponse {

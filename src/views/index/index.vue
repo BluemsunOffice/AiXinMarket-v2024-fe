@@ -1,119 +1,106 @@
 <template>
-  <div id="app">
+  <div class="home-container-layout">
     <NavBar />
     <div class="show">
       <ProductCarrousel />
     </div>
-    <div class="center-container">
-      <ProductSearch />
-      <SearchBox @search="handleSearch" />
-    </div>
-    <div v-if="displayedProducts.length === 0" style="text-align: center">
-      <el-empty :image-size="150" />
-    </div>
-    <ProductShow :products="displayedProducts" />
-    <el-pagination
+    <ProductSearch @search="handleUnifiedSearch" />
+    <el-empty v-if="products.length === 0" :image-size="150" />
+    <ProductShow :products="products" />
+    <!-- <el-pagination
       background
       layout="prev, pager, next"
       :total="totalNum"
       :page-size="8"
       v-model:currentPage="currentPage"
-      pager-count="50"
+      :pager-count="50"
       @current-change="handlePageChange"
       id="pagenation"
-    />
+    /> -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import { ElEmpty, ElPagination } from 'element-plus'
 import NavBar from '@/components/NavBar/index.vue'
 import ProductCarrousel from '@/views/index/ProductCarrousel/index.vue'
-import SearchBox from '@/views/index/SearchBox/index.vue'
 import ProductSearch from '@/views/index/ProductShow/ProductSearch/index.vue'
 import ProductShow from '@/views/index/ProductShow/index.vue'
+import { martApi, type goodListSearchParams, type goodListSearchResp, type product } from '@/api/mart.api'
 
-import Axios from '../Axios/index'
-
-const displayedProducts = ref([])
-const currentPage = ref(1)
+const products = ref<product[]>([])
+const currentPage = computed({
+  get: () => goodListSearchParams.value.pageNum,
+  set: (val) => {
+    goodListSearchParams.value.pageNum = val
+  },
+})
 const totalNum = ref(0) // 存储商品总数的响应式变量
 
-// 提供响应式数据
-import { provide } from 'vue'
-const category = ref('')
-const search = ref('')
-const productclass = ref('')
-const isasc = ref('')
-provide('category', category)
-provide('searchTerm', search)
-provide('productclass', productclass)
-provide('isasc', isasc)
+const goodListSearchParams = ref<goodListSearchParams>({
+  pageSize: 8,
+  pageNum: 1,
+  currencyType: '',
+  name: '',
+  type: '',
+  isAsc: false,
+  orderByColumn: 'price',
+})
 
 // 加载商品列表
-const loadProducts = (pageNum) => {
-  Axios.get('http://59.110.62.188:8080/market/goods/list', {
-    params: {
-      pageSize: 8,
-      pageNum: pageNum,
-      currencyType: category.value,
-      name: search.value,
-      type: productclass.value,
-      isAsc: isasc.value,
-      orderByColumn: 'price',
-    },
-  })
+const loadProducts = () => {
+  martApi
+    .getGoodsList(goodListSearchParams.value)
     .then((response) => {
-      totalNum.value = response.data.total
-      displayedProducts.value = response.data.rows.map((product) => {
-        const status = product.status
-        //判断商品status
-        return {
-          ...product,
-          currencyType: { 0: '日用币', 1: '服装币' }[product.currencyType] || product.currencyType,
-          isShelved: status === '1',
-        }
-      })
+      const { code, msg, rows, total } = response as any as goodListSearchResp
+      console.log('API Response:', response)
+      if (code === 200) {
+        products.value = rows || []
+        totalNum.value = total || 0 // 更新商品总数
+      } else {
+        console.error('Failed to load products:', msg)
+      }
     })
     .catch((error) => {
-      console.error('加载商品失败', error)
+      console.error('Error loading products:', error)
     })
 }
 
 // 页码改变时重新加载商品
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-  loadProducts(newPage)
+const handlePageChange = (newPage: number) => {
+  goodListSearchParams.value.pageNum = newPage
+  loadProducts()
 }
 
 onMounted(() => {
-  loadProducts(currentPage.value)
+  loadProducts()
   console.log('Initial totalNum:', totalNum.value)
 })
 
-// 监听变化并重新加载商品
-watch(category, (newVal) => {
-  loadProducts(1) // 重置为第一页
-})
-watch(search, (newVal) => {
-  category.value = ''
-  productclass.value = ''
-  isasc.value = ''
-  loadProducts(1) // 重置为第一页
-})
-watch(productclass, (newVal) => {
-  loadProducts(1) // 重置为第一页
-})
-watch(isasc, (newVal) => {
-  loadProducts(1) // 重置为第一页
-})
+const handleUnifiedSearch = (payload: {
+  name: string
+  type: string
+  currencyType: string
+  isAsc: boolean
+}) => {
+  goodListSearchParams.value.name = payload.name
+  goodListSearchParams.value.type = payload.type
+  goodListSearchParams.value.currencyType = payload.currencyType
+  goodListSearchParams.value.isAsc = payload.isAsc
+  goodListSearchParams.value.pageNum = 1
+  loadProducts()
+}
 </script>
 
-<style>
-#app {
-  display: block;
-  margin: 0 auto;
-  padding: 0 0;
+<style scoped>
+.home-container-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .show {
   display: flex;
@@ -128,6 +115,7 @@ watch(isasc, (newVal) => {
   margin-bottom: 30px;
 }
 .center-container {
+  width: 80%;
   display: flex;
   margin-top: 20px;
 }
