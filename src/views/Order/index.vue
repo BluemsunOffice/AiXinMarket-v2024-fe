@@ -7,40 +7,36 @@
         <div class="classes">
           <div class="flex flex-wrap items-center">
             <el-dropdown>
-              <el-button
-                type="primary"
-                style="padding: 19px; margin-top: 32px; margin-right: 20px"
-              >
-                {{ classestitle
-                }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+              <el-button type="primary" style="padding: 19px; margin-top: 32px; margin-right: 20px">
+                {{ classestitle }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
                     @click="
-                      orderstatus = null;
-                      classestitle = '全部';
+                      orderstatus = null
+                      classestitle = '全部'
                     "
                     >全部</el-dropdown-item
                   >
                   <el-dropdown-item
                     @click="
-                      orderstatus = 0;
-                      classestitle = '待处理';
+                      orderstatus = 0
+                      classestitle = '待处理'
                     "
                     >待处理</el-dropdown-item
                   >
                   <el-dropdown-item
                     @click="
-                      orderstatus = 1;
-                      classestitle = '失败';
+                      orderstatus = 1
+                      classestitle = '失败'
                     "
                     >失败</el-dropdown-item
                   >
                   <el-dropdown-item
                     @click="
-                      orderstatus = 2;
-                      classestitle = '成功';
+                      orderstatus = 2
+                      classestitle = '成功'
                     "
                     >成功</el-dropdown-item
                   >
@@ -49,22 +45,21 @@
             </el-dropdown>
             <el-dropdown>
               <el-button type="primary" style="padding: 19px; margin-top: 32px">
-                {{ classestitle2
-                }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+                {{ classestitle2 }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item
                     @click="
-                      ordertime = 1;
-                      classestitle2 = '按时间升序';
+                      ordertime = 1
+                      classestitle2 = '按时间升序'
                     "
                     >按时间升序</el-dropdown-item
                   >
                   <el-dropdown-item
                     @click="
-                      ordertime = 0;
-                      classestitle2 = '按时间降序';
+                      ordertime = 0
+                      classestitle2 = '按时间降序'
                     "
                     >按时间降序</el-dropdown-item
                   >
@@ -98,20 +93,12 @@
           <el-table-column prop="createTime" label="订单时间" width="220" />
           <el-table-column prop="status" label="订单状态" width="190">
             <template #default="scope">
-              <el-tag
-                :type="getTagType(scope.row.status)"
-                style="padding: 15px; font-size: 15px"
-              >
+              <el-tag :type="getTagType(scope.row.status)" style="padding: 15px; font-size: 15px">
                 {{ getStatusText(scope.row.status) }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="names"
-            label="商品名称"
-            width="220"
-            show-overflow-tooltip="true"
-          />
+          <el-table-column prop="names" label="商品名称" width="220" show-overflow-tooltip="true" />
           <el-table-column label="订单总价" width="219">
             <template #default="scope">
               服装币:{{
@@ -131,17 +118,10 @@
                 @confirm="delectOrders(scope.row.id)"
               >
                 <template #reference>
-                  <el-button text type="primary" class="table-btn ml10">
-                    核销订单
-                  </el-button>
+                  <el-button text type="primary" class="table-btn ml10"> 核销订单 </el-button>
                 </template>
               </el-popconfirm>
-              <el-button
-                text
-                type="primary"
-                class="table-btn ml10"
-                @click="detail(scope.$index)"
-              >
+              <el-button text type="primary" class="table-btn ml10" @click="detail(scope.$index)">
                 查看详情
               </el-button>
             </template>
@@ -160,19 +140,9 @@
       </div>
     </div>
     <!-- 查看详情弹窗 -->
-    <el-dialog
-      v-model="centerDialogVisible"
-      title="查看详情"
-      width="840"
-      center
-    >
+    <el-dialog v-model="centerDialogVisible" title="查看详情" width="840" center>
       <el-descriptions title="" border>
-        <el-descriptions-item
-          :rowspan="2"
-          :width="140"
-          label="商品图片"
-          align-center
-        >
+        <el-descriptions-item :rowspan="2" :width="140" label="商品图片" align-center>
           <el-image style="width: auto; height: 100px" :src="imageUrl" />
         </el-descriptions-item>
         <el-descriptions-item label="名称" :width="100" class-name="my-class">{{
@@ -181,12 +151,9 @@
         <el-descriptions-item label="价格" :width="100" class-name="my-class">{{
           price
         }}</el-descriptions-item>
-        <el-descriptions-item
-          label="货币类型"
-          :width="100"
-          class-name="my-class"
-          >{{ currencyType }}</el-descriptions-item
-        >
+        <el-descriptions-item label="货币类型" :width="100" class-name="my-class">{{
+          currencyType
+        }}</el-descriptions-item>
         <el-descriptions-item label="数量" :width="100" class-name="my-class"
           >{{ amount }}
         </el-descriptions-item>
@@ -294,7 +261,7 @@ const datailOrder = async (id, current) => {
           pageSize: 1,
           pageNum: current,
         },
-      }
+      },
     );
     detailTotal.value = response.data.total;
     goodsName.value = response.data.rows[0].goodsName;
@@ -332,7 +299,7 @@ const fetchOrder = async (current) => {
           status: orderstatus.value,
           isAsc: ordertime.value,
         },
-      }
+      },
     );
     orders.value = response.data.rows;
     orderTotal.value = response.data.total; // 更新总订单数
@@ -355,7 +322,7 @@ const delectOrdersAll = () => {
 const delectOrders = async (idArr) => {
   try {
     const res = await Axios.post(
-      `http://59.110.62.188:8080/market/order/check/${idArr}`
+      `http://59.110.62.188:8080/market/order/check/${idArr}`,
     );
     if (res.data.code === 200) {
       ElMessage.success("核销成功");
@@ -478,7 +445,7 @@ main .form {
   height: 800px;
 }
 
-main .form .form_main table tr input[type="button"] {
+main .form .form_main table tr input[type='button'] {
   margin: 5px;
 }
 

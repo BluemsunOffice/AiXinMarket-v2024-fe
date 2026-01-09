@@ -9,10 +9,12 @@ export const isMobile = {
     return navigator.userAgent.match(/IEMobile/i);
   },
   any: function () {
-    return (isMobile.Android() || isMobile.iOS() || isMobile.Windows());
-  }
+    return isMobile.Android() || isMobile.iOS() || isMobile.Windows();
+  },
 };
 
 export const getClientId = () => {
-  return isMobile.any() ? import.meta.env.VITE_MOBILE_CLIENT_ID : import.meta.env.VITE_WEB_CLIENT_ID
-}
+  return isMobile.any()
+    ? import.meta.env.VITE_MOBILE_CLIENT_ID
+    : import.meta.env.VITE_WEB_CLIENT_ID;
+};

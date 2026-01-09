@@ -216,7 +216,7 @@ export const STUDENTSTATUS_MAP: { [key: number]: string } = {
 
 export const CAMPUS_MAP: { [key: number]: string } = {
   0: "本部",
-  1: "净月"
+  1: "净月",
 } as const;
 
 export const GENDER_MAP: { [key: number]: string } = {
@@ -244,15 +244,27 @@ export const POLITICALSTATUS_MAP: { [key: number]: string } = {
 type keyType = string | number;
 
 // 对应的格式化函数
-export const formatEthnicity = (code: keyType): string => ETHNICITY_MAP[+code] || "未知";
-export const formatCollege = (collegeCode: keyType): string => COLLEGE_MAP[+collegeCode] || "未知";
-export const formatMajor = (majorCode: keyType): string => MAJOR_MAP[+majorCode] || "未知";
-export const formatDegree = (code: keyType): string => DEGREE_MAP[+code] || "未知";
-export const formatFundType = (code: keyType): string => FUNDTYPE_MAP[+code] || "未知";
-export const formatPunishType = (code: keyType): string => PUNISHTYPE_MAP[+code] || "未知";
-export const formatMarry = (code: keyType): string => MARRY_MAP[+code] || "未知"
-export const formatAssistLevel = (code: keyType): string => ASSISTLEVEL_MAP[+code] || "未知"
-export const formatStudentStatus = (code: keyType): string => STUDENTSTATUS_MAP[+code] || "未知"
-export const formatCampus = (code: keyType): string => CAMPUS_MAP[+code] || "未知"
-export const formatGender = (code: keyType): string => GENDER_MAP[+code] || "未知";
-export const formatPoliticalStatus = (code: keyType): string => POLITICALSTATUS_MAP[+code] || "未知";
+export const formatEthnicity = (code: keyType): string =>
+  ETHNICITY_MAP[+code] || "未知";
+export const formatCollege = (collegeCode: keyType): string =>
+  COLLEGE_MAP[+collegeCode] || "未知";
+export const formatMajor = (majorCode: keyType): string =>
+  MAJOR_MAP[+majorCode] || "未知";
+export const formatDegree = (code: keyType): string =>
+  DEGREE_MAP[+code] || "未知";
+export const formatFundType = (code: keyType): string =>
+  FUNDTYPE_MAP[+code] || "未知";
+export const formatPunishType = (code: keyType): string =>
+  PUNISHTYPE_MAP[+code] || "未知";
+export const formatMarry = (code: keyType): string =>
+  MARRY_MAP[+code] || "未知";
+export const formatAssistLevel = (code: keyType): string =>
+  ASSISTLEVEL_MAP[+code] || "未知";
+export const formatStudentStatus = (code: keyType): string =>
+  STUDENTSTATUS_MAP[+code] || "未知";
+export const formatCampus = (code: keyType): string =>
+  CAMPUS_MAP[+code] || "未知";
+export const formatGender = (code: keyType): string =>
+  GENDER_MAP[+code] || "未知";
+export const formatPoliticalStatus = (code: keyType): string =>
+  POLITICALSTATUS_MAP[+code] || "未知";

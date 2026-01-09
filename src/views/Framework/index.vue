@@ -121,77 +121,81 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
-import axios from 'axios'
-import { useRouter } from 'vue-router'
-import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
-import PersonalText from '@/views/Framework/components/PersonalText.vue'
-import { authConfig } from '@/config/request.config'
-import { userApi } from '@/api/user.api'
-import { isLoggedIn } from '@/utils/auth'
-import { useUserStore } from '@/stores/userStore'
-import { storeToRefs } from 'pinia'
-const userStore = useUserStore()
-const { roleGroup: userRole, userProfile, fundUserProfile } = storeToRefs(userStore)
+import { ref, onMounted, computed, watch } from "vue";
+import { ElMessage } from "element-plus";
+import { ArrowLeft, ArrowRight } from "@element-plus/icons-vue";
+import axios from "axios";
+import { useRouter } from "vue-router";
+import PersonalBox from "@/views/Framework/components/PersonalBox.vue";
+import PersonalText from "@/views/Framework/components/PersonalText.vue";
+import { authConfig } from "@/config/request.config";
+import { userApi } from "@/api/user.api";
+import { isLoggedIn } from "@/utils/auth";
+import { useUserStore } from "@/stores/userStore";
+import { storeToRefs } from "pinia";
+const userStore = useUserStore();
+const {
+  roleGroup: userRole,
+  userProfile,
+  fundUserProfile,
+} = storeToRefs(userStore);
 
-const roleMessage = ref('资助对象')
-const router = useRouter()
-const token = localStorage.getItem(authConfig.tokenKey)
-const role = localStorage.getItem('role')
-const sidebarVisible = ref(true)
-const isMobile = ref(window.innerWidth <= 768)
-const outerVisible = ref(false)
-const activeMenu = ref('1')
-const currentPage = ref('personalCenter')
+const roleMessage = ref("资助对象");
+const router = useRouter();
+const token = localStorage.getItem(authConfig.tokenKey);
+const role = localStorage.getItem("role");
+const sidebarVisible = ref(true);
+const isMobile = ref(window.innerWidth <= 768);
+const outerVisible = ref(false);
+const activeMenu = ref("1");
+const currentPage = ref("personalCenter");
 
 // 侧边栏
 const toggleSidebar = () => {
-  sidebarVisible.value = !sidebarVisible.value
-}
+  sidebarVisible.value = !sidebarVisible.value;
+};
 
 // 登录状态判断，否则跳转登录页
 onMounted(async () => {
-  const res = await isLoggedIn()
+  const res = await isLoggedIn();
   if (!res) {
-    router.push('/')
-    return
+    router.push("/");
+    return;
   }
-  await userStore.getProfile()
-})
+  await userStore.getProfile();
+});
 const handleMenuClick = (page: string) => {
-  if (page === 'superMarket') {
-    router.push('/home')
-  } else if (page === 'personalProfile') {
-    router.push('/new-file')
-  } else if (page === 'studentsProfile') router.push('/studentFiles')
-  else if (page === 'superMarketManage') router.push('/manage')
-}
+  if (page === "superMarket") {
+    router.push("/home");
+  } else if (page === "personalProfile") {
+    router.push("/new-file");
+  } else if (page === "studentsProfile") router.push("/studentFiles");
+  else if (page === "superMarketManage") router.push("/manage");
+};
 
 const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
-  userStore.updateAvatar(payload.file)
-}
+  userStore.updateAvatar(payload.file);
+};
 
 // 退出登录处理函数
 const handleLogout = async () => {
   try {
-    const { code, message: msg } = await userApi.logout()
+    const { code, message: msg } = await userApi.logout();
     if (code === 200) {
-      ElMessage.success('退出成功！')
-      outerVisible.value = false
-      userStore.logout()
+      ElMessage.success("退出成功！");
+      outerVisible.value = false;
+      userStore.logout();
       setTimeout(() => {
-        router.push('/')
-        outerVisible.value = false
-      }, 500)
+        router.push("/");
+        outerVisible.value = false;
+      }, 500);
     } else {
-      ElMessage.error(msg + '!')
+      ElMessage.error(msg + "!");
     }
   } catch (error) {
-    ElMessage.error('请求失败！')
+    ElMessage.error("请求失败！");
   }
-}
+};
 </script>
 
 <style scoped>

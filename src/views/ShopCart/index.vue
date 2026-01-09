@@ -167,13 +167,13 @@
 </template>
 
 <script setup lang="ts">
-import NavBar from '@/components/NavBar/index.vue'
-import { useCartStore } from '@/stores/cartStore'
-import { storeToRefs } from 'pinia'
-import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import NavBar from "@/components/NavBar/index.vue";
+import { useCartStore } from "@/stores/cartStore";
+import { storeToRefs } from "pinia";
+import { onMounted, ref } from "vue";
+import { ElMessage } from "element-plus";
 
-const cartStore = useCartStore()
+const cartStore = useCartStore();
 const {
   cartItems,
   filteredItems,
@@ -185,7 +185,7 @@ const {
   isSettling,
   router,
   isLoading,
-} = storeToRefs(cartStore)
+} = storeToRefs(cartStore);
 
 const {
   getItem,
@@ -197,93 +197,93 @@ const {
   updateSelectedTotalPrice,
   formatPrice,
   toHome,
-} = cartStore
+} = cartStore;
 
 // 节流函数实现
 const throttle = (fn, delay) => {
-  let timer = null
-  let lastTime = 0
+  let timer = null;
+  let lastTime = 0;
 
   return function (...args) {
-    const now = Date.now()
-    const remaining = delay - (now - lastTime)
+    const now = Date.now();
+    const remaining = delay - (now - lastTime);
 
     if (remaining <= 0) {
       if (timer) {
-        clearTimeout(timer)
-        timer = null
+        clearTimeout(timer);
+        timer = null;
       }
-      lastTime = now
-      fn.apply(this, args)
+      lastTime = now;
+      fn.apply(this, args);
     } else if (!timer) {
       timer = setTimeout(() => {
-        lastTime = Date.now()
-        fn.apply(this, args)
-        timer = null
-      }, remaining)
+        lastTime = Date.now();
+        fn.apply(this, args);
+        timer = null;
+      }, remaining);
     }
-  }
-}
+  };
+};
 
 // 移除商品的确认对话框
-const removeConfirmVisible = ref(false)
-const itemToRemove = ref(null)
+const removeConfirmVisible = ref(false);
+const itemToRemove = ref(null);
 
 // 显示移除确认对话框
 const showRemoveConfirmation = (goodsId) => {
-  itemToRemove.value = goodsId
-  removeConfirmVisible.value = true
-}
+  itemToRemove.value = goodsId;
+  removeConfirmVisible.value = true;
+};
 
 // 确认移除
 const confirmRemove = () => {
   if (itemToRemove.value) {
-    removeSelectedItems(itemToRemove.value)
-    removeConfirmVisible.value = false
-    itemToRemove.value = null
+    removeSelectedItems(itemToRemove.value);
+    removeConfirmVisible.value = false;
+    itemToRemove.value = null;
   }
-}
+};
 
 // 使用节流函数包装handleQuantityChange
 const handleQuantityChange = (item, value) => {
   // 检查输入的数量是否超过库存限制，本地进行限制
   if (value > item.limitNum) {
-    value = item.limitNum
-    item.num = item.limitNum
+    value = item.limitNum;
+    item.num = item.limitNum;
     ElMessage.warning({
       message: `商品"${item.goodsName}"的数量不能超过库存上限(${item.limitNum})`,
       duration: 3000,
       showClose: true,
-      type: 'warning',
-    })
+      type: "warning",
+    });
   }
 
   // 更新总价（本地立即更新UI）
-  updateSelectedTotalPrice()
+  updateSelectedTotalPrice();
 
   // 调用 Pinia 方法更新数量（它会处理2秒内只发一次请求的逻辑）
-  cartStore.updateItemQuantity(item.goodsId, value)
-}
+  cartStore.updateItemQuantity(item.goodsId, value);
+};
 
 // 我们可以使用更短的节流时间，因为实际防抖逻辑已在store中实现
-const throttledQuantityChange = throttle(handleQuantityChange, 100)
+const throttledQuantityChange = throttle(handleQuantityChange, 100);
 
 onMounted(() => {
-  console.log('开始挂载')
-  getItem()
-  getCurrency()
-  isLogin()
-})
+  console.log("开始挂载");
+  getItem();
+  getCurrency();
+  isLogin();
+});
 
 // 确保全选功能正常
 const handleSelectAll = (val) => {
-  toggleSelectAll(val)
-}
+  toggleSelectAll(val);
+};
 
 // 确保单个选择正常
 const handleItemSelect = () => {
-  updateSelectedTotalPrice()
-}
+  updateSelectedTotalPrice();
+};
 </script>
 
 <style lang="css" scoped>

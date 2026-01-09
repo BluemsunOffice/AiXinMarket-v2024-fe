@@ -15,10 +15,7 @@
           <el-table-column prop="name" label="商品名称" width="250" />
           <el-table-column label="商品图片" width="310" height="80">
             <template #default="scope">
-              <el-image
-                style="width: auto; height: 100px"
-                :src="scope.row.imageUrl"
-              />
+              <el-image style="width: auto; height: 100px" :src="scope.row.imageUrl" />
               <!-- <img :src="scope.row.imageUrlUrl" alt="商品图片" /> -->
             </template>
           </el-table-column>
@@ -26,12 +23,7 @@
           <el-table-column prop="amount" label="货物库存" width="224" />
           <el-table-column label="操作" width="250">
             <template #default="scope">
-              <el-button
-                text
-                type="primary"
-                class="table-btn ml10"
-                @click="detail(scope.$index)"
-              >
+              <el-button text type="primary" class="table-btn ml10" @click="detail(scope.$index)">
                 查看详情
               </el-button>
             </template>
@@ -49,40 +41,21 @@
       </div>
     </div>
 
-    <el-dialog
-      v-model="centerDialogVisible"
-      title="进货记录详情"
-      width="820"
-      center
-    >
+    <el-dialog v-model="centerDialogVisible" title="进货记录详情" width="820" center>
       <el-descriptions title="" border>
-        <el-descriptions-item
-          :rowspan="2"
-          :width="80"
-          label="商品图片"
-          align="center"
-          align-center
-        >
+        <el-descriptions-item :rowspan="2" :width="80" label="商品图片" align="center" align-center>
           <el-image style="width: auto; height: 80px" :src="imageUrl" />
         </el-descriptions-item>
         <el-descriptions-item label="商品名称">{{ name }}</el-descriptions-item>
-        <el-descriptions-item label="起始数量">{{
-          originAmount
-        }}</el-descriptions-item>
-        <el-descriptions-item label="现存数量">{{
-          endAmount
-        }}</el-descriptions-item>
+        <el-descriptions-item label="起始数量">{{ originAmount }}</el-descriptions-item>
+        <el-descriptions-item label="现存数量">{{ endAmount }}</el-descriptions-item>
         <el-descriptions-item label="增加数量">
-          <el-tag size="small" style="padding: 10px">{{
-            endAmount - originAmount
-          }}</el-tag>
+          <el-tag size="small" style="padding: 10px">{{ endAmount - originAmount }}</el-tag>
         </el-descriptions-item>
       </el-descriptions>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            @click="centerDialogVisible = false"
-            style="padding: 20px; font-size: 16px"
+          <el-button @click="centerDialogVisible = false" style="padding: 20px; font-size: 16px"
             >取消</el-button
           >
           <el-button
@@ -130,7 +103,7 @@ const detail = (index: number) => {
 const datailGoods = async (id, index) => {
   try {
     const response = await Axios.get(
-      `http://59.110.62.188:8080/market/restock/info/${id}`
+      `http://59.110.62.188:8080/market/restock/info/${id}`,
     );
     console.log(response.data);
     amount.value = response.data.data.amount;
@@ -156,7 +129,7 @@ const fetchRecord = async (current) => {
           pageSize: 5,
           pageNum: current,
         },
-      }
+      },
     );
 
     items.value = response.data.rows;
@@ -238,7 +211,7 @@ main .form {
   height: 1600px;
 }
 
-main .form .form_main table tr input[type="button"] {
+main .form .form_main table tr input[type='button'] {
   margin: 5px;
 }
 

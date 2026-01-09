@@ -7,23 +7,23 @@
 </template>
 
 <script setup lang="ts">
-import { ElCarousel, ElCarouselItem } from 'element-plus'
-import { ref } from 'vue'
-import martImage1 from '@/assets/image/mart-1.png'
-import martImage2 from '@/assets/image/mart-2.jpg'
-import martImage3 from '@/assets/image/mart-3.png'
-import martImage4 from '@/assets/image/mart-4.png'
+import { ElCarousel, ElCarouselItem } from "element-plus";
+import { ref } from "vue";
+import martImage1 from "@/assets/image/mart-1.png";
+import martImage2 from "@/assets/image/mart-2.jpg";
+import martImage3 from "@/assets/image/mart-3.png";
+import martImage4 from "@/assets/image/mart-4.png";
 
 const images = ref([
-  { url: martImage1, link: 'https://www.nenu.edu.cn/' },
-  { url: martImage2, link: '#' },
-  { url: martImage3, link: 'https://clzc.nenu.edu.cn/' },
-  { url: martImage4, link: 'https://clzc.nenu.edu.cn/' },
-])
+  { url: martImage1, link: "https://www.nenu.edu.cn/" },
+  { url: martImage2, link: "#" },
+  { url: martImage3, link: "https://clzc.nenu.edu.cn/" },
+  { url: martImage4, link: "https://clzc.nenu.edu.cn/" },
+]);
 
 const handleClick = (url: string) => {
-  window.open(url, '_blank')
-}
+  window.open(url, "_blank");
+};
 </script>
 
 <style scoped>

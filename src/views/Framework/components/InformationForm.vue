@@ -16,7 +16,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { formatCollege, formatEthnicity, formatMajor, formatDegree } from '@/constants/default'
+import {
+  formatCollege,
+  formatEthnicity,
+  formatMajor,
+  formatDegree,
+} from '@/constants/profile/default'
 import { userApi, type FundUserInfo } from '@/api/user.api'
 import { formatDay } from '@/utils/formatTime'
 import { type FieldConfigType, getFieldDisplayValue } from '@/utils/fieldConfig'
@@ -45,16 +50,46 @@ const studentInfo = defineModel<FundUserInfo>({
 const fieldConfig = [
   { prop: 'name', label: '姓名', formatter: null, icon: 'user' },
   { prop: 'studentId', label: '学号', formatter: null, icon: 'id-card' },
-  { prop: 'degree', label: '学位', formatter: formatDegree, icon: 'graduation-cap' },
+  {
+    prop: 'degree',
+    label: '学位',
+    formatter: formatDegree,
+    icon: 'graduation-cap',
+  },
   { prop: 'grade', label: '年级', formatter: null, icon: 'calendar-alt' },
-  { prop: 'birthday', label: '生日', formatter: formatDay, icon: 'birthday-cake' },
-  { prop: 'admissionDate', label: '入学时间', formatter: formatDay, icon: 'university' },
-  { prop: 'college', label: '学院', formatter: formatCollege, icon: 'building' },
+  {
+    prop: 'birthday',
+    label: '生日',
+    formatter: formatDay,
+    icon: 'birthday-cake',
+  },
+  {
+    prop: 'admissionDate',
+    label: '入学时间',
+    formatter: formatDay,
+    icon: 'university',
+  },
+  {
+    prop: 'college',
+    label: '学院',
+    formatter: formatCollege,
+    icon: 'building',
+  },
   { prop: 'major', label: '专业', formatter: formatMajor, icon: 'book' },
   { prop: 'apartment', label: '公寓', formatter: null, icon: 'home' },
   { prop: 'dormitory', label: '宿舍', formatter: null, icon: 'door-open' },
-  { prop: 'nationality', label: '民族', formatter: formatEthnicity, icon: 'users' },
-  { prop: 'homeAddress', label: '家庭住址', formatter: null, icon: 'map-marker-alt' },
+  {
+    prop: 'nationality',
+    label: '民族',
+    formatter: formatEthnicity,
+    icon: 'users',
+  },
+  {
+    prop: 'homeAddress',
+    label: '家庭住址',
+    formatter: null,
+    icon: 'map-marker-alt',
+  },
 ]
 
 // 获取学生信息的函数

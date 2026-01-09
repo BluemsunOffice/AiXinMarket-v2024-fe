@@ -18,17 +18,17 @@
 </template>
 
 <script setup lang="ts">
-import type { product } from '@/api/mart.api'
+import type { product } from "@/api/mart.api";
 
 const emit = defineEmits<{
-  (e: 'view'): void
-}>()
+  (e: "view"): void;
+}>();
 
-const props = defineProps<{ product: product }>()
+const props = defineProps<{ product: product }>();
 
-const product = props.product
+const product = props.product;
 
-const handleView = () => emit('view')
+const handleView = () => emit("view");
 </script>
 
 <style scoped>

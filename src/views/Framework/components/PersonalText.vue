@@ -24,21 +24,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import InformationForm from './InformationForm.vue'
-import PasswordForm from './PasswordForm.vue'
-import type { FundUserInfo } from '@/api/user.api'
+import { onMounted, ref } from "vue";
+import InformationForm from "./InformationForm.vue";
+import PasswordForm from "./PasswordForm.vue";
+import type { FundUserInfo } from "@/api/user.api";
 
-const studentInfo = defineModel('fundUserInfo', {
+const studentInfo = defineModel("fundUserInfo", {
   default: {} as FundUserInfo,
   required: false,
-})
-const role = defineModel('role', {
-  default: '' as string,
+});
+const role = defineModel("role", {
+  default: "" as string,
   required: false,
-})
+});
 
-const activeTab = ref('profile')
+const activeTab = ref("profile");
 </script>
 <style scoped lang="scss">
 /* 标题样式 */

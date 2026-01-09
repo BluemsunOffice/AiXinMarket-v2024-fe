@@ -2,10 +2,7 @@
   <div class="demo-type">
     <div>
       <div class="person">
-        <el-avatar
-          style="width: 80px; height: 80px; font-size: 40px"
-          :icon="UserFilled"
-        />
+        <el-avatar style="width: 80px; height: 80px; font-size: 40px" :icon="UserFilled" />
       </div>
       <div class="welcom">欢迎XXX!</div>
       <div class="currency">

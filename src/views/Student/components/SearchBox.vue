@@ -1,52 +1,23 @@
 <template>
   <div class="search-box">
     <div class="input-row">
-      <el-input
-        v-model="searchData.grade"
-        class="search-input"
-        placeholder="年级"
-        clearable
-      />
-      <el-input
-        v-model="searchData.name"
-        class="search-input"
-        placeholder="名字"
-        clearable
-      />
+      <el-input v-model="searchData.grade" class="search-input" placeholder="年级" clearable />
+      <el-input v-model="searchData.name" class="search-input" placeholder="名字" clearable />
     </div>
     <div class="input-row">
-      <el-input
-        v-model="searchData.studentId"
-        class="search-input"
-        placeholder="学号"
-        clearable
-      />
-      <el-input
-        v-model="searchData.major"
-        class="search-input"
-        placeholder="专业"
-        clearable
-      />
+      <el-input v-model="searchData.studentId" class="search-input" placeholder="学号" clearable />
+      <el-input v-model="searchData.major" class="search-input" placeholder="专业" clearable />
     </div>
     <div class="input-row">
-      <el-select
-        v-model="searchData.degree"
-        class="search-input"
-        placeholder="学位"
-        clearable
-      >
+      <el-select v-model="searchData.degree" class="search-input" placeholder="学位" clearable>
         <el-option label="本科" value="0" />
         <el-option label="研究生" value="1" />
       </el-select>
       <!-- 移除搜索未知专业的复选框 -->
     </div>
     <div class="button-row">
-      <el-button @click="reset" type="primary" class="action-btn"
-        >重置</el-button
-      >
-      <el-button @click="onSearch" type="primary" class="action-btn"
-        >搜索</el-button
-      >
+      <el-button @click="reset" type="primary" class="action-btn">重置</el-button>
+      <el-button @click="onSearch" type="primary" class="action-btn">搜索</el-button>
       <el-tooltip
         :disabled="hasSelectedItems"
         effect="dark"
@@ -148,7 +119,7 @@ const exportInfo = async () => {
       {
         ...config,
         responseType: "blob",
-      }
+      },
     );
 
     const blob = response.data;

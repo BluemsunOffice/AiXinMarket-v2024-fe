@@ -106,20 +106,14 @@
         >
           保存修改
         </el-button>
-        <el-button
-          size="large"
-          @click="handleReset"
-          class="reset-btn"
-        >
-          重置
-        </el-button>
+        <el-button size="large" @click="handleReset" class="reset-btn"> 重置 </el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed } from "vue";
 import {
   ElForm,
   ElFormItem,
@@ -127,150 +121,145 @@ import {
   ElButton,
   ElIcon,
   ElMessage,
-  type FormInstance
-} from 'element-plus'
-import {
-  Lock,
-  Key,
-  Check,
-  Close,
-  View,
-  Hide
-} from '@element-plus/icons-vue'
-import axios from 'axios'
+  type FormInstance,
+} from "element-plus";
+import { Lock, Key, Check, Close, View, Hide } from "@element-plus/icons-vue";
+import axios from "axios";
 
-const formRef = ref<FormInstance>()
-const loading = ref(false)
+const formRef = ref<FormInstance>();
+const loading = ref(false);
 
 const form = reactive({
-  oldPassword: '',
-  newPassword: '',
-  confirmPassword: ''
-})
+  oldPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+});
 
 const showPassword = reactive({
   old: false,
   new: false,
-  confirm: false
-})
+  confirm: false,
+});
 
 const rulesPass = reactive({
-  length: false
-})
+  length: false,
+});
 
 const isPasswordMatch = computed(() => {
-  return form.confirmPassword && form.newPassword &&
-         form.confirmPassword === form.newPassword
-})
+  return (
+    form.confirmPassword &&
+    form.newPassword &&
+    form.confirmPassword === form.newPassword
+  );
+});
 
 const checkPasswordRules = () => {
-  rulesPass.length = form.newPassword.length >= 5 && form.newPassword.length <= 20
-}
+  rulesPass.length =
+    form.newPassword.length >= 5 && form.newPassword.length <= 20;
+};
 
 const confirmPasswordValidator = (rule: any, value: string, callback: any) => {
   if (!value) {
-    callback(new Error('请确认新密码'))
+    callback(new Error("请确认新密码"));
   } else if (value !== form.newPassword) {
-    callback(new Error('两次输入的密码不一致'))
+    callback(new Error("两次输入的密码不一致"));
   } else {
-    callback()
+    callback();
   }
-}
+};
 
 const newPasswordValidator = (rule: any, value: string, callback: any) => {
   if (!value) {
-    callback(new Error('新密码不能为空'))
+    callback(new Error("新密码不能为空"));
   } else if (value.length < 5 || value.length > 20) {
-    callback(new Error('密码长度应为5-20位'))
+    callback(new Error("密码长度应为5-20位"));
   } else if (value === form.oldPassword) {
-    callback(new Error('新密码不能与旧密码相同'))
+    callback(new Error("新密码不能与旧密码相同"));
   } else {
-    callback()
+    callback();
   }
-}
+};
 
 const rules = {
-  oldPassword: [
-    { required: true, message: '请输入旧密码', trigger: 'blur' }
-  ],
+  oldPassword: [{ required: true, message: "请输入旧密码", trigger: "blur" }],
   newPassword: [
-    { required: true, validator: newPasswordValidator, trigger: 'blur' }
+    { required: true, validator: newPasswordValidator, trigger: "blur" },
   ],
   confirmPassword: [
-    { required: true, validator: confirmPasswordValidator, trigger: 'blur' }
-  ]
-}
+    { required: true, validator: confirmPasswordValidator, trigger: "blur" },
+  ],
+};
 
 const resetPassword = async (oldPassword: string, newPassword: string) => {
   try {
-    loading.value = true
+    loading.value = true;
 
-    const token = localStorage.getItem('token') || ''
-    const clientid = localStorage.getItem('client_id') || ''
+    const token = localStorage.getItem("token") || "";
+    const clientid = localStorage.getItem("client_id") || "";
 
     const response = await axios.put(
-      'http://59.110.62.188:8080/system/user/profile/updatePwd',
+      "http://59.110.62.188:8080/system/user/profile/updatePwd",
       {
         oldPassword,
-        newPassword
+        newPassword,
       },
       {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'clientid': clientid
-        }
-      }
-    )
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          clientid: clientid,
+        },
+      },
+    );
 
     if (response.data.code === 200) {
-      ElMessage.success('密码修改成功')
-      handleReset()
+      ElMessage.success("密码修改成功");
+      handleReset();
     } else {
-      ElMessage.error(response.data.msg || '密码修改失败')
+      ElMessage.error(response.data.msg || "密码修改失败");
     }
   } catch (error: any) {
-    console.error('请求错误:', error)
+    console.error("请求错误:", error);
 
-    let errorMessage = '密码修改失败'
+    let errorMessage = "密码修改失败";
     if (error.response) {
       if (error.response.status === 401) {
-        errorMessage = '登录已过期'
+        errorMessage = "登录已过期";
       } else if (error.response.data?.msg) {
-        errorMessage = error.response.data.msg
+        errorMessage = error.response.data.msg;
       }
     }
 
-    ElMessage.error(errorMessage)
+    ElMessage.error(errorMessage);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleSave = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) return;
 
   try {
-    await formRef.value.validate()
-    await resetPassword(form.oldPassword, form.newPassword)
+    await formRef.value.validate();
+    await resetPassword(form.oldPassword, form.newPassword);
   } catch (error) {
     // 验证失败
   }
-}
+};
 
 const handleReset = () => {
-  form.oldPassword = ''
-  form.newPassword = ''
-  form.confirmPassword = ''
+  form.oldPassword = "";
+  form.newPassword = "";
+  form.confirmPassword = "";
 
-  showPassword.old = false
-  showPassword.new = false
-  showPassword.confirm = false
+  showPassword.old = false;
+  showPassword.new = false;
+  showPassword.confirm = false;
 
-  rulesPass.length = false
+  rulesPass.length = false;
 
-  formRef.value?.clearValidate()
-}
+  formRef.value?.clearValidate();
+};
 </script>
 
 <style scoped>

@@ -14,12 +14,12 @@ export interface ErrorResponse {
 
 export interface RequestOptions {
   url: string;
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   data?: any;
   params?: any;
   headers?: Record<string, string>;
   timeout?: number;
   withCredentials?: boolean;
-  responseType?: 'json' | 'text' | 'blob' | 'arraybuffer' | 'stream';
+  responseType?: "json" | "text" | "blob" | "arraybuffer" | "stream";
   validateStatus?: (status: number) => boolean;
 }

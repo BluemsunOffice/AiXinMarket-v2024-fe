@@ -54,51 +54,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { User, Unlock } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/userStore'
-import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
+import { ref, onMounted } from "vue";
+import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { User, Unlock } from "@element-plus/icons-vue";
+import { useUserStore } from "@/stores/userStore";
+import { useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
 
-const router = useRouter()
+const router = useRouter();
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
-const ruleFormRef = ref<FormInstance>()
+const ruleFormRef = ref<FormInstance>();
 
-const { loginBtnLoading: loading, ruleForm } = storeToRefs(userStore)
-const { login, detectDeviceType } = userStore
+const { loginBtnLoading: loading, ruleForm } = storeToRefs(userStore);
+const { login, detectDeviceType } = userStore;
 onMounted(async () => {
-  detectDeviceType()
-  window.addEventListener('resize', detectDeviceType)
-  await userStore.initLoginState()
-})
+  detectDeviceType();
+  window.addEventListener("resize", detectDeviceType);
+  await userStore.initLoginState();
+});
 
 const rules = ref<FormRules>({
   username: [
-    { required: true, message: '请输入学号/账号', trigger: 'blur' },
-    { min: 2, max: 32, message: '长度2-32位', trigger: 'blur' },
+    { required: true, message: "请输入学号/账号", trigger: "blur" },
+    { min: 2, max: 32, message: "长度2-32位", trigger: "blur" },
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 5, max: 20, message: '密码长度5-20位', trigger: 'blur' },
+    { required: true, message: "请输入密码", trigger: "blur" },
+    { min: 5, max: 20, message: "密码长度5-20位", trigger: "blur" },
   ],
-})
+});
 
 const submitForm = async () => {
-  if (!ruleFormRef.value) return
+  if (!ruleFormRef.value) return;
   await ruleFormRef.value.validate(async (valid) => {
-    if (!valid) return
-    const { success, message } = await login()
+    if (!valid) return;
+    const { success, message } = await login();
     if (success) {
-      ElMessage.success('登录成功')
-      router.push('/framework')
+      ElMessage.success("登录成功");
+      router.push("/framework");
     } else {
-      ElMessage.error(message)
+      ElMessage.error(message);
     }
-  })
-}
+  });
+};
 </script>
 
 <style scoped lang="css">

@@ -21,7 +21,7 @@ const handleLogout = async () => {
   try {
     const response = await Axios.post(
       "http://59.110.62.188:8080/auth/logout ",
-      {}
+      {},
     );
     if (response.data.code === 200) {
       ElMessage.success("退出成功！");

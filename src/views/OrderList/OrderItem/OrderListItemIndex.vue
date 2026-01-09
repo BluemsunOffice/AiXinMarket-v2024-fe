@@ -26,7 +26,7 @@ export default {
               Authorization: `Bearer ${this.token}`,
               clientid: this.clientId,
             },
-          }
+          },
         )
         .then((response) => {
           if (response.status === 200) {

@@ -1,5 +1,5 @@
-import { get, post, put, del } from '@/utils/request';
-import type { ApiResponse } from '@/types/request.types';
+import { get, post, put, del } from "@/utils/request";
+import type { ApiResponse } from "@/types/request.types";
 
 export interface Role {
   roleName: string;
@@ -12,7 +12,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   access_token: string;
-  roles: Role[]
+  roles: Role[];
 }
 
 // 用户类型
@@ -74,36 +74,37 @@ export interface UserWithFundInfo {
 // 用户相关API
 export const userApi = {
   // 检查登录状态
-  isLogin: (): Promise<ApiResponse<boolean>> =>
-    get('/auth/isLogin'),
+  isLogin: (): Promise<ApiResponse<boolean>> => get("/auth/isLogin"),
 
   // 登录
   login: (data: LoginRequest): Promise<ApiResponse<LoginResponse>> =>
-    post('/auth/login', data),
+    post("/auth/login", data),
 
   // 登出
-  logout: (): Promise<ApiResponse> =>
-    post('/auth/logout'),
+  logout: (): Promise<ApiResponse> => post("/auth/logout"),
 
   // 获取当前用户信息
   getCurrentUser: (): Promise<ApiResponse<UserWithFundInfo>> =>
-    get('/system/user/profile'),
+    get("/system/user/profile"),
 
   uploadAvatar: (file: File): Promise<ApiResponse<{ imgUrl: string }>> => {
     const formData = new FormData();
-    formData.append('avatarfile', file);
-    return post('/system/user/profile/avatar', formData);
+    formData.append("avatarfile", file);
+    return post("/system/user/profile/avatar", formData);
   },
 
   // 更新用户信息
-  updateUser: (id: number, data: Partial<FundUserInfo>): Promise<ApiResponse<FundUserInfo>> =>
-    put(`/user/${id}`, data),
+  updateUser: (
+    id: number,
+    data: Partial<FundUserInfo>,
+  ): Promise<ApiResponse<FundUserInfo>> => put(`/user/${id}`, data),
 
   // 获取用户列表
-  getUsers: (params?: { page?: number; size?: number }): Promise<ApiResponse<FundUserInfo[]>> =>
-    get('/users', params),
+  getUsers: (params?: {
+    page?: number;
+    size?: number;
+  }): Promise<ApiResponse<FundUserInfo[]>> => get("/users", params),
 
   // 删除用户
-  deleteUser: (id: number): Promise<ApiResponse<void>> =>
-    del(`/user/${id}`),
+  deleteUser: (id: number): Promise<ApiResponse<void>> => del(`/user/${id}`),
 };

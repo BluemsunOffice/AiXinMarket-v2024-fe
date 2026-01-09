@@ -12,9 +12,7 @@
           <el-scrollbar height="70vh">
             <el-descriptions size="large" class="margin-top" :column="3" border>
               <template #extra>
-                <el-button type="primary" @click="showEditDialog = true"
-                  >编辑个人信息</el-button
-                >
+                <el-button type="primary" @click="showEditDialog = true">编辑个人信息</el-button>
               </template>
               <el-descriptions-item>
                 <template #label>
@@ -22,7 +20,7 @@
                     <el-icon :style="iconStyle"><user /></el-icon>姓名
                   </div>
                 </template>
-                {{ studentInfo.name || "无" }}
+                {{ studentInfo.name || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -30,7 +28,7 @@
                     <el-icon :style="iconStyle"><Avatar /></el-icon>学号
                   </div>
                 </template>
-                {{ studentInfo.studentId || "无" }}
+                {{ studentInfo.studentId || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -38,7 +36,7 @@
                     <el-icon :style="iconStyle"><user /></el-icon>性别
                   </div>
                 </template>
-                {{ formatSex(studentInfo.gender) || "无" }}
+                {{ formatSex(studentInfo.gender) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -46,7 +44,7 @@
                     <el-icon :style="iconStyle"><iphone /></el-icon>年级
                   </div>
                 </template>
-                {{ studentInfo.grade || "无" }}
+                {{ studentInfo.grade || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -54,7 +52,7 @@
                     <el-icon :style="iconStyle"><Calendar /></el-icon>生日
                   </div>
                 </template>
-                {{ studentInfo.birthday || "无" }}
+                {{ studentInfo.birthday || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -62,9 +60,7 @@
                     <el-icon :style="iconStyle"><tickets /> </el-icon>学历
                   </div>
                 </template>
-                <el-tag size="small">{{
-                  formatEducation(studentInfo.degree) || "无"
-                }}</el-tag>
+                <el-tag size="small">{{ formatEducation(studentInfo.degree) || '无' }}</el-tag>
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -72,7 +68,7 @@
                     <el-icon :style="iconStyle"><School /> </el-icon>学院
                   </div>
                 </template>
-                {{ formatPoliticalAppearance(studentInfo.college) || "无" }}
+                {{ formatPoliticalAppearance(studentInfo.college) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -80,7 +76,7 @@
                     <el-icon :style="iconStyle"><OfficeBuilding /></el-icon>专业
                   </div>
                 </template>
-                {{ formatMajor(studentInfo.major) || "无" }}
+                {{ formatMajor(studentInfo.major) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -88,7 +84,7 @@
                     <el-icon :style="iconStyle"> <StarFilled /> </el-icon> 民族
                   </div>
                 </template>
-                {{ formatEthnicGroup(studentInfo.nationality) || "无" }}
+                {{ formatEthnicGroup(studentInfo.nationality) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -96,7 +92,7 @@
                     <el-icon :style="iconStyle"><Calendar /></el-icon>入学时间
                   </div>
                 </template>
-                {{ studentInfo.admissionDate || "无" }}
+                {{ studentInfo.admissionDate || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -104,7 +100,7 @@
                     <el-icon :style="iconStyle"><Message /></el-icon>e-mail
                   </div>
                 </template>
-                {{ studentInfo.email || "无" }}
+                {{ studentInfo.email || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -112,7 +108,7 @@
                     <el-icon :style="iconStyle"><OfficeBuilding /></el-icon>公寓
                   </div>
                 </template>
-                {{ studentInfo.apartment || "无" }}
+                {{ studentInfo.apartment || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -120,7 +116,7 @@
                     <el-icon :style="iconStyle"><House /></el-icon>宿舍
                   </div>
                 </template>
-                {{ studentInfo.dormitory || "无" }}
+                {{ studentInfo.dormitory || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -128,7 +124,7 @@
                     <el-icon :style="iconStyle"><iphone /></el-icon>电话
                   </div>
                 </template>
-                {{ studentInfo.telephone || "无" }}
+                {{ studentInfo.telephone || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -136,16 +132,15 @@
                     <el-icon :style="iconStyle"> <Sunny /> </el-icon> 政治面貌
                   </div>
                 </template>
-                {{ politicalAppearance(studentInfo.political) || "无" }}
+                {{ politicalAppearance(studentInfo.political) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
                   <div class="cell-item">
-                    <el-icon :style="iconStyle"> <SwitchFilled /> </el-icon
-                    >婚姻状况
+                    <el-icon :style="iconStyle"> <SwitchFilled /> </el-icon>婚姻状况
                   </div>
                 </template>
-                {{ formatMarry(studentInfo.marry) || "无" }}
+                {{ formatMarry(studentInfo.marry) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -153,7 +148,7 @@
                     <el-icon :style="iconStyle"><Promotion /></el-icon> 资助等级
                   </div>
                 </template>
-                {{ formatAssistLevel(studentInfo.fundType) || "无" }}
+                {{ formatAssistLevel(studentInfo.fundType) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -161,7 +156,7 @@
                     <el-icon :style="iconStyle"><MagicStick /></el-icon>状态
                   </div>
                 </template>
-                {{ formatStatus(studentInfo.status) || "无" }}
+                {{ formatStatus(studentInfo.status) || '无' }}
               </el-descriptions-item>
               <el-descriptions-item>
                 <template #label>
@@ -169,7 +164,7 @@
                     <el-icon :style="iconStyle"><Location /></el-icon>家庭住址
                   </div>
                 </template>
-                {{ studentInfo.homeAddress || "无" }}
+                {{ studentInfo.homeAddress || '无' }}
               </el-descriptions-item>
             </el-descriptions>
             <!-- 个人信息编辑对话框 -->
@@ -188,7 +183,7 @@
                         class-name="my-content"
                         :width="150"
                       >
-                        {{ studentInfo.name || "无" }}
+                        {{ studentInfo.name || '无' }}
                       </el-descriptions-item>
                       <el-descriptions-item
                         label="性别"
@@ -198,7 +193,7 @@
                         class-name="my-content"
                         :width="150"
                       >
-                        {{ formatSex(studentInfo.gender) || "无" }}
+                        {{ formatSex(studentInfo.gender) || '无' }}
                       </el-descriptions-item>
                       <el-descriptions-item
                         label="学号"
@@ -208,7 +203,7 @@
                         class-name="my-content"
                         :width="150"
                       >
-                        {{ studentInfo.studentId || "无" }}
+                        {{ studentInfo.studentId || '无' }}
                       </el-descriptions-item>
                       <el-descriptions-item
                         label="年级"
@@ -218,7 +213,7 @@
                         class-name="my-content"
                         :width="150"
                       >
-                        {{ studentInfo.grade || "无" }}
+                        {{ studentInfo.grade || '无' }}
                       </el-descriptions-item>
                       <el-descriptions-item
                         label="学历"
@@ -229,7 +224,7 @@
                         :width="150"
                       >
                         <el-tag size="small">{{
-                          formatEducation(studentInfo.degree) || "无"
+                          formatEducation(studentInfo.degree) || '无'
                         }}</el-tag>
                       </el-descriptions-item>
                       <el-descriptions-item
@@ -240,7 +235,7 @@
                         class-name="my-content"
                         :width="150"
                       >
-                        {{ formatAssistLevel(studentInfo.fundType) || "无" }}
+                        {{ formatAssistLevel(studentInfo.fundType) || '无' }}
                       </el-descriptions-item>
                     </el-descriptions>
                   </div>
@@ -467,18 +462,8 @@
                       </el-form-item>
                     </div>
                   </el-form>
-                  <el-button
-                    class="btn"
-                    type="primary"
-                    plain
-                    @click="saveEditInfo"
-                    >保存</el-button
-                  >
-                  <el-button
-                    class="btn"
-                    type="primary"
-                    plain
-                    @click="showEditDialog = false"
+                  <el-button class="btn" type="primary" plain @click="saveEditInfo">保存</el-button>
+                  <el-button class="btn" type="primary" plain @click="showEditDialog = false"
                     >取消</el-button
                   >
                 </div>
@@ -487,18 +472,9 @@
           </el-scrollbar>
         </el-tab-pane>
         <el-tab-pane label="个人处分" class="tab-content">
-          <el-table
-            :data="fundPunishVo"
-            style="width: 100%; height: 98.7%"
-            row-height="60"
-          >
+          <el-table :data="fundPunishVo" style="width: 100%; height: 98.7%" row-height="60">
             <el-table-column prop="category" label="处罚类型" flex="1" />
-            <el-table-column
-              prop="punishTime"
-              label="处罚时间"
-              flex="1"
-              sortable
-            />
+            <el-table-column prop="punishTime" label="处罚时间" flex="1" sortable />
             <el-table-column prop="reason" label="处罚原因" flex="3" />
             <template #empty>
               <div
@@ -552,23 +528,9 @@
           />
         </el-tab-pane>
         <el-tab-pane label="社会经历" class="tab-content">
-          <el-table
-            :data="socialExperienceData"
-            style="width: 100%; height: 98.7%"
-            layout="auto"
-          >
-            <el-table-column
-              prop="startDate"
-              label="开始时间"
-              flex="1"
-              sortable
-            />
-            <el-table-column
-              prop="endDate"
-              label="结束时间"
-              flex="1"
-              sortable
-            />
+          <el-table :data="socialExperienceData" style="width: 100%; height: 98.7%" layout="auto">
+            <el-table-column prop="startDate" label="开始时间" flex="1" sortable />
+            <el-table-column prop="endDate" label="结束时间" flex="1" sortable />
             <el-table-column prop="experience" label="社会经历" flex="3" />
             <template #empty>
               <div
@@ -715,7 +677,7 @@ const fetchStudentInfo = async () => {
       "http://59.110.62.188:8080/grow/userOwnInfo/list",
       {
         params: {},
-      }
+      },
     );
     if (response.data.code === 200) {
       studentInfo.value = response.data.data.fundUserInfoVo;
@@ -727,7 +689,7 @@ const fetchStudentInfo = async () => {
         (item) => ({
           ...item,
           type: formatFundType(item.type),
-        })
+        }),
       );
       (socialExperienceData.value = response.data.data.fundProjectVo),
         // 初始化 editInfo 对象
@@ -767,7 +729,7 @@ const fetchScholarshipInfo = async () => {
           pageNum: currentPage3.value,
           pageSize: pageSize3.value,
         },
-      }
+      },
     );
     if (response.data.code === 200) {
       fundScholarshipVo.value = response.data.data.fundScholarshipVo.map(
@@ -775,7 +737,7 @@ const fetchScholarshipInfo = async () => {
           ...item,
           //type: formatScholarshipType(item.type) // 格式化奖励类型
           type: formatFundType(item.type),
-        })
+        }),
       );
       totalNum3.value = response.data.data.scholarshipTotal; // 更新总记录数
     } else {
@@ -803,7 +765,7 @@ const fetchPunishInfo = async () => {
           pageNum: currentPage2.value,
           pageSize: pageSize2.value,
         },
-      }
+      },
     );
     if (response.data.code === 200) {
       fundPunishVo.value = response.data.data.fundPunishVo.map((item) => ({
@@ -839,7 +801,7 @@ const fetchSocialExperience = async () => {
           pageNum: currentPage.value,
           pageSize: pageSize.value,
         },
-      }
+      },
     );
     if (response.data.code === 200) {
       socialExperienceData.value = response.data.data.fundProjectVo; // 社会经历数据
@@ -890,7 +852,7 @@ const saveEditInfo = async () => {
       };
       const response = await axios.post(
         "http://59.110.62.188:8080/grow/userInfo/updateUserInfo",
-        dataToSubmit
+        dataToSubmit,
       );
       if (response.data.code === 200) {
         ElMessage.success("信息更新成功");
@@ -918,7 +880,7 @@ const addExperience = async () => {
         startDate: newExperience.value.startDate,
         endDate: newExperience.value.endDate,
         experience: newExperience.value.experience,
-      }
+      },
     );
     if (response.data.code === 200) {
       ElMessage.success("社会经历添加成功");

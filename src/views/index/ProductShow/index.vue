@@ -10,26 +10,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType } from 'vue'
-import ProductCard from './ProductCard.vue'
-import GoodsDetails from '@/views/index/GoodsDetails.vue'
-import type { product } from '@/api/mart.api'
+import { ref, type PropType } from "vue";
+import ProductCard from "./ProductCard.vue";
+import GoodsDetails from "@/views/index/GoodsDetails.vue";
+import type { Product } from "@/api/mart.api";
 
-const products = defineModel('products', {
-  type: Array as PropType<product[]>,
+const products = defineModel("products", {
+  type: Array as PropType<Product[]>,
   required: true,
-})
+});
 
-const detailModalVisible = ref(false)
-const currentProduct = ref<product | null>(null)
+const detailModalVisible = ref(false);
+const currentProduct = ref<Product | null>(null);
 
-const openProductDetail = (p: product) => {
-  currentProduct.value = p
-  detailModalVisible.value = true
-}
+const openProductDetail = (p: Product) => {
+  currentProduct.value = p;
+  detailModalVisible.value = true;
+};
 
 function closeModal() {
-  detailModalVisible.value = false
+  detailModalVisible.value = false;
 }
 </script>
 

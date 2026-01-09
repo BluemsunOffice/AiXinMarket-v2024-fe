@@ -21,24 +21,14 @@
             <input type="password" placeholder="密码" v-model="password" />
           </div>
           <div class="remenber">
-            <el-checkbox
-              v-model="remenber"
-              label="记住密码"
-              size="large"
-              fill="#f5f5f5"
-            />
+            <el-checkbox v-model="remenber" label="记住密码" size="large" fill="#f5f5f5" />
           </div>
           <div class="btn">
             <button class="log" @click.prevent="log">登录</button>
           </div>
         </div>
         <div class="form_right">
-          <img
-            src="./../../../public/image/登录背景小图.jpg"
-            alt=""
-            width="100%"
-            height="100%"
-          />
+          <img src="./../../../public/image/登录背景小图.jpg" alt="" width="100%" height="100%" />
         </div>
       </form>
     </div>
@@ -166,14 +156,14 @@ button,
 input {
   font-family: 微软雅黑;
 }
-input[type="text"]:focus {
+input[type='text']:focus {
   background-color: #f5f5f5;
 }
 .clearfix::after {
   visibility: hidden;
   clear: both;
   display: block;
-  content: "";
+  content: '';
   height: 0;
 }
 

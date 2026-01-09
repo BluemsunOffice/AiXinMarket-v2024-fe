@@ -9,24 +9,15 @@
     </button>
 
     <!-- 确认弹窗 -->
-    <el-dialog
-      v-model="dialogVisible"
-      width="400px"
-      :close-on-click-modal="false"
-      center
-    >
+    <el-dialog v-model="dialogVisible" width="400px" :close-on-click-modal="false" center>
       <div class="dialog-content">
         <el-icon :size="40" color="#3498db"><QuestionFilled /></el-icon>
         <p>确定要返回首页吗？</p>
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogVisible = false" class="cancel-btn"
-            >取消</el-button
-          >
-          <el-button type="primary" @click="handleReturn" class="confirm-btn">
-            确定
-          </el-button>
+          <el-button @click="dialogVisible = false" class="cancel-btn">取消</el-button>
+          <el-button type="primary" @click="handleReturn" class="confirm-btn"> 确定 </el-button>
         </div>
       </template>
     </el-dialog>

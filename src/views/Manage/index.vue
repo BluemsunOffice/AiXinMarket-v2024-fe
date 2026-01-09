@@ -8,10 +8,7 @@
           <span>
             <el-popconfirm title="确定删除？" @confirm="deleteALl">
               <template #reference>
-                <el-button
-                  type="primary"
-                  size="large"
-                  style="padding: 10px; font-size: 16px"
+                <el-button type="primary" size="large" style="padding: 10px; font-size: 16px"
                   >批量删除</el-button
                 >
               </template>
@@ -39,24 +36,16 @@
           <el-table-column prop="name" label="商品名称" width="210" />
           <el-table-column label="商品图片" width="278" height="120">
             <template #default="scope">
-              <el-image
-                style="width: auto; height: 100px"
-                :src="scope.row.imageUrlUrl"
-              />
+              <el-image style="width: auto; height: 100px" :src="scope.row.imageUrlUrl" />
             </template>
           </el-table-column>
           <el-table-column prop="amount" label="商品库存" width="210" />
           <el-table-column prop="price" label="商品价格" width="210" />
           <el-table-column label="操作" width="300">
             <template #default="scope">
-              <el-popconfirm
-                title="确定删除？"
-                @confirm="deleteItem(scope.$index)"
-              >
+              <el-popconfirm title="确定删除？" @confirm="deleteItem(scope.$index)">
                 <template #reference>
-                  <el-button text type="primary" class="table-btn ml10">
-                    删除货物
-                  </el-button>
+                  <el-button text type="primary" class="table-btn ml10"> 删除货物 </el-button>
                 </template>
               </el-popconfirm>
               <el-button
@@ -73,12 +62,7 @@
                 @click="modifyItem(scope.$index)"
               >
                 修改货物 </el-button
-              ><el-button
-                text
-                type="primary"
-                class="table-btn ml10"
-                @click="detail(scope.$index)"
-              >
+              ><el-button text type="primary" class="table-btn ml10" @click="detail(scope.$index)">
                 查看详情
               </el-button>
             </template>
@@ -97,13 +81,7 @@
       </div>
     </div>
     <!-- 增加进货记录 -->
-    <el-dialog
-      v-model="addRecords"
-      title="增加货物库存"
-      width="500"
-      center="true"
-      align-center
-    >
+    <el-dialog v-model="addRecords" title="增加货物库存" width="500" center="true" align-center>
       <el-form :model="form1" ref="formRef" :rules="rules1">
         <el-form-item
           label="商品名称："
@@ -113,16 +91,8 @@
         >
           <span style="width: 340px" class="over">{{ name }}</span>
         </el-form-item>
-        <el-form-item
-          label="进货数量："
-          :label-width="formLabelWidth"
-          prop="amount2"
-        >
-          <el-input
-            v-model="form1.amount2"
-            autocomplete="off"
-            style="width: 340px"
-          />
+        <el-form-item label="进货数量：" :label-width="formLabelWidth" prop="amount2">
+          <el-input v-model="form1.amount2" autocomplete="off" style="width: 340px" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -171,11 +141,7 @@
             <el-option label="学习用品" value="2" style="padding-left: 10px" />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="货币类型："
-          prop="currencyType"
-          class="custom-form-item"
-        >
+        <el-form-item label="货币类型：" prop="currencyType" class="custom-form-item">
           <el-select v-model="ruleForm.currencyType" placeholder="请选择">
             <el-option label="日用币" value="0" style="padding-left: 10px" />
             <el-option label="服装币" value="1" style="padding-left: 10px" />
@@ -187,11 +153,7 @@
         <el-form-item label="限额：" prop="limitNum" class="custom-form-item">
           <el-input v-model="ruleForm.limitNum" />
         </el-form-item>
-        <el-form-item
-          label="限制类型："
-          prop="limitType"
-          class="custom-form-item"
-        >
+        <el-form-item label="限制类型：" prop="limitType" class="custom-form-item">
           <el-radio-group v-model="ruleForm.limitType">
             <el-radio value="0">一个月</el-radio>
             <el-radio value="1" style="padding-left: 20px">一学期</el-radio>
@@ -216,12 +178,7 @@
             style="margin-left: 20px"
             @click="handleFileChange2"
           />
-          <input
-            type="file"
-            @change="handleFileChange"
-            ref="fileInput"
-            style="display: none"
-          />
+          <input type="file" @change="handleFileChange" ref="fileInput" style="display: none" />
           <el-button
             v-if="alter_title == '增加货物'"
             :disabled="!loadflag"
@@ -235,10 +192,7 @@
         </el-form-item>
         <el-form-item>
           <div class="btn">
-            <el-button
-              @click="resetForm(ruleFormRef)"
-              class="elbutns"
-              style="margin-left: 170px"
+            <el-button @click="resetForm(ruleFormRef)" class="elbutns" style="margin-left: 170px"
               >取消</el-button
             >
             <el-button
@@ -268,21 +222,15 @@
         <el-descriptions-item label="名称" :width="100" class-name="my-class">{{
           ruleForm.name
         }}</el-descriptions-item>
-        <el-descriptions-item
-          label="商品类型"
-          :width="100"
-          class-name="my-class"
-          >{{ ruleForm.type }}</el-descriptions-item
-        >
+        <el-descriptions-item label="商品类型" :width="100" class-name="my-class">{{
+          ruleForm.type
+        }}</el-descriptions-item>
         <el-descriptions-item label="价格" :width="100" class-name="my-class">{{
           ruleForm.price
         }}</el-descriptions-item>
-        <el-descriptions-item
-          label="货币类型"
-          :width="100"
-          class-name="my-class"
-          >{{ ruleForm.currencyType }}</el-descriptions-item
-        >
+        <el-descriptions-item label="货币类型" :width="100" class-name="my-class">{{
+          ruleForm.currencyType
+        }}</el-descriptions-item>
         <el-descriptions-item label="限额" :width="100" class-name="my-class">{{
           ruleForm.limitNum
         }}</el-descriptions-item>
@@ -305,9 +253,7 @@
       </el-descriptions>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="centerDialogVisibledetail = false" class="elbutns"
-            >取消</el-button
-          >
+          <el-button @click="centerDialogVisibledetail = false" class="elbutns">取消</el-button>
           <el-button
             type="primary"
             @click="centerDialogVisibledetail = false"
@@ -607,7 +553,7 @@ const fetchGoods = async (current) => {
           pageSize: 5,
           pageNum: current,
         },
-      }
+      },
     );
     pagetotal.value = response.data.total;
     items.value = response.data.rows;
@@ -686,7 +632,7 @@ const addGoods = async () => {
     };
     const response = await Axios.post(
       `http://59.110.62.188:8080/market/goods`,
-      requestData
+      requestData,
     );
     fetchGoods(currentPage.value);
     if (response.data.code === 200) ElMessage.success("增加商品成功");
@@ -715,7 +661,7 @@ const deleteItem = (index: number) => {
 const delectGoods = async (idArr) => {
   try {
     const response = await Axios.delete(
-      `http://59.110.62.188:8080/market/goods/${idArr}`
+      `http://59.110.62.188:8080/market/goods/${idArr}`,
     ); // 请求商品数据
     if (response.data.code === 200) ElMessage.success("删除成功");
     else ElMessage.error(response.data.msg);
@@ -760,7 +706,7 @@ const addFile = async (formData) => {
     axios.defaults.headers.common["clientId"] = clientId;
     const response = await axios.post(
       "http://59.110.62.188:8080/resource/oss/upload",
-      formData
+      formData,
     );
     ruleForm.imageUrl = response.data.data.ossId;
     getimag(ruleForm.imageUrl);
@@ -777,7 +723,7 @@ const addFile = async (formData) => {
 // 图片回显
 const getimag = async (ossIds) => {
   const response = await Axios.get(
-    `http://59.110.62.188:8080/resource/oss/listByIds/${ossIds}`
+    `http://59.110.62.188:8080/resource/oss/listByIds/${ossIds}`,
   );
   imageUrlUrl.value = response.data.data[0].url;
   ruleForm.imageUrl = response.data.data[0].ossId;
@@ -811,7 +757,7 @@ const modifyGoods = async (indexx) => {
     };
     const response = await Axios.put(
       `http://59.110.62.188:8080/market/goods`,
-      requestData
+      requestData,
     );
     if (response.data.code === 200) ElMessage.success("修改成功");
     else ElMessage.error("修改失败");
@@ -837,7 +783,7 @@ const detail = (index: number) => {
 const datailGoods = async (id, index) => {
   try {
     const response = await Axios.get(
-      `http://59.110.62.188:8080/market/goods/${id}`
+      `http://59.110.62.188:8080/market/goods/${id}`,
     );
     if (response.data.code != 200) ElMessage.error("查看该商品失败");
     console.log(response.data.data.status);
@@ -900,7 +846,7 @@ const addRecord = async (index) => {
     };
     const response = await Axios.post(
       `http://59.110.62.188:8080/market/restock`,
-      requestData
+      requestData,
     );
     if (response.data.code === 200) ElMessage.success("增加进货成功");
     else ElMessage.success("增加进货失败");
@@ -1016,7 +962,7 @@ main .form {
   position: relative;
 }
 
-main .form .form_main table tr input[type="button"] {
+main .form .form_main table tr input[type='button'] {
   margin: 5px;
 }
 

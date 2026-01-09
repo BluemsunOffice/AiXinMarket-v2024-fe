@@ -1,6 +1,15 @@
-import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
-import { authConfig } from '@/config/request.config';
-import type { ApiResponse, RequestOptions, ErrorResponse } from '@/types/request.types';
+import axios, {
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
+import { authConfig } from "@/config/request.config";
+import type {
+  ApiResponse,
+  RequestOptions,
+  ErrorResponse,
+} from "@/types/request.types";
 
 export class RequestCore {
   private instance: AxiosInstance;
@@ -19,7 +28,7 @@ export class RequestCore {
     try {
       return localStorage.getItem(authConfig.tokenKey);
     } catch (error) {
-      console.warn('Failed to get auth token from localStorage:', error);
+      console.warn("Failed to get auth token from localStorage:", error);
       return null;
     }
   }
@@ -44,15 +53,15 @@ export class RequestCore {
         // 这里可以添加其他全局请求处理逻辑
         console.log(`[Request] ${config.method?.toUpperCase()} ${config.url}`, {
           data: config.data,
-          params: config.params
+          params: config.params,
         });
 
         return config;
       },
       (error) => {
-        console.error('[Request Error]', error);
+        console.error("[Request Error]", error);
         return Promise.reject(error);
-      }
+      },
     );
 
     // 响应拦截器
@@ -61,7 +70,7 @@ export class RequestCore {
         console.log(`[Response] ${response.config.url}`, response.data);
 
         // 可以根据业务需求统一处理响应数据
-        if (response.data && typeof response.data === 'object') {
+        if (response.data && typeof response.data === "object") {
           // 示例：检查业务状态码
           if (response.data.code !== 200 && response.data.code !== 0) {
             return Promise.reject(response.data);
@@ -71,12 +80,12 @@ export class RequestCore {
         return response;
       },
       (error) => {
-        console.error('[Response Error]', error);
+        console.error("[Response Error]", error);
 
         // 统一错误处理
         const errorResponse: ErrorResponse = {
           code: error.response?.status || 500,
-          message: error.response?.data?.message || error.message || '请求失败',
+          message: error.response?.data?.message || error.message || "请求失败",
           success: false,
         };
 
@@ -86,7 +95,7 @@ export class RequestCore {
         }
 
         return Promise.reject(errorResponse);
-      }
+      },
     );
   }
 
@@ -98,8 +107,8 @@ export class RequestCore {
     localStorage.removeItem(authConfig.tokenKey);
 
     // 这里可以添加跳转到登录页的逻辑
-    console.warn('Authentication failed, redirecting to login...');
-    window.location.href = '/';
+    console.warn("Authentication failed, redirecting to login...");
+    window.location.href = "/";
   }
 
   /**
@@ -108,14 +117,15 @@ export class RequestCore {
   async request<T = any>(options: RequestOptions): Promise<ApiResponse<T>> {
     const config: AxiosRequestConfig = {
       url: options.url,
-      method: options.method || 'GET',
+      method: options.method || "GET",
       data: options.data,
       params: options.params,
       headers: options.headers,
       timeout: options.timeout,
       withCredentials: options.withCredentials,
       responseType: options.responseType,
-      validateStatus: options.validateStatus || ((status) => status >= 200 && status < 300),
+      validateStatus:
+        options.validateStatus || ((status) => status >= 200 && status < 300),
     };
 
     try {
@@ -129,10 +139,14 @@ export class RequestCore {
   /**
    * GET 请求
    */
-  async get<T = any>(url: string, params?: any, options?: Partial<RequestOptions>): Promise<ApiResponse<T>> {
+  async get<T = any>(
+    url: string,
+    params?: any,
+    options?: Partial<RequestOptions>,
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: 'GET',
+      method: "GET",
       params,
       ...options,
     });
@@ -141,10 +155,14 @@ export class RequestCore {
   /**
    * POST 请求
    */
-  async post<T = any>(url: string, data?: any, options?: Partial<RequestOptions>): Promise<ApiResponse<T>> {
+  async post<T = any>(
+    url: string,
+    data?: any,
+    options?: Partial<RequestOptions>,
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: 'POST',
+      method: "POST",
       data,
       ...options,
     });
@@ -153,10 +171,14 @@ export class RequestCore {
   /**
    * PUT 请求
    */
-  async put<T = any>(url: string, data?: any, options?: Partial<RequestOptions>): Promise<ApiResponse<T>> {
+  async put<T = any>(
+    url: string,
+    data?: any,
+    options?: Partial<RequestOptions>,
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: 'PUT',
+      method: "PUT",
       data,
       ...options,
     });
@@ -165,10 +187,14 @@ export class RequestCore {
   /**
    * DELETE 请求
    */
-  async delete<T = any>(url: string, data?: any, options?: Partial<RequestOptions>): Promise<ApiResponse<T>> {
+  async delete<T = any>(
+    url: string,
+    data?: any,
+    options?: Partial<RequestOptions>,
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: 'DELETE',
+      method: "DELETE",
       data,
       ...options,
     });
@@ -177,10 +203,14 @@ export class RequestCore {
   /**
    * PATCH 请求
    */
-  async patch<T = any>(url: string, data?: any, options?: Partial<RequestOptions>): Promise<ApiResponse<T>> {
+  async patch<T = any>(
+    url: string,
+    data?: any,
+    options?: Partial<RequestOptions>,
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: 'PATCH',
+      method: "PATCH",
       data,
       ...options,
     });

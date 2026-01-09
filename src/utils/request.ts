@@ -1,6 +1,6 @@
 // utils/request.ts
-import { RequestCore } from '@/core/request.core';
-import { requestConfig } from '@/config/request.config';
+import { RequestCore } from "@/core/request.core";
+import { requestConfig } from "@/config/request.config";
 
 // 创建请求实例单例
 const requestInstance = new RequestCore(requestConfig);

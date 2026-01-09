@@ -152,7 +152,7 @@ import {
   formatMarry,
   formatPoliticalStatus,
   formatStudentStatus,
-} from '@/constants/default'
+} from '@/constants/profile/default'
 import axios from 'axios'
 import request from '@/api/request'
 import { ElMessage } from 'element-plus'

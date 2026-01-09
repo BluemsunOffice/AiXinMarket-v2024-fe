@@ -11,7 +11,7 @@
       >
         <el-table-column prop="status" label="订单状态" minWidth="100">
           <template #default="{ row }">
-            {{ statusMap[row.status] || "-" }}
+            {{ statusMap[row.status] || '-' }}
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="下单时间" minWidth="140" />
@@ -29,22 +29,12 @@
               placement="top"
             >
               <template #reference>
-                <el-button
-                  v-show="row.status === '0'"
-                  text
-                  type="primary"
-                  class="table-btn"
-                >
+                <el-button v-show="row.status === '0'" text type="primary" class="table-btn">
                   取消订单
                 </el-button>
               </template>
             </el-popconfirm>
-            <el-button
-              text
-              type="primary"
-              class="table-btn ml10"
-              @click="showDetail(row)"
-            >
+            <el-button text type="primary" class="table-btn ml10" @click="showDetail(row)">
               订单详情
             </el-button>
           </template>
@@ -89,28 +79,16 @@
         :close-on-click-modal="false"
       >
         <div>
-          <el-table
-            :data="detailTableData"
-            height="500"
-            v-loading="loadings.detail"
-          >
+          <el-table :data="detailTableData" height="500" v-loading="loadings.detail">
             <el-table-column property="goodsImg" width="150" align="center">
               <template #default="{ row }">
                 <el-image :src="row.imageUrl" class="goods-img"></el-image>
               </template>
             </el-table-column>
-            <el-table-column
-              property="goodsName"
-              label="商品名称"
-              minWidth="200"
-            />
-            <el-table-column
-              property="currentType"
-              label="消耗币类型"
-              minWidth="140"
-            >
+            <el-table-column property="goodsName" label="商品名称" minWidth="200" />
+            <el-table-column property="currentType" label="消耗币类型" minWidth="140">
               <template #default="{ row }">
-                {{ row.currentType === 0 ? "服装币" : "日常币" }}
+                {{ row.currentType === 0 ? '服装币' : '日常币' }}
               </template>
             </el-table-column>
             <el-table-column property="amount" label="数量" minWidth="140" />
@@ -178,7 +156,7 @@ const getList = async (pageNum = 1, pageSize = query.value.pageSize) => {
     };
     loadings.value.table = true;
     const res = await request.get(
-      "/market/order/userlist?pageNum=" + pageNum + "&pageSize=" + pageSize
+      "/market/order/userlist?pageNum=" + pageNum + "&pageSize=" + pageSize,
     );
     if (res.data.code === 200) {
       const { rows } = res.data;
