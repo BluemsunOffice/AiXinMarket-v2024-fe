@@ -15,98 +15,101 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 import {
   formatCollege,
   formatEthnicity,
   formatMajor,
   formatDegree,
-} from '@/constants/profile/default'
-import { userApi, type FundUserInfo } from '@/api/user.api'
-import { formatDay } from '@/utils/formatTime'
-import { type FieldConfigType, getFieldDisplayValue } from '@/utils/fieldConfig'
+} from "@/constants/profile/default";
+import { userApi, type FundUserInfo } from "@/api/user.api";
+import { formatDay } from "@/utils/formatTime";
+import {
+  type FieldConfigType,
+  getFieldDisplayValue,
+} from "@/utils/fieldConfig";
 // 定义父组件传递的事件
-const emit = defineEmits(['roleName'])
+const emit = defineEmits(["roleName"]);
 
 // 使用 defineModel 定义响应式数据
 const studentInfo = defineModel<FundUserInfo>({
   default: () => ({
-    name: '未知',
-    studentId: '未知',
-    degree: '未知',
-    grade: '未知',
-    birthday: '未知',
-    admissionDate: '未知',
-    college: '未知',
-    major: '未知',
-    nationality: '未知',
-    dormitory: '未知',
-    apartment: '未知',
-    homeAddress: '未知',
+    name: "未知",
+    studentId: "未知",
+    degree: "未知",
+    grade: "未知",
+    birthday: "未知",
+    admissionDate: "未知",
+    college: "未知",
+    major: "未知",
+    nationality: "未知",
+    dormitory: "未知",
+    apartment: "未知",
+    homeAddress: "未知",
   }),
   required: false,
-})
+});
 
 const fieldConfig = [
-  { prop: 'name', label: '姓名', formatter: null, icon: 'user' },
-  { prop: 'studentId', label: '学号', formatter: null, icon: 'id-card' },
+  { prop: "name", label: "姓名", formatter: null, icon: "user" },
+  { prop: "studentId", label: "学号", formatter: null, icon: "id-card" },
   {
-    prop: 'degree',
-    label: '学位',
+    prop: "degree",
+    label: "学位",
     formatter: formatDegree,
-    icon: 'graduation-cap',
+    icon: "graduation-cap",
   },
-  { prop: 'grade', label: '年级', formatter: null, icon: 'calendar-alt' },
+  { prop: "grade", label: "年级", formatter: null, icon: "calendar-alt" },
   {
-    prop: 'birthday',
-    label: '生日',
+    prop: "birthday",
+    label: "生日",
     formatter: formatDay,
-    icon: 'birthday-cake',
+    icon: "birthday-cake",
   },
   {
-    prop: 'admissionDate',
-    label: '入学时间',
+    prop: "admissionDate",
+    label: "入学时间",
     formatter: formatDay,
-    icon: 'university',
+    icon: "university",
   },
   {
-    prop: 'college',
-    label: '学院',
+    prop: "college",
+    label: "学院",
     formatter: formatCollege,
-    icon: 'building',
+    icon: "building",
   },
-  { prop: 'major', label: '专业', formatter: formatMajor, icon: 'book' },
-  { prop: 'apartment', label: '公寓', formatter: null, icon: 'home' },
-  { prop: 'dormitory', label: '宿舍', formatter: null, icon: 'door-open' },
+  { prop: "major", label: "专业", formatter: formatMajor, icon: "book" },
+  { prop: "apartment", label: "公寓", formatter: null, icon: "home" },
+  { prop: "dormitory", label: "宿舍", formatter: null, icon: "door-open" },
   {
-    prop: 'nationality',
-    label: '民族',
+    prop: "nationality",
+    label: "民族",
     formatter: formatEthnicity,
-    icon: 'users',
+    icon: "users",
   },
   {
-    prop: 'homeAddress',
-    label: '家庭住址',
+    prop: "homeAddress",
+    label: "家庭住址",
     formatter: null,
-    icon: 'map-marker-alt',
+    icon: "map-marker-alt",
   },
-]
+];
 
 // 获取学生信息的函数
 const fetchStudentInfo = async () => {
   try {
-    const { data } = await userApi.getCurrentUser()
-    studentInfo.value = data.fundUserInfo
-    emit('roleName', data.roleGroup)
+    const { data } = await userApi.getCurrentUser();
+    studentInfo.value = data.fundUserInfo;
+    emit("roleName", data.roleGroup);
   } catch (error) {
-    console.error('获取学生信息失败:', error)
+    console.error("获取学生信息失败:", error);
   }
-}
+};
 
 // 在组件挂载时调用
 onMounted(() => {
-  fetchStudentInfo()
-})
+  fetchStudentInfo();
+});
 </script>
 
 <style scoped>

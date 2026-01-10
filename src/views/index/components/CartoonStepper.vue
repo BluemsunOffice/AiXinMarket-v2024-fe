@@ -18,8 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { Minus, Plus } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { Minus, Plus } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
 
 const props = defineProps({
   modelValue: {
@@ -38,42 +38,42 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-})
+});
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
 const decrease = () => {
   if (props.modelValue > props.min) {
-    emit('update:modelValue', props.modelValue - 1)
+    emit("update:modelValue", props.modelValue - 1);
   }
-}
+};
 
 const increase = () => {
   if (props.modelValue < props.max) {
-    emit('update:modelValue', props.modelValue + 1)
+    emit("update:modelValue", props.modelValue + 1);
   }
-}
+};
 
 const handleInput = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  let value = parseInt(target.value)
+  const target = e.target as HTMLInputElement;
+  let value = parseInt(target.value);
 
   if (isNaN(value)) {
-    value = props.min
+    value = props.min;
   }
 
   // 限制范围
   if (value < props.min) {
-    value = props.min
+    value = props.min;
   } else if (props.max > 0 && value > props.max) {
-    value = props.max
-    ElMessage.warning(`数量不能超过最大值(${props.max})`)
+    value = props.max;
+    ElMessage.warning(`数量不能超过最大值(${props.max})`);
   }
 
-  emit('update:modelValue', value)
+  emit("update:modelValue", value);
   // 强制更新输入框的值
-  target.value = value.toString()
-}
+  target.value = value.toString();
+};
 </script>
 
 <style scoped>

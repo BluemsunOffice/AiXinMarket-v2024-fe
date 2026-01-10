@@ -136,9 +136,9 @@
 </template>
 
 <script setup lang="ts">
-import NavBar from './components/NavBar.vue'
-import SearchBox from './components/SearchBox.vue'
-import { onMounted, ref, provide, computed } from 'vue'
+import NavBar from "./components/NavBar.vue";
+import SearchBox from "./components/SearchBox.vue";
+import { onMounted, ref, provide, computed } from "vue";
 import {
   formatEthnicity,
   formatCollege,
@@ -152,261 +152,275 @@ import {
   formatMarry,
   formatPoliticalStatus,
   formatStudentStatus,
-} from '@/constants/profile/default'
-import axios from 'axios'
-import request from '@/api/request'
-import { ElMessage } from 'element-plus'
-import { getFieldDisplayValue, type FieldConfigType } from '@/utils/fieldConfig'
+} from "@/constants/profile/default";
+import axios from "axios";
+import request from "@/api/request";
+import { ElMessage } from "element-plus";
+import {
+  getFieldDisplayValue,
+  type FieldConfigType,
+} from "@/utils/fieldConfig";
 
-import { formatDay } from '@/utils/formatTime'
+import { formatDay } from "@/utils/formatTime";
 
-defineModel('fundStudentInfo', { type: Object, required: true })
+defineModel("fundStudentInfo", { type: Object, required: true });
 
 // 字段配置
 const fieldConfigs: FieldConfig[] = [
-  { prop: 'studentId', label: '学号' },
-  { prop: 'name', label: '姓名' },
-  { prop: 'gender', label: '性别', formatter: formatGender },
-  { prop: 'degree', label: '学历', formatter: formatDegree },
-  { prop: 'status', label: '学生状态', formatter: formatStudentStatus },
-  { prop: 'birthday', label: '生日', formatter: formatDay },
-  { prop: 'grade', label: '年级' },
-  { prop: 'nationality', label: '民族', formatter: formatEthnicity },
-  { prop: 'college', label: '学院', formatter: formatCollege },
-  { prop: 'major', label: '专业', formatter: formatMajor },
-  { prop: 'admissionDate', label: '入学日期' },
-  { prop: 'telephone', label: '手机号' },
-  { prop: 'email', label: '邮箱' },
-  { prop: 'apartment', label: '校区', formatter: formatCampus },
-  { prop: 'dormitory', label: '公寓' },
-  { prop: 'homeAddress', label: '家庭住址' },
-  { prop: 'political', label: '政治面貌', formatter: formatPoliticalStatus },
-  { prop: 'marry', label: '婚姻状态', formatter: formatMarry },
-  { prop: 'fundType', label: '资助类型', formatter: formatAssistLevel },
-]
+  { prop: "studentId", label: "学号" },
+  { prop: "name", label: "姓名" },
+  { prop: "gender", label: "性别", formatter: formatGender },
+  { prop: "degree", label: "学历", formatter: formatDegree },
+  { prop: "status", label: "学生状态", formatter: formatStudentStatus },
+  { prop: "birthday", label: "生日", formatter: formatDay },
+  { prop: "grade", label: "年级" },
+  { prop: "nationality", label: "民族", formatter: formatEthnicity },
+  { prop: "college", label: "学院", formatter: formatCollege },
+  { prop: "major", label: "专业", formatter: formatMajor },
+  { prop: "admissionDate", label: "入学日期" },
+  { prop: "telephone", label: "手机号" },
+  { prop: "email", label: "邮箱" },
+  { prop: "apartment", label: "校区", formatter: formatCampus },
+  { prop: "dormitory", label: "公寓" },
+  { prop: "homeAddress", label: "家庭住址" },
+  { prop: "political", label: "政治面貌", formatter: formatPoliticalStatus },
+  { prop: "marry", label: "婚姻状态", formatter: formatMarry },
+  { prop: "fundType", label: "资助类型", formatter: formatAssistLevel },
+];
 
 // 提供数据
-provide('userInfo', userInfo)
+provide("userInfo", userInfo);
 
-const tableData = ref([])
-const selectedIds = ref([]) // 用来存储选中的学生ID
+const tableData = ref([]);
+const selectedIds = ref([]); // 用来存储选中的学生ID
 const handleSelectionChange = (selection) => {
   // 提取选中行的学号（ID）
-  selectedIds.value = selection.map((student) => student.userId)
-}
-provide('selectedIds', selectedIds)
+  selectedIds.value = selection.map((student) => student.userId);
+};
+provide("selectedIds", selectedIds);
 
 const query = ref({
   pageNum: 1,
   pageSize: 10,
-})
+});
 
-const total = ref(0)
+const total = ref(0);
 
 const loadings = ref({
   table: false,
-})
+});
 
 const search = (params: any) => {
-  getList(1, query.value.pageSize, params)
-}
+  getList(1, query.value.pageSize, params);
+};
 
 const objectToUrlParams = (obj: Record<string, any>): string => {
   return (
-    '?' +
+    "?" +
     Object.keys(obj)
       .map((key) => {
         if (Array.isArray(obj[key])) {
           return obj[key]
-            .map((value) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-            .join('&')
+            .map(
+              (value) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+            )
+            .join("&");
         } else {
-          return `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`
+          return `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`;
         }
       })
-      .join('&')
-  )
-}
+      .join("&")
+  );
+};
 
-const getList = async (pageNum = 1, pageSize = query.value.pageSize, queryData: any = {}) => {
+const getList = async (
+  pageNum = 1,
+  pageSize = query.value.pageSize,
+  queryData: any = {},
+) => {
   try {
     const params = {
       pageNum,
       pageSize,
       ...queryData,
-    }
-    loadings.value.table = true
-    tableData.value = []
+    };
+    loadings.value.table = true;
+    tableData.value = [];
     const res = await request.get(
-      'http://59.110.62.188:8080/grow/userInfo/listAll' + objectToUrlParams(params),
-    )
+      "http://59.110.62.188:8080/grow/userInfo/listAll" +
+        objectToUrlParams(params),
+    );
     if (res.data.rows) {
-      const { rows } = res.data
-      query.value.pageNum = pageNum
-      query.value.pageSize = pageSize
-      tableData.value = rows
-      total.value = res.data.total
+      const { rows } = res.data;
+      query.value.pageNum = pageNum;
+      query.value.pageSize = pageSize;
+      tableData.value = rows;
+      total.value = res.data.total;
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
   } finally {
-    loadings.value.table = false
+    loadings.value.table = false;
   }
-}
-const token = localStorage.getItem('token')
+};
+const token = localStorage.getItem("token");
 // 导出学生信息
-const viewedUserId = ref('') // 创建一个响应式变量来存储查看的学生的userId
+const viewedUserId = ref(""); // 创建一个响应式变量来存储查看的学生的userId
 
 const handleViewDetail = async (row: any) => {
-  viewedUserId.value = row.userId // 获取点击的学生的userId
+  viewedUserId.value = row.userId; // 获取点击的学生的userId
   const res = await request.get(
-    'http://59.110.62.188:8080/grow/userInfo/detail?userId=' + row.userId,
-  )
+    "http://59.110.62.188:8080/grow/userInfo/detail?userId=" + row.userId,
+  );
 
-  studentRow.value = res.data.data.fundUserInfoVo
-  fundProjectVo.value = res.data.data.fundProjectVo
-  fundScholarshipVo.value = res.data.data.fundScholarshipVo
-  fundPunishVo.value = res.data.data.fundPunishVo
+  studentRow.value = res.data.data.fundUserInfoVo;
+  fundProjectVo.value = res.data.data.fundProjectVo;
+  fundScholarshipVo.value = res.data.data.fundScholarshipVo;
+  fundPunishVo.value = res.data.data.fundPunishVo;
   // 更新总记录数
-  totalNum.value = fundProjectVo.value.length
-  totalNum2.value = fundPunishVo.value.length
-  totalNum3.value = fundScholarshipVo.value.length
+  totalNum.value = fundProjectVo.value.length;
+  totalNum2.value = fundPunishVo.value.length;
+  totalNum3.value = fundScholarshipVo.value.length;
   // 重置页码
-  currentPage.value = 1
-  currentPage2.value = 1
-  currentPage3.value = 1
-  visible.value = true
-}
+  currentPage.value = 1;
+  currentPage2.value = 1;
+  currentPage3.value = 1;
+  visible.value = true;
+};
 
 const exportStudentInfo = async () => {
   try {
     const config = {
       headers: {
-        Authorization: 'Bear ' + token,
-        clientid: localStorage.getItem('client_id'),
-        'Content-Type': 'application/json',
+        Authorization: "Bear " + token,
+        clientid: localStorage.getItem("client_id"),
+        "Content-Type": "application/json",
       },
-    }
+    };
     const params = {
       userId: viewedUserId.value, // 使用查看的学生的userId
-    }
-    const response = await axios.get('http://59.110.62.188:8080/grow/userOwnInfo/exportAll', {
-      ...config,
-      params,
-      responseType: 'blob',
-    })
+    };
+    const response = await axios.get(
+      "http://59.110.62.188:8080/grow/userOwnInfo/exportAll",
+      {
+        ...config,
+        params,
+        responseType: "blob",
+      },
+    );
 
     const blob = new Blob([response.data], {
-      type: 'application/vnd.ms-excel',
-    })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'student_info.xlsx' // 可以修改为从响应头中获取的文件名
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
+      type: "application/vnd.ms-excel",
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "student_info.xlsx"; // 可以修改为从响应头中获取的文件名
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('导出信息时出错:', error)
+    console.error("导出信息时出错:", error);
   }
-}
+};
 const handleSizeChange = (val: number) => {
-  getList(query.value.pageNum, val)
-}
+  getList(query.value.pageNum, val);
+};
 
 const handleCurrentChange = (val: number) => {
-  getList(val, query.value.pageSize)
-}
+  getList(val, query.value.pageSize);
+};
 
 onMounted(() => {
-  getList()
-})
+  getList();
+});
 
-const studentRow = ref({})
+const studentRow = ref({});
 // 个人处分
-const fundPunishVo = ref([])
+const fundPunishVo = ref([]);
 // 个人奖励
-const fundScholarshipVo = ref([])
+const fundScholarshipVo = ref([]);
 // 社会经历
-const fundProjectVo = ref([])
-const visible = ref(false)
+const fundProjectVo = ref([]);
+const visible = ref(false);
 
 // 分页器相关变量
-const currentPage = ref(1) // 当前页码
-const totalNum = ref(0) // 总记录数
-const currentPage2 = ref(1) // 第二个分页器的当前页码
-const totalNum2 = ref(0) // 第二个分页器的总记录数
-const currentPage3 = ref(1) // 第三个分页器的当前页码
-const totalNum3 = ref(0) // 第三个分页器的总记录数
+const currentPage = ref(1); // 当前页码
+const totalNum = ref(0); // 总记录数
+const currentPage2 = ref(1); // 第二个分页器的当前页码
+const totalNum2 = ref(0); // 第二个分页器的总记录数
+const currentPage3 = ref(1); // 第三个分页器的当前页码
+const totalNum3 = ref(0); // 第三个分页器的总记录数
 
 // 定义分页器的每页显示条数
-const pageSize = ref(8)
+const pageSize = ref(8);
 
 // 加载状态
 const loadingStates = ref({
   project: false,
   punish: false,
   scholarship: false,
-})
+});
 
 // 修改表格数据为计算属性，实现前端分页
 const paginatedProjectVo = computed(() => {
-  const start = (currentPage.value - 1) * 6
-  return fundProjectVo.value.slice(start, start + 6)
-})
+  const start = (currentPage.value - 1) * 6;
+  return fundProjectVo.value.slice(start, start + 6);
+});
 
 const paginatedPunishVo = computed(() => {
-  const start = (currentPage2.value - 1) * 6
-  return fundPunishVo.value.slice(start, start + 6)
-})
+  const start = (currentPage2.value - 1) * 6;
+  return fundPunishVo.value.slice(start, start + 6);
+});
 
 const paginatedScholarshipVo = computed(() => {
-  const start = (currentPage3.value - 1) * 6
-  return fundScholarshipVo.value.slice(start, start + 6)
-})
+  const start = (currentPage3.value - 1) * 6;
+  return fundScholarshipVo.value.slice(start, start + 6);
+});
 
 // 定义分页器的页码变化处理函数（带错误处理）
 const handlePageChange = async (val: number) => {
   try {
-    loadingStates.value.project = true
-    currentPage.value = val
+    loadingStates.value.project = true;
+    currentPage.value = val;
   } catch (error) {
-    console.error('页码切换失败:', error)
-    ElMessage.error('加载社会经历数据失败')
+    console.error("页码切换失败:", error);
+    ElMessage.error("加载社会经历数据失败");
   } finally {
-    loadingStates.value.project = false
+    loadingStates.value.project = false;
   }
-}
+};
 
 const handlePageChange2 = async (val: number) => {
   try {
-    loadingStates.value.punish = true
-    currentPage2.value = val
+    loadingStates.value.punish = true;
+    currentPage2.value = val;
   } catch (error) {
-    console.error('页码切换失败:', error)
-    ElMessage.error('加载处分数据失败')
+    console.error("页码切换失败:", error);
+    ElMessage.error("加载处分数据失败");
   } finally {
-    loadingStates.value.punish = false
+    loadingStates.value.punish = false;
   }
-}
+};
 
 const handlePageChange3 = async (val: number) => {
   try {
-    loadingStates.value.scholarship = true
-    currentPage3.value = val
+    loadingStates.value.scholarship = true;
+    currentPage3.value = val;
   } catch (error) {
-    console.error('页码切换失败:', error)
-    ElMessage.error('加载奖励数据失败')
+    console.error("页码切换失败:", error);
+    ElMessage.error("加载奖励数据失败");
   } finally {
-    loadingStates.value.scholarship = false
+    loadingStates.value.scholarship = false;
   }
-}
+};
 
 // 生日
 const formatBirthday = (birthday: string): string => {
-  return birthday.substring(0, 10)
-}
+  return birthday.substring(0, 10);
+};
 </script>
 
 <style scoped>

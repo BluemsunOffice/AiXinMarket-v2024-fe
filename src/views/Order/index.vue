@@ -179,172 +179,163 @@
 </template>
 
 <script setup lang="ts">
-import Nav from "@/components/ManagerNav/index.vue";
-import { reactive, ref, watch } from "vue";
-import Axios from "../Axios/index";
-import { onMounted } from "vue";
-import { ElMessage } from "element-plus";
-import { ArrowDown, Orange } from "@element-plus/icons-vue";
+import Nav from '@/components/ManagerNav/index.vue'
+import { reactive, ref, watch } from 'vue'
+import Axios from '../Axios/index'
+import { onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { ArrowDown, Orange } from '@element-plus/icons-vue'
 interface Order {
-  id: string;
-  status: string;
-  checked: boolean;
-  userId: string;
-  username: string;
-  createTime: string;
-  clothingBalance: string;
-  generalBalance: string;
-  names: [];
+  id: string
+  status: string
+  checked: boolean
+  userId: string
+  username: string
+  createTime: string
+  clothingBalance: string
+  generalBalance: string
+  names: []
 }
-const orders = ref<Order[]>([]);
-const currentPage = ref(1);
-const orderId = ref(1);
-const goodsId = ref(0);
-const amount = ref(1);
-const currencyType = ref("日常");
-const price = ref("1");
-const goodsName = ref("1 ");
-const imageUrl = ref("你好");
-const displayed2 = ref("none");
-const currentPage2 = ref(1);
-const orderTotal = ref(0);
-const detailTotal = ref(0);
-const checkall = ref(false);
-const centerDialogVisible = ref(false);
-const orderstatus = ref(null);
-const ordertime = ref(null);
-const classestitle = ref("订单分类");
-const classestitle2 = ref("按时间排序");
-const intro = ref("");
-let orderID;
-let idArr = ref([]);
+const orders = ref<Order[]>([])
+const currentPage = ref(1)
+const orderId = ref(1)
+const goodsId = ref(0)
+const amount = ref(1)
+const currencyType = ref('日常')
+const price = ref('1')
+const goodsName = ref('1 ')
+const imageUrl = ref('你好')
+const displayed2 = ref('none')
+const currentPage2 = ref(1)
+const orderTotal = ref(0)
+const detailTotal = ref(0)
+const checkall = ref(false)
+const centerDialogVisible = ref(false)
+const orderstatus = ref<any>()
+const ordertime = ref(null)
+const classestitle = ref('订单分类')
+const classestitle2 = ref('按时间排序')
+const intro = ref('')
+let orderID
+let idArr = ref([])
 const selected = (data) => {
-  idArr.value = [];
+  idArr.value = []
   data.forEach((value) => {
-    idArr.value.push(value.id);
-  });
-};
+    idArr.value.push(value.id)
+  })
+}
 const getTagType = (status) => {
   switch (status) {
-    case "0":
-      return "primary";
-    case "1":
-      return "danger";
+    case '0':
+      return 'primary'
+    case '1':
+      return 'danger'
     default:
-      return "success";
+      return 'success'
   }
-};
+}
 
 const getStatusText = (status) => {
   switch (status) {
-    case "0":
-      return "待处理";
-    case "1":
-      return "失败";
+    case '0':
+      return '待处理'
+    case '1':
+      return '失败'
     default:
-      return "成功";
+      return '成功'
   }
-};
+}
 // 查看详情
 const detail = (index: number) => {
-  centerDialogVisible.value = true;
-  orderID = orders.value[index].id;
-  datailOrder(orderID, currentPage2.value);
-};
+  centerDialogVisible.value = true
+  orderID = orders.value[index].id
+  datailOrder(orderID, currentPage2.value)
+}
 const datailOrder = async (id, current) => {
   try {
-    const response = await Axios.get(
-      `http://59.110.62.188:8080/market/orderInfo/page`,
-      {
-        params: {
-          orderId: id,
-          pageSize: 1,
-          pageNum: current,
-        },
+    const response = await Axios.get(`http://59.110.62.188:8080/market/orderInfo/page`, {
+      params: {
+        orderId: id,
+        pageSize: 1,
+        pageNum: current,
       },
-    );
-    detailTotal.value = response.data.total;
-    goodsName.value = response.data.rows[0].goodsName;
-    price.value = response.data.rows[0].price;
-    currencyType.value =
-      response.data.rows[0].currencyType === "0" ? "日常币" : "服装币";
-    amount.value = response.data.rows[0].amount;
-    orderId.value = response.data.rows[0].orderId;
-    goodsId.value = response.data.rows[0].goodsId;
-    imageUrl.value = response.data.rows[0].imageUrl;
-    intro.value = response.data.rows[0].intro;
+    })
+    detailTotal.value = response.data.total
+    goodsName.value = response.data.rows[0].goodsName
+    price.value = response.data.rows[0].price
+    currencyType.value = response.data.rows[0].currencyType === '0' ? '日常币' : '服装币'
+    amount.value = response.data.rows[0].amount
+    orderId.value = response.data.rows[0].orderId
+    goodsId.value = response.data.rows[0].goodsId
+    imageUrl.value = response.data.rows[0].imageUrl
+    intro.value = response.data.rows[0].intro
   } catch (error) {
-    console.error("请求商品数据失败:", error);
+    console.error('请求商品数据失败:', error)
   }
-};
+}
 const defines = () => {
-  displayed2.value = "none";
-};
+  displayed2.value = 'none'
+}
 
 // 获取列表渲染
 watch(orderstatus, (newValue, oldValue) => {
-  fetchOrder(currentPage.value);
-});
+  fetchOrder(currentPage.value)
+})
 watch(ordertime, (newValue, oldValue) => {
-  fetchOrder(currentPage.value);
-});
+  fetchOrder(currentPage.value)
+})
 const fetchOrder = async (current) => {
   try {
-    const response = await Axios.get(
-      "http://59.110.62.188:8080/market/order/adminlist",
-      {
-        params: {
-          pageSize: 9,
-          pageNum: current,
-          status: orderstatus.value,
-          isAsc: ordertime.value,
-        },
+    const response = await Axios.get('http://59.110.62.188:8080/market/order/adminlist', {
+      params: {
+        pageSize: 9,
+        pageNum: current,
+        status: orderstatus.value,
+        isAsc: ordertime.value,
       },
-    );
-    orders.value = response.data.rows;
-    orderTotal.value = response.data.total; // 更新总订单数
-    console.log(response.data.total);
-    console.log(response.data.rows);
+    })
+    orders.value = response.data.rows
+    orderTotal.value = response.data.total // 更新总订单数
+    console.log(response.data.total)
+    console.log(response.data.rows)
   } catch (error) {
-    console.error("请求商品数据失败:", error);
+    console.error('请求商品数据失败:', error)
   }
-};
+}
 // 挂载时
 onMounted(() => {
-  fetchOrder(currentPage.value);
-});
+  fetchOrder(currentPage.value)
+})
 
 // 核销商品
 const delectOrdersAll = () => {
-  delectOrders(idArr.value);
+  delectOrders(idArr.value)
   // checkall.value=false
-};
+}
 const delectOrders = async (idArr) => {
   try {
-    const res = await Axios.post(
-      `http://59.110.62.188:8080/market/order/check/${idArr}`,
-    );
+    const res = await Axios.post(`http://59.110.62.188:8080/market/order/check/${idArr}`)
     if (res.data.code === 200) {
-      ElMessage.success("核销成功");
+      ElMessage.success('核销成功')
     } else {
-      ElMessage.error("核销失败");
+      ElMessage.error('核销失败')
     }
-    fetchOrder(currentPage.value);
+    fetchOrder(currentPage.value)
   } catch (error) {
-    console.error("请求商品数据失败:", error);
+    console.error('请求商品数据失败:', error)
   }
-};
+}
 
 // 分页器
 const handlePageChange = (newPage) => {
-  currentPage.value = newPage;
-  fetchOrder(currentPage.value);
-  checkall.value = false;
-};
+  currentPage.value = newPage
+  fetchOrder(currentPage.value)
+  checkall.value = false
+}
 const handlePageChange2 = (newPage) => {
-  currentPage2.value = newPage;
-  datailOrder(orderID, currentPage2.value);
-};
+  currentPage2.value = newPage
+  datailOrder(orderID, currentPage2.value)
+}
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
+import { authConfig } from "@/config/request.config";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import { userApi, type FundUserInfo, type User } from "@/api/user.api";
-import { authConfig } from "@/config/request.config";
 import { getClientId } from "@/utils/device";
 import { isLoggedIn } from "@/utils/auth";
 
@@ -123,7 +123,7 @@ export const useUserStore = defineStore("user", () => {
   const updateAvatar = async (file: File) => {
     return userApi
       .uploadAvatar(file)
-      .then(({ code, data: { imgUrl: string } }) => {
+      .then(({ code, data }) => {
         if (code === 200) {
           userProfile.value.avatar = data.imgUrl;
         }

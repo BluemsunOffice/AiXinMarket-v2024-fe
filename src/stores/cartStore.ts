@@ -119,7 +119,7 @@ export const useCartStore = defineStore("cartStore", () => {
     try {
       const response = await martApi.removeCartItem([itemId]);
 
-      if (response.data.code == 200) {
+      if (response.data.code === 200) {
         cartItems.value = cartItems.value.filter(
           (item: { goodsId: any }) => item.goodsId !== itemId,
         );
@@ -229,7 +229,7 @@ export const useCartStore = defineStore("cartStore", () => {
         getItem();
 
         isAllSelected.value = false; // 取消全选状态
-      } else if (response.data.code == 500) {
+      } else if (response.data.code === 500) {
         const warning = response.data.msg;
         // 使用更引人注意的方式显示错误消息
         ElMessageBox.alert(warning, "结算失败", {
