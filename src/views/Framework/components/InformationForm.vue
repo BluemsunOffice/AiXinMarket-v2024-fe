@@ -21,7 +21,7 @@ import {
   formatEthnicity,
   formatMajor,
   formatDegree,
-} from "@/constants/profile/default";
+} from "@/constants/default";
 import { userApi, type FundUserInfo } from "@/api/user.api";
 import { formatDay } from "@/utils/formatTime";
 import {

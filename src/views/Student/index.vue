@@ -152,7 +152,7 @@ import {
   formatMarry,
   formatPoliticalStatus,
   formatStudentStatus,
-} from "@/constants/profile/default";
+} from "@/constants/default";
 import axios from "axios";
 import request from "@/api/request";
 import { ElMessage } from "element-plus";
@@ -166,7 +166,7 @@ import { formatDay } from "@/utils/formatTime";
 defineModel("fundStudentInfo", { type: Object, required: true });
 
 // 字段配置
-const fieldConfigs: FieldConfig[] = [
+const fieldConfigs: FieldConfigType[] = [
   { prop: "studentId", label: "学号" },
   { prop: "name", label: "姓名" },
   { prop: "gender", label: "性别", formatter: formatGender },
