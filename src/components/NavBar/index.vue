@@ -20,23 +20,29 @@
           <span class="hello">爱心超市</span>
           <div class="divider"></div>
           <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)">
-            <span class="iconfont icon-shouye"></span>
+            <font-awesome-icon icon="fa-solid fa-heart" style="color: rgba(116, 192, 252, 1)" />
             首页
           </li>
           <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)">
-            <span class="iconfont icon-icon-test1"></span>
+            <font-awesome-icon
+              icon="fa-solid fa-cart-arrow-down"
+              style="color: rgba(116, 192, 252, 1)"
+            />
             购物车
           </li>
           <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)">
-            <span class="iconfont icon-icon-test"></span>
+            <font-awesome-icon
+              icon="fa-solid fa-rectangle-list"
+              style="color: rgba(116, 192, 252, 1)"
+            />
             订单
           </li>
           <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-qianbao"></span>
+            <font-awesome-icon icon="fa-solid fa-coins" style="color: rgba(116, 192, 252, 1)" />
             日用币：{{ generalBalance }}
           </li>
           <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-yifu"></span>
+            <font-awesome-icon icon="fa-solid fa-coins" style="color: rgba(252, 116, 148, 1)" />
             服饰币：{{ clothingBalance }}
           </li>
         </div>
@@ -45,13 +51,11 @@
       <div class="right">
         <div class="money" v-if="!isMobile">
           <span class="money-line">
-            <span class="iconfont icon-qianbao money-icon"></span>
-            <span class="money-label">日用币：</span>
+            <Coins :coinType="CoinType.WarmCoin" />
             <span class="money-value">{{ generalBalance }}</span>
           </span>
           <span class="money-line">
-            <span class="iconfont icon-yifu money-icon"></span>
-            <span class="money-label">服饰币：</span>
+            <Coins :coinType="CoinType.CareCoin" />
             <span class="money-value">{{ clothingBalance }}</span>
           </span>
         </div>
@@ -68,6 +72,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LogoutAction from '@/components/LogoutAction/index.vue'
 import { useUserStore } from '@/stores/userStore'
+import Coins from '@/components/coins/index.vue'
+import { CoinType } from '@/types/goodsInfo'
 
 const router = useRouter()
 const route = useRoute()
@@ -259,11 +265,6 @@ onMounted(async () => {
   font-size: 13px;
   line-height: 1.2;
   color: #606266;
-}
-
-.money-icon {
-  color: #409eff;
-  font-size: 15px;
 }
 
 .money-label {

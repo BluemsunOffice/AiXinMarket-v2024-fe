@@ -9,6 +9,6 @@ export const CoinName = {
 };
 
 export const CoinColor = {
-  [CoinType.WarmCoin]: "#deabfaab",
-  [CoinType.CareCoin]: "#4c8cf4aa",
+  [CoinType.WarmCoin]: "rgba(252, 116, 148, 1)",
+  [CoinType.CareCoin]: "rgba(116, 192, 252, 1)",
 };

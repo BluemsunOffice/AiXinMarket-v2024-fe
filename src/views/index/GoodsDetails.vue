@@ -25,11 +25,9 @@
         </div>
         <div
           class="price-cartoon"
-          :style="{ '--coin-color': CoinColor[productDetail.currencyType] }"
         >
-          <span class="value-label">价格</span>
           <div class="coin-pill">
-            <span class="coin-name">{{ CoinName[productDetail.currencyType] }}</span>
+            <Coins :coinType="productDetail.currencyType" />
           </div>
           <span class="price-num">{{ productDetail.price }}</span>
         </div>
@@ -70,58 +68,58 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { ElMessage } from "element-plus";
-import { InfoFilled, ShoppingCart } from "@element-plus/icons-vue";
-import { martApi } from "@/api/mart.api";
-import { CoinColor, CoinName } from "@/types/goodsInfo";
-import CartoonStepper from "./components/CartoonStepper.vue";
-import type { goodItem, Product } from "@/api/mart.api";
+import { ref, watch } from 'vue'
+import { ElMessage } from 'element-plus'
+import { InfoFilled, ShoppingCart } from '@element-plus/icons-vue'
+import { martApi } from '@/api/mart.api'
+import CartoonStepper from './components/CartoonStepper.vue'
+import type { goodItem, Product } from '@/api/mart.api'
+import Coins from '@/components/coins/index.vue'
 
-const num = ref(1);
-const visible = ref(true);
+const num = ref(1)
+const visible = ref(true)
 
-const emit = defineEmits();
+const emit = defineEmits()
 
 const props = defineProps({
   productDetail: {
     type: Object as () => Product,
     required: true,
   },
-});
+})
 
-const productDetail = ref(props.productDetail);
+const productDetail = ref(props.productDetail)
 
 watch(
   () => props.productDetail,
   (newVal) => {
-    productDetail.value = newVal;
+    productDetail.value = newVal
   },
   { immediate: true },
-);
+)
 
 const addToCart = async () => {
   if (productDetail.value.amount <= 0) {
-    ElMessage.error("库存不足，无法加入购物车");
-    emit("close");
-    return;
+    ElMessage.error('库存不足，无法加入购物车')
+    emit('close')
+    return
   }
 
   try {
-    const listResp = await martApi.cartList();
-    console.log("购物车列表", listResp);
+    const listResp = await martApi.cartList()
+    console.log('购物车列表', listResp)
     if (listResp.code === 200 && listResp.data) {
-      const cartItems = listResp.data;
+      const cartItems = listResp.data
       const existingItem = cartItems.find(
         (item: goodItem) => item.goodsId === productDetail.value.id,
-      );
+      )
       if (existingItem) {
-        const totalQuantity = existingItem.num + num.value;
+        const totalQuantity = existingItem.num + num.value
         if (totalQuantity > productDetail.value.amount) {
           ElMessage.warning(
             `该商品在购物车中已有${existingItem.num}个，库存仅剩${productDetail.value.amount}个，无法继续添加${num.value}个`,
-          );
-          return;
+          )
+          return
         }
       }
     }
@@ -129,41 +127,41 @@ const addToCart = async () => {
     const payload = {
       goodsId: productDetail.value.id,
       num: num.value,
-    };
-    const addResp = await martApi.addCartItem(payload);
+    }
+    const addResp = await martApi.addCartItem(payload)
     if (addResp.code === 500) {
-      ElMessage.error(addResp.message);
-      console.log("商品下架", addResp);
+      ElMessage.error(addResp.message)
+      console.log('商品下架', addResp)
     } else if (addResp.code === 200) {
-      console.log("加入购物车成功", addResp);
-      ElMessage.success("加入购物车成功");
-      emit("close");
+      console.log('加入购物车成功', addResp)
+      ElMessage.success('加入购物车成功')
+      emit('close')
     } else if (addResp.code === 401) {
-      ElMessage.error("认证失败");
-      emit("close");
+      ElMessage.error('认证失败')
+      emit('close')
     } else if (addResp.code === 403) {
-      ElMessage.error("您没有此权限");
-      emit("close");
+      ElMessage.error('您没有此权限')
+      emit('close')
     }
   } catch (error) {
-    console.error("加入购物车失败", error);
-    ElMessage.error("加入购物车失败");
-    emit("close");
+    console.error('加入购物车失败', error)
+    ElMessage.error('加入购物车失败')
+    emit('close')
   }
-};
+}
 
 // 监听数量变化，确保不超过库存
 watch(num, (newVal) => {
   if (newVal > productDetail.value.amount) {
-    ElMessage.warning(`数量不能超过库存(${productDetail.value.amount})`);
-    num.value = productDetail.value.amount;
+    ElMessage.warning(`数量不能超过库存(${productDetail.value.amount})`)
+    num.value = productDetail.value.amount
   }
-});
+})
 
 // 关闭弹框的方法
 const close = () => {
-  emit("close");
-};
+  emit('close')
+}
 </script>
 
 <style scoped>
@@ -257,31 +255,11 @@ const close = () => {
   margin-top: 14px;
   padding: 8px 16px;
 }
-.value-label {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text-muted);
-  margin-right: 4px;
-}
-.coin-pill {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--coin-color);
-  color: #ffffff;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 800;
-  font-size: 14px;
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
-}
+
 .price-num {
-  font-size: 28px;
+  font-size: 16px;
   font-weight: 900;
-  color: var(--coin-color);
-  margin-left: 8px;
   font-family: 'Arial Rounded MT Bold', 'Varela Round', sans-serif;
-  letter-spacing: -1px;
   line-height: 1;
 }
 .divider {
