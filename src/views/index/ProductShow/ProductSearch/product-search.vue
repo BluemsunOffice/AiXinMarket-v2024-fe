@@ -60,6 +60,7 @@
 import { ref, computed } from 'vue'
 import { Search, ArrowDown } from '@element-plus/icons-vue'
 import { CoinColor, CoinName, CoinType } from '@/types/goodsInfo'
+import type { OrderDirection } from '@/api/mart.api'
 
 type DropdownKey = 'type' | 'currencyType' | 'order'
 
@@ -76,7 +77,7 @@ const emit = defineEmits<{
       name: string
       type: string
       currencyType: string
-      isAsc: boolean
+      isAsc: OrderDirection
     },
   ): void
 }>()
@@ -84,7 +85,7 @@ const emit = defineEmits<{
 const name = ref('')
 const type = ref('')
 const currencyType = ref('')
-const isAsc = ref(false)
+const isAsc = ref<OrderDirection>(null)
 const order = ref('')
 
 const typeOptions: DropdownOption[] = [
@@ -109,7 +110,7 @@ const currencyOptions: DropdownOption[] = [
 ]
 
 const orderOptions: DropdownOption[] = [
-  { label: '综合', value: '' },
+  { label: '无排序', value: '' },
   { label: '按价格升序', value: 'asc' },
   { label: '按价格降序', value: 'desc' },
 ]
@@ -163,7 +164,7 @@ const onDropdownCommand = (key: DropdownKey, command: string) => {
 
   if (key === 'order') {
     order.value = command
-    isAsc.value = command === 'asc'
+    isAsc.value = command as OrderDirection
   }
 
   emitSearch()

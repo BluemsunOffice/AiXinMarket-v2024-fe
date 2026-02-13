@@ -1,7 +1,10 @@
 <template>
-  <div class="list">
-    <div class="grid">
-      <div class="col" v-for="p in products" :key="p.id">
+  <div class="shell">
+    <div v-if="loading" class="loading-wrap">
+      <el-skeleton :rows="8" animated />
+    </div>
+    <div v-else class="list">
+      <div class="item" v-for="p in products" :key="p.id">
         <ProductCard :product="p" @view="openProductDetail(p)" />
       </div>
     </div>
@@ -10,82 +13,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType } from "vue";
-import ProductCard from "./ProductCard.vue";
-import GoodsDetails from "@/views/index/GoodsDetails.vue";
-import type { Product } from "@/api/mart.api";
+import { ref, toRefs, type PropType } from 'vue'
+import ProductCard from './ProductCard.vue'
+import GoodsDetails from '@/views/index/GoodsDetails.vue'
+import type { Product } from '@/api/mart.api'
 
-const products = defineModel("products", {
-  type: Array as PropType<Product[]>,
-  required: true,
-});
+const props = defineProps({
+  products: {
+    type: Array as PropType<Product[]>,
+    required: true,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+})
 
-const detailModalVisible = ref(false);
-const currentProduct = ref<Product | null>(null);
+const { products, loading } = toRefs(props)
+
+const detailModalVisible = ref(false)
+const currentProduct = ref<Product | null>(null)
 
 const openProductDetail = (p: Product) => {
-  currentProduct.value = p;
-  detailModalVisible.value = true;
-};
+  currentProduct.value = p
+  detailModalVisible.value = true
+}
 
 function closeModal() {
-  detailModalVisible.value = false;
+  detailModalVisible.value = false
 }
 </script>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
+.shell {
+  width: 100%;
+  min-height: 750px;
+}
+.loading-wrap {
+  width: 100%;
+  padding: 0 24px;
   box-sizing: border-box;
 }
-
-.title {
-  text-align: center;
-  font-size: 21px;
-  font-weight: 800;
-  color: rgb(122, 121, 121);
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
-
 .list {
-  padding: 24px;
-}
-.grid {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 }
-.col {
-  display: block;
-}
-@media (max-width: 768px) {
-  /* 针对手机端的样式调整 */
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .title {
-    font-size: 15px;
-  }
-
-  .title {
-    font-size: 15px;
-  }
-}
-@media (min-width: 1300px) {
-  /* 大屏幕 */
-  .grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (max-width: 767px) {
-  /* 更小屏幕 */
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 24px;
 }
 </style>

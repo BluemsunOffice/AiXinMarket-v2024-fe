@@ -3,13 +3,14 @@ import type { ApiResponse } from "@/types/request.types";
 import type { CoinType } from "@/types/goodsInfo";
 
 export type OrderType = "price" | "name" | "type" | "createTime";
+export type OrderDirection = "asc" | "desc" | null;
 export interface goodListSearchParams {
   pageSize: 8;
   pageNum: number;
   currencyType: string;
   name: string;
   type: string;
-  isAsc: boolean;
+  isAsc: OrderDirection;
   orderByColumn: OrderType;
 }
 

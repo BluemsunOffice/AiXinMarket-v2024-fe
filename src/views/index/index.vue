@@ -5,97 +5,57 @@
       <ProductCarrousel />
     </div>
     <ProductSearch @search="handleUnifiedSearch" />
-    <el-empty v-if="products.length === 0" :image-size="150" />
-    <ProductShow :products="products" />
-    <!-- <el-pagination
-      background
-      layout="prev, pager, next"
-      :total="totalNum"
-      :page-size="8"
-      v-model:currentPage="currentPage"
-      :pager-count="50"
-      @current-change="handlePageChange"
+    <ProductShow :products="products" :loading="isLoading" />
+    <el-empty v-if="!isLoading && products.length === 0" :image-size="150" />
+    <el-pagination
       id="pagenation"
-    /> -->
+      background
+      layout="prev, pager, next, jumper, total"
+      :total="totalNum"
+      :page-size="goodListSearchParams.pageSize"
+      v-model:current-page="currentPage"
+      @current-change="handlePageChange"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { ElEmpty, ElPagination } from 'element-plus'
 import NavBar from '@/components/NavBar/index.vue'
 import ProductCarrousel from '@/views/index/ProductCarrousel/index.vue'
-import ProductSearch from '@/views/index/ProductShow/ProductSearch/index.vue'
+import ProductSearch from '@/views/index/ProductShow/ProductSearch/product-search.vue'
 import ProductShow from '@/views/index/ProductShow/index.vue'
-import {
-  martApi,
-  type goodListSearchParams,
-  type goodListSearchResp,
-  type Product,
-} from '@/api/mart.api'
+import type { OrderDirection } from '@/api/mart.api'
+import { useProductStore } from '@/stores/productStore'
 
-const products = ref<Product[]>([])
+const productStore = useProductStore()
+const { products, totalNum, goodListSearchParams, isLoading } = storeToRefs(productStore)
+
 const currentPage = computed({
   get: () => goodListSearchParams.value.pageNum,
   set: (val) => {
     goodListSearchParams.value.pageNum = val
   },
 })
-const totalNum = ref(0) // 存储商品总数的响应式变量
-
-const goodListSearchParams = ref<goodListSearchParams>({
-  pageSize: 8,
-  pageNum: 1,
-  currencyType: '',
-  name: '',
-  type: '',
-  isAsc: false,
-  orderByColumn: 'price',
-})
-
-// 加载商品列表
-const loadProducts = () => {
-  console.log('Loading products with params:', goodListSearchParams.value)
-  martApi
-    .getGoodsList(goodListSearchParams.value)
-    .then((response) => {
-      const { code, msg, rows, total } = response as any as goodListSearchResp
-      console.log('API Response:', response)
-      if (code === 200) {
-        products.value = rows || []
-        totalNum.value = total || 0 // 更新商品总数
-      } else {
-        console.error('Failed to load products:', msg)
-      }
-    })
-    .catch((error) => {
-      console.error('Error loading products:', error)
-    })
-}
 
 // 页码改变时重新加载商品
-const handlePageChange = (newPage: number) => {
-  goodListSearchParams.value.pageNum = newPage
-  loadProducts()
+const handlePageChange = async (newPage: number) => {
+  await productStore.setPageNum(newPage)
 }
 
 onMounted(() => {
-  loadProducts()
-  console.log('Initial totalNum:', totalNum.value)
+  productStore.fetchProducts()
 })
 
 const handleUnifiedSearch = (payload: {
   name: string
   type: string
   currencyType: string
-  isAsc: boolean
+  isAsc: OrderDirection
 }) => {
-  goodListSearchParams.value.name = payload.name
-  goodListSearchParams.value.type = payload.type
-  goodListSearchParams.value.currencyType = payload.currencyType
-  goodListSearchParams.value.isAsc = payload.isAsc
-  goodListSearchParams.value.pageNum = 1
-  loadProducts()
+  productStore.updateSearch(payload)
 }
 </script>
 

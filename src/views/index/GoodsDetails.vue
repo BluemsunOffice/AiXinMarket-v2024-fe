@@ -19,9 +19,7 @@
       <div class="info">
         <div class="header-row">
           <div class="name">{{ productDetail.name }}</div>
-          <el-tag class="stock-chip" size="small" type="success" v-if="productDetail.amount > 0">
-            库存 {{ productDetail.amount }}
-          </el-tag>
+          <Stock v-if="productDetail.amount > 0" :amount="productDetail.amount" />
         </div>
         <div class="price-cartoon">
           <div class="coin-pill">
@@ -72,6 +70,7 @@ import { cartApi, type CartItemPayload } from '@/api/cart.api'
 import CartoonStepper from './components/CartoonStepper.vue'
 import type { Product } from '@/api/mart.api'
 import Coins from '@/components/coins/index.vue'
+import Stock from '@/components/stock/index.vue'
 
 const num = ref(1)
 const visible = ref(true)

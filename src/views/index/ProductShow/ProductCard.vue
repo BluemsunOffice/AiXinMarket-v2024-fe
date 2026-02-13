@@ -7,33 +7,34 @@
     <div class="body">
       <div class="title" :title="product.name">{{ product.name }}</div>
       <div class="meta">
-        <el-tag size="small" type="info">{{ product.currencyType }}</el-tag>
-        <el-text class="price" size="large">{{ product.price }}</el-text>
+        <Coins :coin-type="product.currencyType" :amount="product.price" />
       </div>
       <div class="stock">
-        <el-text size="small">库存：{{ product.amount }}</el-text>
+        <Stock :amount="product.amount" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { product } from "@/api/mart.api";
+import type { Product } from '@/api/mart.api'
+import Coins from '@/components/coins/index.vue'
+import Stock from '@/components/stock/index.vue'
 
 const emit = defineEmits<{
-  (e: "view"): void;
-}>();
+  (e: 'view'): void
+}>()
 
-const props = defineProps<{ product: product }>();
+const props = defineProps<{ product: Product }>()
 
-const product = props.product;
+const product = props.product
 
-const handleView = () => emit("view");
+const handleView = () => emit('view')
 </script>
 
 <style scoped>
 .card {
-  width: 100%;
+  width: 300px;
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
@@ -73,27 +74,29 @@ const handleView = () => emit("view");
 
 .body {
   padding: 12px;
-}
-.title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.meta {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  margin-top: 8px;
-}
-.price {
-  color: #1f5fbf;
-  font-weight: 700;
-}
-.stock {
-  margin-top: 6px;
-  color: #666;
+  font-size: 13px;
+  .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+  }
+
+  .stock {
+    gap: 4px;
+    font-size: 13px;
+    line-height: 1.2;
+    display: flex;
+    color: #666;
+  }
 }
 </style>
