@@ -15,7 +15,61 @@
       </template>
     </el-input>
 
+    <template v-if="isMobile">
+      <div class="mobile-filters">
+        <el-select
+          :model-value="type"
+          size="large"
+          placeholder="商品分类"
+          class="mobile-select"
+          @change="(value: string) => onDropdownCommand('type', value)"
+        >
+          <el-option
+            v-for="option in typeOptions"
+            :key="`type-${option.value || 'all'}`"
+            :label="option.label"
+            :value="option.value"
+          />
+        </el-select>
+
+        <el-select
+          :model-value="currencyType"
+          size="large"
+          placeholder="货币分类"
+          class="mobile-select"
+          @change="(value: string) => onDropdownCommand('currencyType', value)"
+        >
+          <el-option
+            v-for="option in currencyOptions"
+            :key="`currency-${option.value || 'all'}`"
+            :label="option.label"
+            :value="option.value"
+          >
+            <span :style="option.color ? { color: option.color, fontWeight: 700 } : undefined">
+              {{ option.label }}
+            </span>
+          </el-option>
+        </el-select>
+
+        <el-select
+          :model-value="order"
+          size="large"
+          placeholder="商品排序"
+          class="mobile-select"
+          @change="(value: string) => onDropdownCommand('order', value)"
+        >
+          <el-option
+            v-for="option in orderOptions"
+            :key="`order-${option.value || 'all'}`"
+            :label="option.label"
+            :value="option.value"
+          />
+        </el-select>
+      </div>
+    </template>
+
     <el-dropdown
+      v-else
       v-for="dropdown in dropdownConfigs"
       :key="dropdown.key"
       @command="(command: string) => onDropdownCommand(dropdown.key, command)"
@@ -57,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { Search, ArrowDown } from '@element-plus/icons-vue'
 import { CoinColor, CoinName, CoinType } from '@/types/goodsInfo'
 import type { OrderDirection } from '@/api/mart.api'
@@ -87,6 +141,7 @@ const type = ref('')
 const currencyType = ref('')
 const isAsc = ref<OrderDirection>(null)
 const order = ref('')
+const isMobile = ref(window.innerWidth <= 768)
 
 const typeOptions: DropdownOption[] = [
   { label: '全部', value: '' },
@@ -178,20 +233,38 @@ const emitSearch = () => {
     isAsc: isAsc.value,
   })
 }
+
+const updateDeviceState = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  updateDeviceState()
+  window.addEventListener('resize', updateDeviceState)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateDeviceState)
+})
 </script>
 
 <style scoped>
 .searchbar {
+  width: 100%;
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
-  height: 10vh;
+  min-height: 84px;
   padding: 14px 18px;
 }
 
 .search-input {
-  width: 32vw;
+  width: 360px;
+  height: 46px;
+  padding: 4px;
+  max-width: 32vw;
 }
 .search-icon {
   color: #3a7be0;
@@ -248,12 +321,37 @@ const emitSearch = () => {
   }
 }
 
+.mobile-filters {
+  padding: 10px;
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.mobile-select {
+  flex: 1;
+}
+
 @media (max-width: 768px) {
   .searchbar {
     margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+    min-height: 0;
   }
+
   .search-input {
-    width: 65vw;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .search-button {
+    width: 100%;
+    margin-top: 2px;
+    border-radius: 12px;
   }
 }
 </style>

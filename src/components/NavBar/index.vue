@@ -2,6 +2,24 @@
   <header class="navbar-shell">
     <div class="header-content">
       <div class="header-left">
+        <div v-if="isMobile" ref="mobileEntryRef" class="mobile-entry">
+          <button
+            class="mobile-trigger icon-menu"
+            @click="toggleMenu"
+            aria-label="展开导航"
+          >
+            <font-awesome-icon
+              icon="fa-solid fa-ellipsis-vertical"
+              style="color: rgba(116, 192, 252, 1)"
+            />
+          </button>
+          <ul v-show="isMenuVisible" class="mobile-dropdown">
+            <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)">首页</li>
+            <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)">购物车</li>
+            <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)">订单</li>
+          </ul>
+        </div>
+
         <div class="top_hello">
           <span class="hello brand-title">爱心超市</span>
           <span class="campus-slot">
@@ -9,14 +27,7 @@
           </span>
         </div>
 
-        <div
-          class="menuList"
-          :class="{
-            'mobile-menu': isMobile,
-            'mobile-hidden': isMobile && !isMenuVisible,
-          }"
-          v-show="!isMobile || (isMobile && isMenuVisible)"
-        >
+        <div class="menuList" v-show="!isMobile">
           <span class="hello">爱心超市</span>
           <div class="divider"></div>
           <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)">
@@ -37,12 +48,6 @@
             />
             订单
           </li>
-          <li v-if="isMobile" class="money-item">
-            <Coins :coinType="CoinType.CareCoin" :amount="generalBalance" />
-          </li>
-          <li v-if="isMobile" class="money-item">
-            <Coins :coinType="CoinType.WarmCoin" :amount="clothingBalance" />
-          </li>
         </div>
       </div>
 
@@ -53,7 +58,6 @@
         </div>
 
         <LogoutAction placement="bottom" />
-        <button v-if="isMobile" class="iconfont icon-menu" @click="toggleMenu"></button>
       </div>
     </div>
   </header>
@@ -71,6 +75,7 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const activeIndex = ref(0)
+const mobileEntryRef = ref<HTMLElement | null>(null)
 
 // 定义 isMobile 和 isMenuVisible
 const isMenuVisible = ref(false)
@@ -84,14 +89,28 @@ const checkIfMobile = () => {
 onMounted(() => {
   checkIfMobile()
   window.addEventListener('resize', checkIfMobile)
+  document.addEventListener('click', handleOutsideClick)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', checkIfMobile)
+  document.removeEventListener('click', handleOutsideClick)
 })
 
 const toggleMenu = () => {
   isMenuVisible.value = !isMenuVisible.value
+}
+
+const closeMenu = () => {
+  isMenuVisible.value = false
+}
+
+const handleOutsideClick = (event: MouseEvent) => {
+  if (!isMobile.value || !isMenuVisible.value) return
+  const target = event.target as Node
+  if (mobileEntryRef.value && !mobileEntryRef.value.contains(target)) {
+    closeMenu()
+  }
 }
 
 const generalBalance = computed(() => userStore.generalBalance)
@@ -108,13 +127,23 @@ watch(
   () => route.path,
   (currentPath) => {
     activeIndex.value = pathToIndexMap[currentPath] ?? 0
+    closeMenu()
   },
   { immediate: true },
 )
 
+watch(isMobile, (mobile) => {
+  if (!mobile) {
+    closeMenu()
+  }
+})
+
 const navigateToIndex = (index: number) => {
   activeIndex.value = index // 更新激活项
   const path = ['home', 'cart', 'orderList'][index]
+  if (isMobile.value) {
+    closeMenu()
+  }
   router.push(`/${path}`)
 }
 
@@ -205,6 +234,10 @@ onMounted(async () => {
   min-width: 300px;
 }
 
+.mobile-entry {
+  display: none;
+}
+
 .menuList {
   list-style: none;
   display: flex;
@@ -278,6 +311,48 @@ onMounted(async () => {
   cursor: pointer;
 }
 
+.mobile-trigger {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.mobile-dropdown {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 130px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(64, 158, 255, 0.2);
+  box-shadow: 0 10px 24px rgba(64, 158, 255, 0.16);
+  z-index: 1202;
+}
+
+.mobile-dropdown li {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: #303133;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.mobile-dropdown li.active,
+.mobile-dropdown li:hover {
+  color: #409eff;
+  background: rgba(64, 158, 255, 0.12);
+}
+
 .menuList li.active {
   border-bottom: 3px solid #9ec8f3;
   color: #409eff;
@@ -299,85 +374,18 @@ onMounted(async () => {
   }
 
   .header-left {
-    gap: 0;
-  }
-
-  .menuList.mobile-hidden {
-    display: none !important;
-  }
-
-  .menuList.mobile-menu:not(.mobile-hidden) {
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    background: linear-gradient(180deg, #409eff 0%, #78b9ff 100%);
-    height: 100vh;
-    width: min(300px, 72vw);
-    padding: 18px 12px;
-    overflow-y: auto;
-    gap: 16px;
-    z-index: 1001;
-    box-shadow: 12px 0 30px rgba(17, 40, 80, 0.32);
-  }
-
-  .menuList.mobile-menu .hello {
-    display: block;
-    color: white;
-    font-size: clamp(20px, 5vw, 28px) !important;
-    text-align: center;
-    margin: 2vh 1vw;
-    padding: 0 1vw;
-    line-height: 1.3;
-    word-break: keep-all;
-    white-space: normal;
-    overflow: visible;
-    font-family: '黑体';
-    font-weight: 700;
-  }
-
-  .menuList li {
-    display: flex;
+    gap: 10px;
     align-items: center;
-    color: white;
-    justify-content: center;
-    box-sizing: border-box;
-    padding: 12px;
-    height: auto;
-    min-height: 44px;
-    transition: background-color 0.3s;
-    cursor: pointer;
-    font-size: clamp(14px, 3vw, 18px);
-    line-height: 1.4;
-    white-space: normal;
-    overflow: visible;
-    margin: 0;
-    border-radius: 10px;
-    border-bottom: none;
   }
 
-  .menuList li.active,
-  .menuList li:hover:not(.active) {
-    border-bottom: none;
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
+  .mobile-entry {
+    display: flex;
+    position: relative;
+    align-items: center;
   }
 
-  .divider {
-    background: rgba(255, 255, 255, 0.1);
-    width: 100%;
-    height: 1px;
-  }
-
-  .top_hello,
-  .campus-slot {
-    display: none;
-  }
-
-  .hello {
-    color: white;
+  .top_hello {
+    min-width: 0;
   }
 
   .money {
@@ -391,17 +399,7 @@ onMounted(async () => {
   }
 
   .right .icon-menu {
-    cursor: pointer;
-    display: block;
-  }
-
-  .mobile-menu .money-item:first-of-type::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: 15%;
-    right: 15%;
-    height: 1px;
+    display: none;
   }
 }
 
