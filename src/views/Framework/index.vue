@@ -13,11 +13,12 @@
     >
       <div class="sidebar-title">{{ currentRole }} 导航</div>
       <el-scrollbar class="sidebar-scroll">
-        <el-menu :default-active="activeMenu" class="sidebar-menu">
+        <el-menu :default-active="activeMenu" class="sidebar-menu" router>
           <el-menu-item
             v-for="item in visibleMenus"
             :key="item.key"
-            :index="item.key"
+            :index="item.route || item.key"
+            :route="item.route"
             :class="['menu-item', { 'is-active': currentPage === item.page }]"
             @click="handleMenuClick(item)"
           >
@@ -32,7 +33,7 @@
 
     <el-container>
       <el-header class="header">
-        <h1 class="title">爱心超市管理系统</h1>
+        <h1 class="title">爱心超市管理系统 - {{ currentModuleLabel }}</h1>
         <el-button v-if="canAccessSuperMarket" class="market-entry" link @click="goToSuperMarket">
           <span>
             前往爱心超市
@@ -48,7 +49,7 @@
         <section v-if="currentPage === 'personalCenter'" class="personal-container">
           <personal-box
             :student-id="fundUserProfile.studentId"
-            :campus="userProfile.deptName"
+            :name="userProfile.userName"
             :role="userRole"
             :avatar-url="userProfile.avatar"
             @avatar-changed="handleUploadAvatar"
@@ -77,10 +78,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage, ElButton } from 'element-plus'
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
 import PersonalText from '@/views/Framework/components/PersonalText.vue'
 import { userApi } from '@/api/user.api'
@@ -100,16 +101,17 @@ const userStore = useUserStore()
 const { roleGroup: userRole, userProfile, fundUserProfile } = storeToRefs(userStore)
 
 const router = useRouter()
+const route = useRoute()
 const sidebarVisible = ref(true)
 const isMobile = ref(window.innerWidth <= 768)
 const outerVisible = ref(false)
-const activeMenu = ref('personalCenter')
+const activeMenu = ref('/framework')
 const currentPage = ref('personalCenter')
 
 const menuList: MenuItem[] = [
   {
     key: 'personalCenter',
-    label: '个人中心',
+    label: '账号中心',
     page: 'personalCenter',
     route: '/framework',
   },
@@ -122,7 +124,7 @@ const menuList: MenuItem[] = [
   },
   {
     key: 'personalProfile',
-    label: '个人档案',
+    label: '个人成长档案',
     page: 'personalProfile',
     route: '/framework/profile',
     roles: ['资助对象', '超级管理员'],
@@ -141,6 +143,10 @@ const canAccessSuperMarket = computed(() => ['资助对象', '超级管理员'].
 const visibleMenus = computed(() => {
   return menuList.filter((item) => !item.roles || item.roles.includes(currentRole.value))
 })
+const currentModuleLabel = computed(() => {
+  const matchedMenu = menuList.find((item) => item.page === currentPage.value)
+  return matchedMenu?.label || '个人中心'
+})
 
 const toggleSidebar = () => {
   sidebarVisible.value = !sidebarVisible.value
@@ -154,12 +160,8 @@ const updateDeviceState = () => {
 }
 
 const handleMenuClick = (item: MenuItem) => {
-  activeMenu.value = item.key
+  activeMenu.value = item.route || item.key
   currentPage.value = item.page
-
-  if (item.route) {
-    router.push(item.route)
-  }
 
   if (isMobile.value) {
     sidebarVisible.value = false
@@ -174,6 +176,18 @@ const handleBeforeClose = (done: () => void) => {
   done()
 }
 
+const syncMenuByRoute = () => {
+  const matched = menuList.find((item) => item.route === route.path)
+  if (matched) {
+    activeMenu.value = matched.route || matched.key
+    currentPage.value = matched.page
+    return
+  }
+
+  activeMenu.value = '/framework'
+  currentPage.value = 'personalCenter'
+}
+
 onMounted(async () => {
   const logged = await isLoggedIn()
   if (!logged) {
@@ -182,8 +196,16 @@ onMounted(async () => {
   }
 
   await userStore.getProfile()
+  syncMenuByRoute()
   window.addEventListener('resize', updateDeviceState)
 })
+
+watch(
+  () => route.path,
+  () => {
+    syncMenuByRoute()
+  },
+)
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateDeviceState)

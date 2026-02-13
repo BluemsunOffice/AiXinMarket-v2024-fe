@@ -71,6 +71,63 @@ export interface UserWithFundInfo {
   fundUserInfo: FundUserInfo;
 }
 
+export interface FundPunishRecord {
+  category: string;
+  punishTime: string;
+  reason: string;
+}
+
+export interface FundScholarshipRecord {
+  type: string;
+  grantDate: string;
+  amount: string | number;
+}
+
+export interface FundProjectRecord {
+  startDate: string;
+  endDate: string;
+  experience: string;
+}
+
+export interface UserOwnInfoData {
+  fundUserInfoVo: FundUserInfo;
+  fundPunishVo: FundPunishRecord[];
+  fundScholarshipVo: FundScholarshipRecord[];
+  fundProjectVo: FundProjectRecord[];
+  punishTotal: number;
+  scholarshipTotal: number;
+  projectTotal: number;
+}
+
+export interface OwnInfoQuery {
+  pageNum?: number;
+  pageSize?: number;
+}
+
+export interface UpdateOwnProfilePayload {
+  degree: string;
+  grade: string;
+  political: string;
+  marry: string;
+  apartment: string;
+  dormitory: string;
+  homeAddress: string | null;
+  college: string;
+  telephone: string;
+  major: string;
+  email: string;
+  status: string;
+  birthday: string;
+}
+
+export interface AddProjectPayload {
+  pageSize: number;
+  pageNum: number;
+  startDate: string;
+  endDate: string;
+  experience: string;
+}
+
 // 用户相关API
 export const userApi = {
   // 检查登录状态
@@ -86,6 +143,16 @@ export const userApi = {
   // 获取当前用户信息
   getCurrentUser: (): Promise<ApiResponse<UserWithFundInfo>> =>
     get("/system/user/profile"),
+
+  getOwnInfo: (params?: OwnInfoQuery): Promise<ApiResponse<UserOwnInfoData>> =>
+    get("/grow/userOwnInfo/list", params),
+
+  updateOwnProfile: (
+    data: UpdateOwnProfilePayload,
+  ): Promise<ApiResponse<void>> => post("/grow/userInfo/updateUserInfo", data),
+
+  addSocialExperience: (data: AddProjectPayload): Promise<ApiResponse<void>> =>
+    post("/grow/project/addProject", data),
 
   uploadAvatar: (file: File): Promise<ApiResponse<{ imgUrl: string }>> => {
     const formData = new FormData();

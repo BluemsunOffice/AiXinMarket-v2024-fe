@@ -24,12 +24,12 @@
     <!-- 用户信息区域 -->
     <div class="info-section">
       <div class="info-row">
-        <span class="info-label">学号：</span>
-        <span class="info-value">{{ studentId }}</span>
+        <span class="info-label">姓名：</span>
+        <span class="info-value">{{ name }}</span>
       </div>
       <div class="info-row">
-        <span class="info-label">校区：</span>
-        <span class="info-value">{{ campus }}</span>
+        <span class="info-label">学号：</span>
+        <span class="info-value">{{ studentId }}</span>
       </div>
       <div class="info-row">
         <span class="info-label">角色：</span>
@@ -44,8 +44,8 @@ import { ref, computed, watch } from "vue";
 
 // 定义Props接口
 interface Props {
+  name?: string;
   studentId?: string;
-  campus?: string;
   role?: string;
   avatarUrl?: string;
 }
@@ -54,7 +54,7 @@ const studentId = defineModel("studentId", {
   default: "-" as string,
   required: false,
 });
-const campus = defineModel("campus", {
+const name = defineModel("name", {
   default: "-" as string,
   required: false,
 });
@@ -80,7 +80,7 @@ const fileInput = ref<HTMLInputElement | null>(null);
 // 计算属性
 const defaultAvatarText = computed(() => {
   // 根据角色生成默认头像文字
-  return campus.value.charAt(0);
+  return name.value.charAt(0);
 });
 
 // 方法

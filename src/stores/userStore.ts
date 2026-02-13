@@ -1,7 +1,15 @@
 import { authConfig } from "@/config/request.config";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
-import { userApi, type FundUserInfo, type User } from "@/api/user.api";
+import {
+  userApi,
+  type FundProjectRecord,
+  type FundPunishRecord,
+  type FundScholarshipRecord,
+  type FundUserInfo,
+  type UpdateOwnProfilePayload,
+  type User,
+} from "@/api/user.api";
 import { getClientId } from "@/utils/device";
 import { isLoggedIn } from "@/utils/auth";
 
@@ -13,6 +21,12 @@ interface LoginParams {
   clientId?: string;
   rememberMe: boolean;
   grantType?: string;
+}
+
+interface PagingState {
+  pageNum: number;
+  pageSize: number;
+  total: number;
 }
 
 export const useUserStore = defineStore("user", () => {
@@ -32,6 +46,26 @@ export const useUserStore = defineStore("user", () => {
   const userProfile = ref<User>({} as User);
   const fundUserProfile = ref<FundUserInfo>({} as FundUserInfo);
   const roleGroup = ref<string>();
+  const ownProfile = ref<FundUserInfo>({} as FundUserInfo);
+  const ownPunishList = ref<FundPunishRecord[]>([]);
+  const ownScholarshipList = ref<FundScholarshipRecord[]>([]);
+  const ownProjectList = ref<FundProjectRecord[]>([]);
+
+  const punishPaging = reactive<PagingState>({
+    pageNum: 1,
+    pageSize: 8,
+    total: 0,
+  });
+  const scholarshipPaging = reactive<PagingState>({
+    pageNum: 1,
+    pageSize: 8,
+    total: 0,
+  });
+  const projectPaging = reactive<PagingState>({
+    pageNum: 1,
+    pageSize: 8,
+    total: 0,
+  });
 
   const initLoginState = async () => {
     initRemember();
@@ -130,6 +164,84 @@ export const useUserStore = defineStore("user", () => {
       });
   };
 
+  const setOwnProfilePageSize = (pageSize: number) => {
+    punishPaging.pageSize = pageSize;
+    scholarshipPaging.pageSize = pageSize;
+    projectPaging.pageSize = pageSize;
+  };
+
+  const fetchOwnProfile = async () => {
+    const { code, data } = await userApi.getOwnInfo();
+    if (code === 200) {
+      ownProfile.value = data.fundUserInfoVo;
+    }
+  };
+
+  const fetchOwnPunishList = async () => {
+    const { code, data } = await userApi.getOwnInfo({
+      pageNum: punishPaging.pageNum,
+      pageSize: punishPaging.pageSize,
+    });
+    if (code === 200) {
+      ownPunishList.value = data.fundPunishVo || [];
+      punishPaging.total = data.punishTotal || 0;
+    }
+  };
+
+  const fetchOwnScholarshipList = async () => {
+    const { code, data } = await userApi.getOwnInfo({
+      pageNum: scholarshipPaging.pageNum,
+      pageSize: scholarshipPaging.pageSize,
+    });
+    if (code === 200) {
+      ownScholarshipList.value = data.fundScholarshipVo || [];
+      scholarshipPaging.total = data.scholarshipTotal || 0;
+    }
+  };
+
+  const fetchOwnProjectList = async () => {
+    const { code, data } = await userApi.getOwnInfo({
+      pageNum: projectPaging.pageNum,
+      pageSize: projectPaging.pageSize,
+    });
+    if (code === 200) {
+      ownProjectList.value = data.fundProjectVo || [];
+      projectPaging.total = data.projectTotal || 0;
+    }
+  };
+
+  const fetchOwnProfilePageData = async () => {
+    await Promise.all([
+      fetchOwnProfile(),
+      fetchOwnPunishList(),
+      fetchOwnScholarshipList(),
+      fetchOwnProjectList(),
+    ]);
+  };
+
+  const updateOwnProfile = async (data: UpdateOwnProfilePayload) => {
+    const response = await userApi.updateOwnProfile(data);
+    if (response.code === 200) {
+      await fetchOwnProfile();
+    }
+    return response;
+  };
+
+  const updateOwnPunishPage = async (pageNum: number) => {
+    punishPaging.pageNum = pageNum;
+    await fetchOwnPunishList();
+  };
+
+  const updateOwnScholarshipPage = async (pageNum: number) => {
+    scholarshipPaging.pageNum = pageNum;
+    await fetchOwnScholarshipList();
+  };
+
+  const updateOwnProjectPage = async (pageNum: number) => {
+    projectPaging.pageNum = pageNum;
+    await fetchOwnProjectList();
+  };
+
   const logout = () => {
     authToken.value = "";
     role.value = "";
@@ -145,6 +257,13 @@ export const useUserStore = defineStore("user", () => {
     userProfile,
     fundUserProfile,
     roleGroup,
+    ownProfile,
+    ownPunishList,
+    ownScholarshipList,
+    ownProjectList,
+    punishPaging,
+    scholarshipPaging,
+    projectPaging,
 
     login,
     logout,
@@ -153,5 +272,15 @@ export const useUserStore = defineStore("user", () => {
     initLoginState,
     getProfile,
     updateAvatar,
+    setOwnProfilePageSize,
+    fetchOwnProfile,
+    fetchOwnPunishList,
+    fetchOwnScholarshipList,
+    fetchOwnProjectList,
+    fetchOwnProfilePageData,
+    updateOwnProfile,
+    updateOwnPunishPage,
+    updateOwnScholarshipPage,
+    updateOwnProjectPage,
   };
 });
