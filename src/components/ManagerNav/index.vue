@@ -20,8 +20,8 @@
 
       <div class="manager-nav__right">
         <div class="manager-nav__balance">
-          <Coins :coinType="CoinType.CareCoin" :amount="generalBalance" />
           <Coins :coinType="CoinType.WarmCoin" :amount="clothingBalance" />
+          <Coins :coinType="CoinType.CareCoin" :amount="generalBalance" />
         </div>
         <el-avatar :size="42" :src="avatarUrl" />
         <el-button type="primary" plain @click="centerDialogVisible = true"> 退出登录 </el-button>

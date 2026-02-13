@@ -48,12 +48,8 @@
 
       <div class="right">
         <div class="money" v-if="!isMobile">
-          <span class="money-line">
-            <Coins :coinType="CoinType.WarmCoin" :amount="generalBalance" />
-          </span>
-          <span class="money-line">
-            <Coins :coinType="CoinType.CareCoin" :amount="clothingBalance" />
-          </span>
+          <Coins :coinType="CoinType.CareCoin" :amount="generalBalance" />
+          <Coins :coinType="CoinType.WarmCoin" :amount="clothingBalance" />
         </div>
 
         <LogoutAction placement="bottom" />

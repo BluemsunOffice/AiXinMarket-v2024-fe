@@ -28,7 +28,7 @@ export interface OrderInfoItem {
 }
 
 export interface UserOrderItem {
-  id: number;
+  id: string;
   status: string;
   createTime: string;
   generalBalance: number | string;
@@ -53,7 +53,7 @@ export interface OrderListQuery {
 }
 
 export interface OrderInfoPageQuery {
-  orderId: number;
+  orderId: string;
   pageSize: number;
   pageNum: number;
 }
@@ -90,9 +90,9 @@ export const orderApi = {
       (response) => response as unknown as PagedRows<UserOrderItem>,
     ),
 
-  cancelUserOrder: (orderId: number): Promise<ApiResponse> =>
+  cancelUserOrder: (orderId: string): Promise<ApiResponse> =>
     post(`/market/order/cancel/${orderId}`),
 
-  getUserOrderDetail: (orderId: number): Promise<UserOrderInfoItem[]> =>
+  getUserOrderDetail: (orderId: string): Promise<UserOrderInfoItem[]> =>
     request.get(`/market/orderInfo/${orderId}`).then((response) => response.data as UserOrderInfoItem[]),
 };

@@ -1,6 +1,6 @@
 export enum CoinType {
-  WarmCoin = "0",
-  CareCoin = "1",
+  WarmCoin = "1",
+  CareCoin = "0",
 }
 
 export const CoinName = {

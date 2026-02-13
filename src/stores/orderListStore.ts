@@ -77,7 +77,7 @@ export const useOrderListStore = defineStore("orderList", () => {
 
   const cancelOrder = async (row: UserOrderItem) => {
     try {
-      const response = await orderApi.cancelUserOrder(Number(row.id));
+      const response = await orderApi.cancelUserOrder(row.id);
       if (response.code === 200) {
         ElMessage.success("取消成功");
         await fetchOrderList(query.pageNum, query.pageSize);
@@ -100,7 +100,7 @@ export const useOrderListStore = defineStore("orderList", () => {
     loadings.detail = true;
 
     try {
-      const detail = await orderApi.getUserOrderDetail(Number(row.id));
+      const detail = await orderApi.getUserOrderDetail(row.id);
       detailTableData.value = Array.isArray(detail) ? detail : [];
     } catch (error) {
       console.error("获取订单详情失败:", error);
