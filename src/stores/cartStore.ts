@@ -16,7 +16,7 @@ export const useCartStore = defineStore("cartStore", () => {
 
   const cartItems = ref<CartItem[]>([]);
   const filteredItems = computed(() => cartItems.value);
-  const selectedItems = ref<number[]>([]);
+  const selectedItems = ref<string[]>([]);
   const userBalance = ref<CartBalance>({
     generalBalance: 0,
     clothingBalance: 0,
@@ -26,7 +26,7 @@ export const useCartStore = defineStore("cartStore", () => {
   const isLoading = ref(true);
   const isSettling = ref(false);
 
-  const pendingQuantityUpdates = new Map<number, PendingQuantityUpdate>();
+  const pendingQuantityUpdates = new Map<string, PendingQuantityUpdate>();
 
   const isAllSelected = computed({
     get: () => {
@@ -71,10 +71,10 @@ export const useCartStore = defineStore("cartStore", () => {
   };
 
   const mergeCartItems = (items: CartItem[]) => {
-    const itemMap = new Map<number, CartItem>();
+    const itemMap = new Map<string, CartItem>();
 
     items.forEach((item) => {
-      const goodsId = Number(item.goodsId);
+      const goodsId = item.goodsId;
       const existing = itemMap.get(goodsId);
 
       if (existing) {
@@ -91,6 +91,7 @@ export const useCartStore = defineStore("cartStore", () => {
   };
 
   const refreshStockLimit = async (item: CartItem) => {
+    console.log(`正在刷新商品 ${item.goodsId} 的库存限制...`);
     try {
       const detailResp = await cartApi.goodsDetail(item.goodsId);
       console.log(`商品 ${item.goodsId} 库存信息:`, detailResp.data);
@@ -109,11 +110,13 @@ export const useCartStore = defineStore("cartStore", () => {
     try {
       const listResp = await cartApi.list();
       const list = Array.isArray(listResp.data) ? listResp.data : [];
+      console.log("原始购物车数据:", list);
 
       const mergedItems = mergeCartItems(list);
       await Promise.all(mergedItems.map((item) => refreshStockLimit(item)));
 
       cartItems.value = mergedItems;
+      console.log("购物车商品列表:", cartItems.value);
 
       const validIds = new Set(mergedItems.map((item) => item.goodsId));
       selectedItems.value = selectedItems.value.filter((id) => validIds.has(id));
@@ -149,7 +152,7 @@ export const useCartStore = defineStore("cartStore", () => {
     return;
   };
 
-  const removeSelectedItems = async (itemId: number) => {
+  const removeSelectedItems = async (itemId: string) => {
     try {
       const response = await cartApi.remove([itemId]);
       if (response.code === 200) {
@@ -211,7 +214,7 @@ export const useCartStore = defineStore("cartStore", () => {
     }
   };
 
-  const syncItemToServer = async (itemId: number, quantity: number) => {
+  const syncItemToServer = async (itemId: string, quantity: number) => {
     const item = cartItems.value.find((cartItem) => cartItem.goodsId === itemId);
     if (!item) {
       return;
@@ -234,7 +237,7 @@ export const useCartStore = defineStore("cartStore", () => {
     }
   };
 
-  const updateItemQuantity = async (itemId: number, newQuantity: number) => {
+  const updateItemQuantity = async (itemId: string, newQuantity: number) => {
     const item = cartItems.value.find((cartItem) => cartItem.goodsId === itemId);
     if (!item) {
       return;

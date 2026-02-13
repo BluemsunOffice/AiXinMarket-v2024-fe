@@ -3,14 +3,14 @@ import type { ApiResponse } from "@/types/request.types";
 import type { CoinType } from "@/types/goodsInfo";
 
 export interface CartItemPayload {
-    goodsId: number | string;
+    goodsId: string;
     num: number;
     imgUrl?: string;
     goodsName?: string;
 }
 
 export interface CartItem {
-    goodsId: number;
+    goodsId: string;
     goodsName: string;
     imageUrlUrl: string;
     currencyType: CoinType;
@@ -33,12 +33,12 @@ export interface GoodsDetailData {
 export const cartApi = {
     list: (): Promise<ApiResponse<CartItem[]>> => get("/market/cart/list"),
 
-    goodsDetail: (goodsId: number): Promise<ApiResponse<GoodsDetailData>> =>
+    goodsDetail: (goodsId: string): Promise<ApiResponse<GoodsDetailData>> =>
         get(`/market/goods/${goodsId}`),
 
     balance: (): Promise<ApiResponse<CartBalance>> => get("/market/balance"),
 
-    remove: (removeItemIds: number[]): Promise<ApiResponse> =>
+    remove: (removeItemIds: string[]): Promise<ApiResponse> =>
         del(`/market/cart/${removeItemIds.join(",")}`),
 
     settle: (data: { carts: CartItemPayload[] }): Promise<ApiResponse> =>

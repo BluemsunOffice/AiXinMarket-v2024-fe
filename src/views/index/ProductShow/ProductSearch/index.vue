@@ -15,54 +15,37 @@
       </template>
     </el-input>
 
-    <el-dropdown @command="onType">
+    <el-dropdown
+      v-for="dropdown in dropdownConfigs"
+      :key="dropdown.key"
+      @command="(command: string) => onDropdownCommand(dropdown.key, command)"
+    >
       <el-button type="primary" plain size="large" class="dropdown-btn">
-        商品分类：
-        <span>{{ typeLabel }}</span>
+        {{ dropdown.title }}：
+        <span
+          :style="
+            dropdown.key === 'currencyType' && dropdown.selectedColor
+              ? { color: dropdown.selectedColor, fontWeight: 700 }
+              : undefined
+          "
+        >
+          {{ dropdown.selectedLabel }}
+        </span>
         <el-icon class="el-icon--right">
           <ArrowDown />
         </el-icon>
       </el-button>
       <template #dropdown>
         <el-dropdown-menu>
-          <el-dropdown-item command="">全部</el-dropdown-item>
-          <el-dropdown-item command="1">服装</el-dropdown-item>
-          <el-dropdown-item command="0">日常用品</el-dropdown-item>
-          <el-dropdown-item command="2">学习用品</el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
-
-    <el-dropdown @command="onCurrency">
-      <el-button type="primary" plain size="large" class="dropdown-btn">
-        货币分类：
-        <span>{{ currencyLabel }}</span>
-        <el-icon class="el-icon--right">
-          <ArrowDown />
-        </el-icon>
-      </el-button>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item command="">全部</el-dropdown-item>
-          <el-dropdown-item command="1">服装币</el-dropdown-item>
-          <el-dropdown-item command="0">日用币</el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
-
-    <el-dropdown @command="onOrder">
-      <el-button type="primary" plain size="large" class="dropdown-btn">
-        商品排序：
-        <span>{{ orderLabel }}</span>
-        <el-icon class="el-icon--right">
-          <ArrowDown />
-        </el-icon>
-      </el-button>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item command="">综合</el-dropdown-item>
-          <el-dropdown-item command="asc">按价格升序</el-dropdown-item>
-          <el-dropdown-item command="desc">按价格降序</el-dropdown-item>
+          <el-dropdown-item
+            v-for="option in dropdown.options"
+            :key="`${dropdown.key}-${option.value || 'all'}`"
+            :command="option.value"
+          >
+            <span :style="option.color ? { color: option.color, fontWeight: 700 } : undefined">
+              {{ option.label }}
+            </span>
+          </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -73,66 +56,127 @@
   </div>
 </template>
 
-<script setup name="SortDetails" lang="ts">
-import { ref, computed } from "vue";
-import { Search, ArrowDown } from "@element-plus/icons-vue";
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { Search, ArrowDown } from '@element-plus/icons-vue'
+import { CoinColor, CoinName, CoinType } from '@/types/goodsInfo'
+
+type DropdownKey = 'type' | 'currencyType' | 'order'
+
+interface DropdownOption {
+  label: string
+  value: string
+  color?: string
+}
 
 const emit = defineEmits<{
   (
-    e: "search",
+    e: 'search',
     payload: {
-      name: string;
-      type: string;
-      currencyType: string;
-      isAsc: boolean;
+      name: string
+      type: string
+      currencyType: string
+      isAsc: boolean
     },
-  ): void;
-}>();
+  ): void
+}>()
 
-const name = ref("");
-const type = ref("");
-const currencyType = ref("");
-const isAsc = ref(false);
-const order = ref("");
+const name = ref('')
+const type = ref('')
+const currencyType = ref('')
+const isAsc = ref(false)
+const order = ref('')
 
-const typeLabel = computed(() => {
-  if (type.value === "1") return "服装";
-  if (type.value === "0") return "日常用品";
-  if (type.value === "2") return "学习用品";
-  return "全部";
-});
+const typeOptions: DropdownOption[] = [
+  { label: '全部', value: '' },
+  { label: '服装', value: '1' },
+  { label: '日常用品', value: '0' },
+  { label: '学习用品', value: '2' },
+]
 
-const currencyLabel = computed(() => {
-  if (currencyType.value === "1") return "服装币";
-  if (currencyType.value === "0") return "日用币";
-  return "全部";
-});
+const currencyOptions: DropdownOption[] = [
+  { label: '全部', value: '' },
+  {
+    label: CoinName[CoinType.WarmCoin],
+    value: CoinType.WarmCoin,
+    color: CoinColor[CoinType.WarmCoin],
+  },
+  {
+    label: CoinName[CoinType.CareCoin],
+    value: CoinType.CareCoin,
+    color: CoinColor[CoinType.CareCoin],
+  },
+]
 
-const orderLabel = computed(() => {
-  if (order.value === "") return "综合";
-  if (order.value === "asc") return "按价格升序";
-  return "按价格降序";
-});
+const orderOptions: DropdownOption[] = [
+  { label: '综合', value: '' },
+  { label: '按价格升序', value: 'asc' },
+  { label: '按价格降序', value: 'desc' },
+]
 
-const onType = (command: string) => {
-  type.value = command;
-};
-const onCurrency = (command: string) => {
-  currencyType.value = command;
-};
-const onOrder = (command: string) => {
-  order.value = command;
-  isAsc.value = command === "asc" ? true : command === "desc" ? false : false;
-};
+const getSelectedLabel = (
+  options: DropdownOption[],
+  selectedValue: string,
+  fallbackLabel: string,
+) => {
+  return options.find((option) => option.value === selectedValue)?.label || fallbackLabel
+}
+
+const selectedCurrencyColor = computed(() => {
+  return currencyOptions.find((option) => option.value === currencyType.value)?.color
+})
+
+const dropdownConfigs = computed(() => {
+  return [
+    {
+      key: 'type' as const,
+      title: '商品分类',
+      options: typeOptions,
+      selectedLabel: getSelectedLabel(typeOptions, type.value, '全部'),
+      selectedColor: '',
+    },
+    {
+      key: 'currencyType' as const,
+      title: '货币分类',
+      options: currencyOptions,
+      selectedLabel: getSelectedLabel(currencyOptions, currencyType.value, '全部'),
+      selectedColor: selectedCurrencyColor.value || '',
+    },
+    {
+      key: 'order' as const,
+      title: '商品排序',
+      options: orderOptions,
+      selectedLabel: getSelectedLabel(orderOptions, order.value, '综合'),
+      selectedColor: '',
+    },
+  ]
+})
+
+const onDropdownCommand = (key: DropdownKey, command: string) => {
+  if (key === 'type') {
+    type.value = command
+  }
+
+  if (key === 'currencyType') {
+    currencyType.value = command
+  }
+
+  if (key === 'order') {
+    order.value = command
+    isAsc.value = command === 'asc'
+  }
+
+  emitSearch()
+}
 
 const emitSearch = () => {
-  emit("search", {
+  emit('search', {
     name: name.value,
     type: type.value,
     currencyType: currencyType.value,
     isAsc: isAsc.value,
-  });
-};
+  })
+}
 </script>
 
 <style scoped>

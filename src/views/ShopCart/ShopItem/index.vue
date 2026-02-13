@@ -50,9 +50,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  'toggle-select': [goodsId: number, checked: boolean]
-  'quantity-change': [goodsId: number, quantity: number]
-  remove: [goodsId: number]
+  'toggle-select': [goodsId: string, checked: boolean]
+  'quantity-change': [goodsId: string, quantity: number]
+  remove: [goodsId: string]
 }>()
 
 const formatPrice = (row: { price: number }) => +row.price.toFixed(2)

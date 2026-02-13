@@ -17,7 +17,7 @@ export interface AdminOrderItem {
 
 export interface OrderInfoItem {
     orderId: number;
-    goodsId: number;
+    goodsId: string;
     goodsName: string;
     price: number | string;
     amount: number;

@@ -129,9 +129,9 @@ const {
 } = cartStore
 
 const removeConfirmVisible = ref(false)
-const itemToRemove = ref<number | null>(null)
+const itemToRemove = ref<string | null>(null)
 
-const showRemoveConfirmation = (goodsId: number) => {
+const showRemoveConfirmation = (goodsId: string) => {
   itemToRemove.value = goodsId
   removeConfirmVisible.value = true
 }
@@ -145,7 +145,7 @@ const confirmRemove = async () => {
   itemToRemove.value = null
 }
 
-const handleQuantityChange = (goodsId: number, value: number) => {
+const handleQuantityChange = (goodsId: string, value: number) => {
   const targetItem = filteredItems.value.find((item) => item.goodsId === goodsId)
   if (!targetItem) {
     return
@@ -160,7 +160,7 @@ const handleQuantityChange = (goodsId: number, value: number) => {
   updateItemQuantity(goodsId, normalizedQuantity)
 }
 
-const handleToggleSelect = (goodsId: number, checked: boolean) => {
+const handleToggleSelect = (goodsId: string, checked: boolean) => {
   const exists = selectedItems.value.includes(goodsId)
   if (checked && !exists) {
     selectedItems.value.push(goodsId)

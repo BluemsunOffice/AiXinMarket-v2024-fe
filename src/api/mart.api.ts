@@ -39,5 +39,5 @@ export interface Product {
 export const martApi = {
   // 获取商品列表
   getGoodsList: (params: goodListSearchParams): Promise<ApiResponse> =>
-    get("/market/goods/list", { params }),
+    get("/market/goods/list", params),
 };
