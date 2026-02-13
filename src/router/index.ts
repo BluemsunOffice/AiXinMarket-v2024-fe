@@ -61,13 +61,14 @@ const router = createRouter({
       name: "framework",
       component: () => import("@/views/Framework/index.vue"),
       meta: { role: ["超市管理员", "资助对象", "老师", "超级管理员"] },
+      children: [
+        {
+          path: "profile",
+          name: "profile",
+          component: () => import("@/views/Profile/index.vue"),
+        },
+      ]
     },
-    {
-      path: "/new-file",
-      name: "new-file",
-      component: () => import("@/views/new-file.vue"),
-    },
-
     {
       path: "/studentFiles",
       name: "studentFiles",

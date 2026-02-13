@@ -434,7 +434,7 @@
                         </div>
                         <!-- <template #label class="label-container">
                                 <span style="font-size: 20px;">手&nbsp;机&nbsp;号&nbsp;:&nbsp;</span>
-                                
+
                               </template> -->
 
                         <el-input
@@ -559,8 +559,8 @@
 
 <script lang="ts" setup>
 import axios from "axios";
-import NavBar_back from "./Student/components/NavBar_back.vue";
-import NavBar from "./Student/components/NavBar.vue";
+import NavBar_back from "../Student/components/NavBar_back.vue";
+import NavBar from "../Student/components/NavBar.vue";
 import { computed, ref, onMounted, reactive, onBeforeUnmount } from "vue";
 import {
   Iphone,
