@@ -38,12 +38,10 @@
             订单
           </li>
           <li v-if="isMobile" class="money-item">
-            <font-awesome-icon icon="fa-solid fa-coins" style="color: rgba(116, 192, 252, 1)" />
-            日用币：{{ generalBalance }}
+            <Coins :coinType="CoinType.CareCoin" :amount="generalBalance" />
           </li>
           <li v-if="isMobile" class="money-item">
-            <font-awesome-icon icon="fa-solid fa-coins" style="color: rgba(252, 116, 148, 1)" />
-            服饰币：{{ clothingBalance }}
+            <Coins :coinType="CoinType.WarmCoin" :amount="clothingBalance" />
           </li>
         </div>
       </div>
@@ -51,12 +49,10 @@
       <div class="right">
         <div class="money" v-if="!isMobile">
           <span class="money-line">
-            <Coins :coinType="CoinType.WarmCoin" />
-            <span class="money-value">{{ generalBalance }}</span>
+            <Coins :coinType="CoinType.WarmCoin" :amount="generalBalance" />
           </span>
           <span class="money-line">
-            <Coins :coinType="CoinType.CareCoin" />
-            <span class="money-value">{{ clothingBalance }}</span>
+            <Coins :coinType="CoinType.CareCoin" :amount="clothingBalance" />
           </span>
         </div>
 

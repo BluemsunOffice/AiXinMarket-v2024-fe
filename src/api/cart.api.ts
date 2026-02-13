@@ -1,5 +1,6 @@
 import { del, get, post, put } from "@/utils/request";
 import type { ApiResponse } from "@/types/request.types";
+import type { CoinType } from "@/types/goodsInfo";
 
 export interface CartItemPayload {
     goodsId: number | string;
@@ -12,7 +13,7 @@ export interface CartItem {
     goodsId: number;
     goodsName: string;
     imageUrlUrl: string;
-    currencyType: string;
+    currencyType: CoinType;
     price: number;
     num: number;
     limitNum: number;

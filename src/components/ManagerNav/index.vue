@@ -20,8 +20,8 @@
 
       <div class="manager-nav__right">
         <div class="manager-nav__balance">
-          <span>日用币：{{ generalBalance }}</span>
-          <span>服饰币：{{ clothingBalance }}</span>
+          <Coins :coinType="CoinType.CareCoin" :amount="generalBalance" />
+          <Coins :coinType="CoinType.WarmCoin" :amount="clothingBalance" />
         </div>
         <el-avatar :size="42" :src="avatarUrl" />
         <el-button type="primary" plain @click="centerDialogVisible = true"> 退出登录 </el-button>
@@ -47,6 +47,8 @@ import { Box, Document, ShoppingCartFull } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { userApi } from '@/api/user.api'
 import { useUserStore } from '@/stores/userStore'
+import Coins from '@/components/coins/index.vue'
+import { CoinType } from '@/types/goodsInfo'
 
 interface NavMenuItem {
   path: string

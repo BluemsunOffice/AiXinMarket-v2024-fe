@@ -7,6 +7,7 @@
       }"
     />
     <span class="label">{{ CoinName[coinType] }}</span>
+    <span v-if="amount && amount >= 0" class="amount">{{ amount }}</span>
   </div>
 </template>
 
@@ -16,6 +17,10 @@ import { CoinType, CoinColor, CoinName } from '@/types/goodsInfo'
 defineModel('coinType', {
   default: CoinType.CareCoin,
   required: true,
+})
+defineModel('amount', {
+  default: -1 as number,
+  required: false,
 })
 </script>
 
@@ -34,5 +39,11 @@ defineModel('coinType', {
 .label {
   min-width: 52px;
   text-align: left;
+}
+
+.amount {
+  min-width: 20px;
+  text-align: left;
+  font-weight: 600;
 }
 </style>

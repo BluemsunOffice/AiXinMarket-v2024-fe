@@ -11,8 +11,9 @@
         <el-tooltip :content="item.goodsName" placement="top">
           <h3 class="item-title">{{ item.goodsName }}</h3>
         </el-tooltip>
-        <p class="item-price">{{ formatPrice(item) }}</p>
-        <p class="item-meta">货币类型：{{ item.currencyType === '0' ? '日用币' : '服装币' }}</p>
+        <p class="item-price">
+          <Coins :coin-type="item.currencyType" :amount="formatPrice(item)" />
+        </p>
         <p class="item-meta">
           库存剩余：
           <span :class="{ 'low-stock': item.limitNum <= 5 }">{{ item.limitNum }}</span>
@@ -39,6 +40,7 @@
 <script setup lang="ts">
 import CartoonStepper from '@/views/index/components/CartoonStepper.vue'
 import type { CartItem } from '@/api/cart.api'
+import Coins from '@/components/coins/index.vue'
 
 interface Props {
   item: CartItem
@@ -53,7 +55,7 @@ const emit = defineEmits<{
   remove: [goodsId: number]
 }>()
 
-const formatPrice = (row: { price: number }) => row.price.toFixed(2)
+const formatPrice = (row: { price: number }) => +row.price.toFixed(2)
 
 const onSelectChange = (checked: string | number | boolean) => {
   emit('toggle-select', props.item.goodsId, Boolean(checked))
@@ -139,8 +141,11 @@ const onQuantityChange = (value: number) => {
 }
 
 .item-price {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0;
-  font-size: 23px;
+  font-size: 16px;
   color: #111;
   font-weight: 600;
 }

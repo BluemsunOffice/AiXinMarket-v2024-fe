@@ -25,9 +25,8 @@
         </div>
         <div class="price-cartoon">
           <div class="coin-pill">
-            <Coins :coinType="productDetail.currencyType" />
+            <Coins :coinType="productDetail.currencyType" :amount="productDetail.price" />
           </div>
-          <span class="price-num">{{ productDetail.price }}</span>
         </div>
 
         <div class="divider"></div>
