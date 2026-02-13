@@ -99,6 +99,11 @@ export interface UserOwnInfoData {
   projectTotal: number;
 }
 
+export interface MarketBalanceData {
+  generalBalance: number;
+  clothingBalance: number;
+}
+
 export interface OwnInfoQuery {
   pageNum?: number;
   pageSize?: number;
@@ -143,6 +148,9 @@ export const userApi = {
   // 获取当前用户信息
   getCurrentUser: (): Promise<ApiResponse<UserWithFundInfo>> =>
     get("/system/user/profile"),
+
+  getMarketBalance: (): Promise<ApiResponse<MarketBalanceData>> =>
+    get("/market/balance"),
 
   getOwnInfo: (params?: OwnInfoQuery): Promise<ApiResponse<UserOwnInfoData>> =>
     get("/grow/userOwnInfo/list", params),

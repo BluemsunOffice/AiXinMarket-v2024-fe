@@ -13,13 +13,7 @@
     >
       <div class="sidebar-title">
         <span class="sidebar-title-text">{{ currentRole }} 导航</span>
-        <span text class="sidebar-logout-btn" @click="outerVisible = true">
-          <el-tooltip content="退出登录" effect="light" placement="right">
-            <el-icon>
-              <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket" style="color: rgba(249, 55, 55, 1.00);" />
-            </el-icon>
-          </el-tooltip>
-        </span>
+        <LogoutAction placement="right" />
       </div>
       <el-scrollbar class="sidebar-scroll">
         <el-menu :default-active="activeMenu" class="sidebar-menu" router>
@@ -66,42 +60,16 @@
       </el-main>
     </el-container>
   </el-container>
-
-  <el-dialog
-    v-model="outerVisible"
-    class="logout-dialog"
-    title="退出确认"
-    width="420px"
-    :before-close="handleBeforeClose"
-  >
-    <div class="dialog-content logout-dialog-content">
-      <div class="logout-icon-wrap">
-        <el-icon class="logout-icon"><WarningFilled /></el-icon>
-      </div>
-      <div class="logout-text-wrap">
-        <p class="logout-title">确认退出当前账号吗？</p>
-        <p class="logout-subtitle">退出后将返回登录页</p>
-      </div>
-    </div>
-    <template #footer>
-      <div class="dialog-footer logout-dialog-footer">
-        <el-button class="logout-cancel-btn" @click="outerVisible = false">取消</el-button>
-        <el-button type="primary" class="logout-confirm-btn" @click="handleLogout"
-          >确认退出</el-button
-        >
-      </div>
-    </template>
-  </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ElMessage, ElButton } from 'element-plus'
-import { ArrowLeft, ArrowRight, WarningFilled } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
 import PersonalText from '@/views/Framework/components/PersonalText.vue'
-import { userApi } from '@/api/user.api'
+import LogoutAction from '@/components/LogoutAction/index.vue'
 import { isLoggedIn } from '@/utils/auth'
 import { useUserStore } from '@/stores/userStore'
 import { storeToRefs } from 'pinia'
@@ -121,7 +89,6 @@ const router = useRouter()
 const route = useRoute()
 const sidebarVisible = ref(true)
 const isMobile = ref(window.innerWidth <= 768)
-const outerVisible = ref(false)
 const activeMenu = ref('/framework')
 const currentPage = ref('personalCenter')
 
@@ -189,10 +156,6 @@ const goToSuperMarket = () => {
   router.push('/home')
 }
 
-const handleBeforeClose = (done: () => void) => {
-  done()
-}
-
 const syncMenuByRoute = () => {
   const matched = menuList.find((item) => item.route === route.path)
   if (matched) {
@@ -233,25 +196,6 @@ const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
     ElMessage.error('头像上传失败')
   })
 }
-
-const handleLogout = async () => {
-  try {
-    const { code, message: msg } = await userApi.logout()
-    if (code === 200) {
-      ElMessage.success('退出成功！')
-      outerVisible.value = false
-      userStore.logout()
-      setTimeout(() => {
-        router.push('/')
-        outerVisible.value = false
-      }, 500)
-    } else {
-      ElMessage.error(msg + '!')
-    }
-  } catch (error) {
-    ElMessage.error('请求失败！')
-  }
-}
 </script>
 
 <style scoped>
@@ -282,17 +226,6 @@ const handleLogout = async () => {
 
 .sidebar-title-text {
   pointer-events: none;
-}
-
-.sidebar-logout-btn {
-  position: absolute;
-  right: 10px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.sidebar-logout-btn:hover {
-  color: #ffc2c5;
 }
 
 .sidebar-scroll {
@@ -366,70 +299,6 @@ const handleLogout = async () => {
   background: #3a7bfa;
   color: #fff;
   border: none;
-}
-
-.dialog-content {
-  text-align: center;
-  padding: 12px 0;
-  color: #4b5563;
-}
-
-.logout-dialog-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 4px 4px;
-}
-
-.logout-icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--el-color-warning-light-9);
-  flex-shrink: 0;
-}
-
-.logout-icon {
-  color: var(--el-color-warning);
-  font-size: 22px;
-}
-
-.logout-text-wrap {
-  text-align: left;
-}
-
-.logout-title {
-  margin: 0;
-  font-size: 16px;
-  color: var(--el-text-color-primary);
-  font-weight: 600;
-}
-
-.logout-subtitle {
-  margin: 6px 0 0;
-  font-size: 13px;
-  color: var(--el-text-color-secondary);
-}
-
-.dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.logout-dialog-footer {
-  padding-top: 6px;
-}
-
-.logout-cancel-btn {
-  min-width: 82px;
-}
-
-.logout-confirm-btn {
-  min-width: 96px;
 }
 
 @media (max-width: 768px) {

@@ -46,6 +46,11 @@ export const useUserStore = defineStore("user", () => {
   const userProfile = ref<User>({} as User);
   const fundUserProfile = ref<FundUserInfo>({} as FundUserInfo);
   const roleGroup = ref<string>();
+  const campusName = ref("");
+  const avatarUrl = ref("");
+  const generalBalance = ref(0);
+  const clothingBalance = ref(0);
+  const navDataLoaded = ref(false);
   const ownProfile = ref<FundUserInfo>({} as FundUserInfo);
   const ownPunishList = ref<FundPunishRecord[]>([]);
   const ownScholarshipList = ref<FundScholarshipRecord[]>([]);
@@ -148,9 +153,33 @@ export const useUserStore = defineStore("user", () => {
         userProfile.value = data.user;
         fundUserProfile.value = data.fundUserInfo;
         roleGroup.value = data.roleGroup;
+        campusName.value = data.user?.deptName || "";
+        avatarUrl.value = data.user?.avatar || "";
       }
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
+    }
+  };
+
+  const fetchNavBarData = async (force = false) => {
+    if (navDataLoaded.value && !force) {
+      return;
+    }
+
+    try {
+      const [, balanceResponse] = await Promise.all([
+        getProfile(),
+        userApi.getMarketBalance(),
+      ]);
+
+      if (balanceResponse.code === 200) {
+        generalBalance.value = balanceResponse.data?.generalBalance || 0;
+        clothingBalance.value = balanceResponse.data?.clothingBalance || 0;
+      }
+
+      navDataLoaded.value = true;
+    } catch (error) {
+      console.error("Failed to fetch navbar data:", error);
     }
   };
 
@@ -245,6 +274,11 @@ export const useUserStore = defineStore("user", () => {
   const logout = () => {
     authToken.value = "";
     role.value = "";
+    campusName.value = "";
+    avatarUrl.value = "";
+    generalBalance.value = 0;
+    clothingBalance.value = 0;
+    navDataLoaded.value = false;
     localStorage.removeItem(authConfig.tokenKey);
     localStorage.removeItem("role");
   };
@@ -257,6 +291,10 @@ export const useUserStore = defineStore("user", () => {
     userProfile,
     fundUserProfile,
     roleGroup,
+    campusName,
+    avatarUrl,
+    generalBalance,
+    clothingBalance,
     ownProfile,
     ownPunishList,
     ownScholarshipList,
@@ -271,6 +309,7 @@ export const useUserStore = defineStore("user", () => {
     detectDeviceType,
     initLoginState,
     getProfile,
+    fetchNavBarData,
     updateAvatar,
     setOwnProfilePageSize,
     fetchOwnProfile,

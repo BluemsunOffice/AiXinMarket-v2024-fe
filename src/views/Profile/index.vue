@@ -154,7 +154,7 @@ import {
   School,
   StarFilled,
   Sunny,
-  SwitchFilled,
+  Switch,
   Tickets,
   User,
 } from '@element-plus/icons-vue'
@@ -334,7 +334,7 @@ const personalInfoItems: PersonalInfoItem[] = [
   {
     key: 'marry',
     label: '婚姻状况',
-    icon: SwitchFilled,
+    icon: Switch,
     formatter: (value) => mapCodeToLabel(marryMap, value),
   },
   {

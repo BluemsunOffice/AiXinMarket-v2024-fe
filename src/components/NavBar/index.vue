@@ -1,12 +1,13 @@
 <template>
-  <el-header height="85px">
+  <header class="navbar-shell">
     <div class="header-content">
-      <div class="top_hello">
-        <span class="hello" style="font-size: 40px"> 爱心超市 </span>
-        <span class="campus">* {{ campusName }}</span>
-      </div>
-      <div class="header_menu">
-        <span class="cloud"></span>
+      <div class="header-left">
+        <div class="top_hello">
+          <span class="hello brand-title">爱心超市</span>
+          <span class="campus-slot">
+            <el-tag v-if="campusName" effect="light" type="primary" round>{{ campusName }}</el-tag>
+          </span>
+        </div>
 
         <div
           class="menuList"
@@ -16,202 +17,296 @@
           }"
           v-show="!isMobile || (isMobile && isMenuVisible)"
         >
-          <span class="hello"> 爱心超市 </span>
+          <span class="hello">爱心超市</span>
           <div class="divider"></div>
           <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)">
-            <span class="iconfont icon-shouye"></span> 首页
+            <span class="iconfont icon-shouye"></span>
+            首页
           </li>
           <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)">
-            <span class="iconfont icon-icon-test1"></span> 购物车
+            <span class="iconfont icon-icon-test1"></span>
+            购物车
           </li>
           <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)">
-            <span class="iconfont icon-icon-test"></span> 订单
+            <span class="iconfont icon-icon-test"></span>
+            订单
           </li>
           <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-qianbao"></span> 日用币：{{ generalBalance }}
+            <span class="iconfont icon-qianbao"></span>
+            日用币：{{ generalBalance }}
           </li>
           <li v-if="isMobile" class="money-item">
-            <span class="iconfont icon-yifu"></span> 服饰币：{{ clothingBalance }}
+            <span class="iconfont icon-yifu"></span>
+            服饰币：{{ clothingBalance }}
           </li>
         </div>
       </div>
-      <div class="money">
-        <span>日用币：{{ generalBalance }}</span>
-        <span>服饰币：{{ clothingBalance }}</span>
-      </div>
+
       <div class="right">
-        <el-button class="logout" type="primary" size="large" @click="centerDialogVisible = true"
-          >退出登录</el-button
-        >
+        <div class="money" v-if="!isMobile">
+          <span class="money-line">
+            <span class="iconfont icon-qianbao money-icon"></span>
+            <span class="money-label">日用币：</span>
+            <span class="money-value">{{ generalBalance }}</span>
+          </span>
+          <span class="money-line">
+            <span class="iconfont icon-yifu money-icon"></span>
+            <span class="money-label">服饰币：</span>
+            <span class="money-value">{{ clothingBalance }}</span>
+          </span>
+        </div>
+
+        <LogoutAction placement="bottom" />
         <button v-if="isMobile" class="iconfont icon-menu" @click="toggleMenu"></button>
       </div>
     </div>
-    <el-dialog v-model="centerDialogVisible" title="确认退出吗？" width="370" center align-center>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="centerDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleLogout()"> 确认 </el-button>
-        </div>
-      </template>
-    </el-dialog>
-  </el-header>
+  </header>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, toRefs, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { useNavBarData } from "@/stores/useNavBarData";
-import { ElMessage } from "element-plus";
-import { userApi } from "@/api/user.api";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import LogoutAction from '@/components/LogoutAction/index.vue'
+import { useUserStore } from '@/stores/userStore'
 
-const router = useRouter();
-const authToken = localStorage.getItem("token");
-const token = `${authToken}`;
-const activeIndex = ref(0);
-const centerDialogVisible = ref(false);
-const role = localStorage.getItem("role");
+const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
+const activeIndex = ref(0)
 
 // 定义 isMobile 和 isMenuVisible
-const isMenuVisible = ref(false);
-const isMobile = ref(false);
+const isMenuVisible = ref(false)
+const isMobile = ref(false)
 
 // 检测是否是移动端
 const checkIfMobile = () => {
-  isMobile.value = window.innerWidth <= 800;
-};
+  isMobile.value = window.innerWidth <= 800
+}
 
 onMounted(() => {
-  checkIfMobile();
-  window.addEventListener("resize", checkIfMobile);
-  onMounted(() => {
-    if (!localStorage.getItem("token")) {
-      window.location.href = "http://localhost:5173/";
-    }
-  });
-});
+  checkIfMobile()
+  window.addEventListener('resize', checkIfMobile)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkIfMobile)
+})
 
 const toggleMenu = () => {
-  isMenuVisible.value = !isMenuVisible.value;
-};
+  isMenuVisible.value = !isMenuVisible.value
+}
 
-const handleLogout = async () => {
-  //退出登录
-  try {
-    const { code, message: msg } = await userApi.logout();
-    if (code === 200) {
-      ElMessage.success("退出成功！");
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("client_id");
-      setTimeout(() => {
-        router.push("/");
-      }, 60);
-    } else {
-      ElMessage.error(msg + "!");
-    }
-  } catch (error) {
-    ElMessage.error("请求失败！");
-  }
-};
+const generalBalance = computed(() => userStore.generalBalance)
+const clothingBalance = computed(() => userStore.clothingBalance)
+const campusName = computed(() => userStore.campusName)
 
-// 使用自定义 Hook 获取数据
-const { generalBalance, clothingBalance, campusName, avatarUrl } =
-  useNavBarData(token);
+const pathToIndexMap: Record<string, number> = {
+  '/home': 0,
+  '/cart': 1,
+  '/orderList': 2,
+}
 
-// 初始化第一个菜单项为激活状态
-onMounted(() => {
-  const pathToIndexMap: Record<string, number> = {
-    "/home": 0,
-    "/cart": 1,
-    "/orderList": 2,
-  };
-
-  const currentPath = router.currentRoute.value.path;
-  activeIndex.value = pathToIndexMap[currentPath] ?? 0;
-});
+watch(
+  () => route.path,
+  (currentPath) => {
+    activeIndex.value = pathToIndexMap[currentPath] ?? 0
+  },
+  { immediate: true },
+)
 
 const navigateToIndex = (index: number) => {
-  activeIndex.value = index; // 更新激活项
-  const path = ["home", "cart", "orderList"][index];
-  router.push(`/${path}`);
-};
+  activeIndex.value = index // 更新激活项
+  const path = ['home', 'cart', 'orderList'][index]
+  router.push(`/${path}`)
+}
+
+onMounted(async () => {
+  if (!localStorage.getItem('token')) {
+    router.push('/')
+    return
+  }
+
+  await userStore.fetchNavBarData()
+})
 </script>
 
 <style scoped>
-/* 样式部分保持不变 */
-</style>
-
-<style scoped>
-/* 弹框修改*/
-::v-deep .el-dialog__title {
-  margin-left: 55px !important;
+.navbar-shell {
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  padding: 6px 0;
 }
 
 .header-content {
   width: 100%;
-  box-sizing: border-box;
+  margin: 0;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid rgba(64, 158, 255, 0.15);
+  border-radius: 0;
+  box-shadow: 0 8px 20px rgba(64, 158, 255, 0.08);
   backdrop-filter: blur(10px);
-  height: 100px;
-  z-index: 1000;
+  height: 72px;
+  box-sizing: border-box;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+  min-width: 0;
+  flex: 1;
 }
 
 .hello {
   color: #409eff;
-  font-family: 黑体;
-  font-weight: 700;
+  font-family: '黑体';
+  font-weight: 800;
+}
+
+.brand-title {
+  font-size: clamp(26px, 1.8vw, 34px);
+  letter-spacing: 0.06em;
 }
 
 .menuList .hello {
   display: none;
-  line-height: 85px;
+  line-height: 1.2;
 }
 
 .campus {
-  font-size: 20px;
-  font-family: 黑体;
+  color: #606266;
+  font-size: 15px;
+  font-family: '黑体';
+}
+
+.campus-slot {
+  display: inline-flex;
+  align-items: center;
+  min-width: 140px;
+  height: 28px;
 }
 
 .money-item {
   cursor: default;
 }
 
-.money span {
-  font-size: 15px;
-  padding: 10px;
-  line-height: 85px;
+.top_hello {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 300px;
 }
 
 .menuList {
-  list-style-type: none;
+  list-style: none;
   display: flex;
-  text-align: center;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
 }
 
 .menuList li {
+  height: 72px;
+  line-height: 72px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
   font-size: 15px;
-  padding: 0 50px;
-  display: inline-block;
+  color: #303133;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
 }
 
 .right {
   display: flex;
   align-items: center;
-  gap: 10px;
-  box-sizing: border-box;
+  gap: 14px;
+  justify-content: flex-end;
+  min-width: 280px;
+}
+
+.money {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 160px;
+  gap: 4px;
+}
+
+.money-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  width: 100%;
+  font-size: 13px;
+  line-height: 1.2;
+  color: #606266;
+}
+
+.money-icon {
+  color: #409eff;
+  font-size: 15px;
+}
+
+.money-label {
+  min-width: 52px;
+  text-align: left;
+}
+
+.money-value {
+  min-width: 20px;
+  text-align: left;
+  font-weight: 600;
 }
 
 .icon-menu {
   border: none;
-  font-size: 30px;
+  font-size: 24px;
+  color: #409eff;
+  background: transparent;
+  cursor: pointer;
+}
+
+.menuList li.active {
+  border-bottom: 3px solid #9ec8f3;
+  color: #409eff;
+}
+
+.menuList li:hover:not(.active) {
+  border-bottom: 3px solid #9ec8f3;
+  color: #409eff;
 }
 
 @media (max-width: 800px) {
   .header-content {
     position: relative;
-    z-index: 10;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 0 10px;
+    height: 64px;
+  }
+
+  .header-left {
+    gap: 0;
   }
 
   .menuList.mobile-hidden {
@@ -224,17 +319,15 @@ const navigateToIndex = (index: number) => {
     top: 0;
     display: flex;
     flex-direction: column;
-    background-color: #409eff;
-    list-style-type: none;
+    align-items: stretch;
+    background: linear-gradient(180deg, #409eff 0%, #78b9ff 100%);
     height: 100vh;
-    width: 30%;
-    list-style-type: none;
-    padding: 2vh 1vw;
-    gap: 1.5vh;
+    width: min(300px, 72vw);
+    padding: 18px 12px;
     overflow-y: auto;
-    line-height: 90px;
     gap: 16px;
-    z-index: 100;
+    z-index: 1001;
+    box-shadow: 12px 0 30px rgba(17, 40, 80, 0.32);
   }
 
   .menuList.mobile-menu .hello {
@@ -246,11 +339,9 @@ const navigateToIndex = (index: number) => {
     padding: 0 1vw;
     line-height: 1.3;
     word-break: keep-all;
-    /* 防止文字换行 */
     white-space: normal;
-    /* 允许换行 */
     overflow: visible;
-    font-family: 黑体;
+    font-family: '黑体';
     font-weight: 700;
   }
 
@@ -258,30 +349,37 @@ const navigateToIndex = (index: number) => {
     display: flex;
     align-items: center;
     color: white;
-    justify-content: center !important;
+    justify-content: center;
     box-sizing: border-box;
-    padding: 1.5vh !important;
-    /* 使用视口单位 */
+    padding: 12px;
     height: auto;
-    min-height: 6vh;
-    /* 使用视口单位的最小高度 */
+    min-height: 44px;
     transition: background-color 0.3s;
     cursor: pointer;
-    font-size: clamp(14px, 3vw, 18px) !important;
-    /* 响应式字体 */
+    font-size: clamp(14px, 3vw, 18px);
     line-height: 1.4;
     white-space: normal;
     overflow: visible;
-    margin: 0 1vw;
+    margin: 0;
+    border-radius: 10px;
+    border-bottom: none;
+  }
+
+  .menuList li.active,
+  .menuList li:hover:not(.active) {
+    border-bottom: none;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
   }
 
   .divider {
     background: rgba(255, 255, 255, 0.1);
-    width: calc(100% - 2vw);
-    text-align: center;
+    width: 100%;
+    height: 1px;
   }
 
-  .top_hello {
+  .top_hello,
+  .campus-slot {
     display: none;
   }
 
@@ -296,15 +394,12 @@ const navigateToIndex = (index: number) => {
   .right {
     display: flex;
     align-items: center;
+    min-width: auto;
   }
 
   .right .icon-menu {
     cursor: pointer;
     display: block;
-  }
-
-  .money {
-    display: none;
   }
 
   .mobile-menu .money-item:first-of-type::before {
@@ -323,11 +418,12 @@ const navigateToIndex = (index: number) => {
 }
 
 @media (max-width: 1250px) {
-  .top_hello .hello {
+  .top_hello .brand-title {
     display: none;
   }
 
-  .campus {
+  .campus,
+  .campus-slot {
     display: none;
   }
 
@@ -336,42 +432,10 @@ const navigateToIndex = (index: number) => {
   }
 }
 
-.menuList {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.menuList li {
-  cursor: pointer;
-  height: 85px;
-  line-height: 85px;
-  text-decoration: none;
-  transition:
-    background-color 0.3s,
-    color 0.3s,
-    border-bottom-color 0.3s;
-}
-
-.menuList li.active {
-  border-bottom: 4px solid #9ec8f3;
-  /* 激活项的样式 */
-}
-
-.menuList li:hover:not(.active) {
-  border-bottom: 4px solid #9ec8f3;
-  /* 鼠标悬停时的样式 */
-}
-
 .top_hello,
 .money,
 .menuList li,
 el-button {
-  /* 使用视口单位 */
   white-space: nowrap;
-  /* 防止换行 */
-  overflow: hidden;
-  /* 隐藏溢出的内容 */
 }
 </style>
