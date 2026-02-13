@@ -69,6 +69,24 @@ export class RequestCore {
       (response: AxiosResponse<ApiResponse>) => {
         console.log(`[Response] ${response.config.url}`, response.data);
 
+        const responseBody = response.data as
+          | (ApiResponse & { msg?: string; message?: string })
+          | undefined;
+
+        // 业务状态码 401（例如：{ code: 401, data: null, msg: "认证失败，无法访问系统资源" }）
+        if (responseBody?.code === 401) {
+          this.handleUnauthorized();
+
+          const unauthorizedError: ErrorResponse = {
+            code: 401,
+            message:
+              responseBody.msg || responseBody.message || "登录状态已过期，请重新登录",
+            success: false,
+          };
+
+          return Promise.reject(unauthorizedError);
+        }
+
         // 可以根据业务需求统一处理响应数据
         if (response.data && typeof response.data === "object") {
           // 示例：检查业务状态码
