@@ -7,7 +7,7 @@
       }"
     />
     <span class="label">{{ CoinName[coinType] }}</span>
-    <span v-if="amount && amount >= 0" class="amount">{{ amount }}</span>
+    <span v-if="amount !== undefined && amount >= 0" class="amount">{{ amount }}</span>
   </div>
 </template>
 

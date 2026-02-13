@@ -4,18 +4,15 @@
       <el-checkbox :model-value="isAllSelected" @change="onToggleAll">全选</el-checkbox>
     </div>
 
-    <div class="footer-middle">
-      <div class="coin-line">
-        <span class="iconfont icon-qianbao" />
-        <span>日用币：{{ dailyTotal.toFixed(2) }}</span>
-      </div>
-      <div class="coin-line">
-        <span class="iconfont icon-yifu" />
-        <span>服装币：{{ clothingTotal.toFixed(2) }}</span>
-      </div>
-    </div>
-
     <div class="footer-right">
+      <div class="amount-display">
+        <div class="coin-line">
+          <Coins :coin-type="CoinType.CareCoin" :amount="dailyTotal" />
+        </div>
+        <div class="coin-line">
+          <Coins :coin-type="CoinType.WarmCoin" :amount="clothingTotal" />
+        </div>
+      </div>
       <el-button
         :type="selectedCount ? 'success' : 'info'"
         class="checkout-button"
@@ -29,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+import { CoinType } from '@/types/goodsInfo'
+import Coins from '@/components/coins/index.vue'
 interface Props {
   isAllSelected: boolean
   dailyTotal: number
@@ -58,7 +57,6 @@ const onToggleAll = (checked: string | number | boolean) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
 }
 
 .footer-middle {
@@ -81,22 +79,17 @@ const onToggleAll = (checked: string | number | boolean) => {
 }
 
 .checkout-button {
-  min-width: 140px;
+  width: 140px;
   font-weight: 600;
 }
 
-@media (max-width: 900px) {
-  .cart-footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.footer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .footer-right {
-    width: 100%;
-  }
-
-  .checkout-button {
-    width: 100%;
-  }
+.checkout-button {
+  width: 100%;
 }
 </style>

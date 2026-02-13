@@ -270,106 +270,101 @@
 
 <script setup lang="ts">
 // import OSS from 'ali-oss';
-import Nav from "@/components/ManagerNav/index.vue";
-import { reactive, ref, computed } from "vue";
-import { onMounted } from "vue";
-import { ElMessage } from "element-plus";
-import type {
-  ComponentSize,
-  FormInstance,
-  FormRules,
-  UploadInstance,
-} from "element-plus";
-import axios from "axios";
-import Axios from "../Axios/index";
+import Nav from '@/components/ManagerNav/index.vue'
+import { reactive, ref, computed } from 'vue'
+import { onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import type { ComponentSize, FormInstance, FormRules, UploadInstance } from 'element-plus'
+import axios from 'axios'
+import Axios from '../Axios/index'
 // import axios from 'axios';
-const name = ref("(*^▽^*)");
-const price = ref();
-const currencyType = ref("1");
-const type = ref("日常");
-const status = ref("0");
-const barcode = ref("1 ");
-const intro = ref("你好");
-const limitNum = ref();
-const limitType = ref("每月");
-const amount = ref();
-const quantifier = ref("1");
-const imageUrl = ref("");
-const imageUrlUrl = ref("");
-const id = ref("");
-const campus = ref("");
-const displayed = ref("none");
-const displayed2 = ref("none");
-const pagetotal = ref(0);
-const addItems = ref(false);
-const alter_title = ref("增加货物");
-const formRef = ref(null);
-const addRecords = ref(false);
-const loadtitle = ref("上传图片");
-const loadflag = ref(true);
-const centerDialogVisibledetail = ref(false);
-const uploading = ref(false);
+const name = ref('(*^▽^*)')
+const price = ref()
+const currencyType = ref('1')
+const type = ref('日常')
+const status = ref('0')
+const barcode = ref('1 ')
+const intro = ref('你好')
+const limitNum = ref()
+const limitType = ref('每月')
+const amount = ref()
+const quantifier = ref('1')
+const imageUrl = ref('')
+const imageUrlUrl = ref('')
+const id = ref('')
+const campus = ref('')
+const displayed = ref('none')
+const displayed2 = ref('none')
+const pagetotal = ref(0)
+const addItems = ref(false)
+const alter_title = ref('增加货物')
+const formRef = ref(null)
+const addRecords = ref(false)
+const loadtitle = ref('上传图片')
+const loadflag = ref(true)
+const centerDialogVisibledetail = ref(false)
+const uploading = ref(false)
 // 进货记录
 const form1 = reactive({
-  name: "",
-  amount2: "",
-});
-const formLabelWidth = "100px";
+  name: '',
+  amount2: '',
+})
+const formLabelWidth = '100px'
 
 const rules1 = {
   amount2: [
-    { required: true, message: "请输入进货数量", trigger: "blur" },
+    { required: true, message: '请输入进货数量', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         // 首先检查值是否存在且为数字
         if (!value || isNaN(value)) {
-          callback(new Error("必须是个大于0的数字"));
-          return;
+          callback(new Error('必须是个大于0的数字'))
+          return
         }
         // 将值转换为数字（以防它是字符串形式的数字）
-        const age = Number(value);
+        const age = Number(value)
         // 检查值是否为大于0的整数
         if (!Number.isInteger(age) || age <= 0) {
-          callback(new Error("必须是个大于0的整数"));
+          callback(new Error('必须是个大于0的整数'))
         } else {
-          callback();
+          callback()
         }
       },
-      trigger: "blur", // 触发验证的事件类型
+      trigger: 'blur', // 触发验证的事件类型
     },
   ],
-};
+}
 
 const submitForm1 = () => {
   if (formRef.value) {
     formRef.value.validate((valid) => {
       if (valid) {
         // 表单验证通过，执行添加记录的逻辑
-        addRecord(indexx);
+        addRecord(indexx)
       } else {
-        console.log("表单验证失败");
-        return false;
+        console.log('表单验证失败')
+        return false
       }
-    });
+    })
   } else {
-    console.log("formRef is null");
+    console.log('formRef is null')
   }
-};
+}
 
 interface RuleForm {
-  name: string;
-  price: number;
-  currencyType: string[];
-  limitNum: number;
-  limitType: string[];
-  amount: number;
-  status: string[];
-  intro: string;
-  imageUrl: string;
-  type: string;
+  name: string
+  price: number
+  currencyType: string[]
+  limitNum: number
+  limitType: string[]
+  amount: number
+  status: string[]
+  intro: string
+  imageUrl: string
+  type: string
 }
-const formSize = ref<ComponentSize>("default");
-const ruleFormRef = ref<FormInstance>();
+const formSize = ref<ComponentSize>('default')
+const ruleFormRef = ref<FormInstance>()
 const ruleForm = reactive<RuleForm>({
   name: name.value,
   currencyType: [],
@@ -381,241 +376,238 @@ const ruleForm = reactive<RuleForm>({
   intro: intro.value,
   imageUrl: imageUrl.value,
   type: type.value,
-});
-const currencyTypeoption = ["日用币", "服装币"];
-const statusoption = ["上架中", "下架"];
+})
+const currencyTypeoption = ['日用币', '服装币']
+const statusoption = ['上架中', '下架']
 
 const rules = reactive<FormRules<RuleForm>>({
-  name: [{ required: true, message: "请输入商品名称", trigger: "blur" }],
-  imageUrl: [{ required: true, message: "请上传商品图片", trigger: "change" }],
+  name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+  imageUrl: [{ required: true, message: '请上传商品图片', trigger: 'change' }],
 
   currencyType: [
     {
       required: true,
-      message: "请选择货币类型",
-      trigger: "change",
+      message: '请选择货币类型',
+      trigger: 'change',
     },
   ],
   price: [
     {
       required: true,
-      message: "请输入商品价格",
-      trigger: "blur",
+      message: '请输入商品价格',
+      trigger: 'blur',
     },
     // { type: 'number', message: 'Age must be a number', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         // 首先检查值是否存在且为数字
         if (!value || isNaN(value)) {
-          callback(new Error("必须是个大于0的数字"));
-          return;
+          callback(new Error('必须是个大于0的数字'))
+          return
         }
         // 将值转换为数字（以防它是字符串形式的数字）
-        const price = Number(value);
+        const price = Number(value)
         // 检查值是否为大于0的整数
         // !Number.isInteger(age) ||
         if (price <= 0) {
-          callback(new Error("必须是个大于0的数字"));
+          callback(new Error('必须是个大于0的数字'))
         } else {
-          callback();
+          callback()
         }
       },
-      trigger: "blur", // 触发验证的事件类型
+      trigger: 'blur', // 触发验证的事件类型
     },
   ],
   limitNum: [
     {
       required: true,
-      message: "请输入限额",
-      trigger: "blur",
+      message: '请输入限额',
+      trigger: 'blur',
     },
     // { type: 'number', message: 'Age must be a number', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         // 首先检查值是否存在且为数字
         if (!value || isNaN(value)) {
-          callback(new Error("必须是个大于0的数字"));
-          return;
+          callback(new Error('必须是个大于0的数字'))
+          return
         }
         // 将值转换为数字（以防它是字符串形式的数字）
-        const limitNum = Number(value);
+        const limitNum = Number(value)
         // 检查值是否为大于0的整数
         if (!Number.isInteger(limitNum) || limitNum <= 0) {
-          callback(new Error("必须是个大于0的整数"));
+          callback(new Error('必须是个大于0的整数'))
         } else {
-          callback();
+          callback()
         }
       },
-      trigger: "blur", // 触发验证的事件类型
+      trigger: 'blur', // 触发验证的事件类型
     },
   ],
   limitType: [
     {
       required: true,
-      message: "请选择限制类型",
-      trigger: "change",
+      message: '请选择限制类型',
+      trigger: 'change',
     },
   ],
   amount: [
     {
       required: true,
-      message: "请输入库存",
-      trigger: "blur",
+      message: '请输入库存',
+      trigger: 'blur',
     },
     {
       validator: (rule, value, callback) => {
         // 首先检查值是否存在且为数字
         if (!value || isNaN(value)) {
-          callback(new Error("必须是个大于0的数字"));
-          return;
+          callback(new Error('必须是个大于0的数字'))
+          return
         }
         // 将值转换为数字（以防它是字符串形式的数字）
-        const age = Number(value);
+        const age = Number(value)
         // 检查值是否为大于0的整数
         if (!Number.isInteger(age) || age <= 0) {
-          callback(new Error("必须是个大于0的整数"));
+          callback(new Error('必须是个大于0的整数'))
         } else {
-          callback();
+          callback()
         }
       },
-      trigger: "blur", // 触发验证的事件类型
+      trigger: 'blur', // 触发验证的事件类型
     },
   ],
   status: [
     {
       required: true,
-      message: "请选择状态",
-      trigger: "change",
+      message: '请选择状态',
+      trigger: 'change',
     },
   ],
-  type: [{ required: true, message: "请选择商品类型", trigger: "change" }],
-  intro: [{ required: true, message: "请输入商品介绍", trigger: "blur" }],
-});
+  type: [{ required: true, message: '请选择商品类型', trigger: 'change' }],
+  intro: [{ required: true, message: '请输入商品介绍', trigger: 'blur' }],
+})
 
 const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
+  if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      addItem();
-      cancel();
+      addItem()
+      cancel()
     } else {
-      console.log("error submit!", fields);
+      console.log('error submit!', fields)
     }
-  });
-};
+  })
+}
 
 const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  cancel();
-};
+  if (!formEl) return
+  cancel()
+}
 
 const options = Array.from({ length: 10000 }).map((_, idx) => ({
   value: `${idx + 1}`,
   label: `${idx + 1}`,
-}));
+}))
 // 使用 ref 创建每个字段的响应式引用
-const itemsTableRef = ref(null);
-const checkAll = ref(false); // 全选状态
-const multipleSelection = ref([]); // 当前选中的行
+const itemsTableRef = ref(null)
+const checkAll = ref(false) // 全选状态
+const multipleSelection = ref([]) // 当前选中的行
 
 // 一个货物
 interface Item {
-  id: string;
-  name: string;
-  imageUrlUrl: string;
-  amount: number;
-  price: number;
-  currencyType: string;
-  checked: boolean; // 用于单选框状态
+  id: string
+  name: string
+  imageUrlUrl: string
+  amount: number
+  price: number
+  currencyType: string
+  checked: boolean // 用于单选框状态
 }
-const items = ref<Item[]>([]);
-let typeValue = "0";
+const items = ref<Item[]>([])
+let typeValue = '0'
 switch (ruleForm.type) {
-  case "日用品":
-    typeValue = "0";
-    break;
-  case "服装":
-    typeValue = "1";
-    break;
-  case "学习用品":
-    typeValue = "2";
-    break;
+  case '日用品':
+    typeValue = '0'
+    break
+  case '服装':
+    typeValue = '1'
+    break
+  case '学习用品':
+    typeValue = '2'
+    break
   default:
-    typeValue = "0";
+    typeValue = '0'
 }
 //发送获取列表的请求
 const fetchGoods = async (current) => {
   try {
-    const response = await Axios.get(
-      "http://59.110.62.188:8080/market/goods/list",
-      {
-        params: {
-          pageSize: 5,
-          pageNum: current,
-        },
+    const response = await Axios.get('http://59.110.62.188:8080/market/goods/list', {
+      params: {
+        pageSize: 5,
+        pageNum: current,
       },
-    );
-    pagetotal.value = response.data.total;
-    items.value = response.data.rows;
+    })
+    pagetotal.value = response.data.total
+    items.value = response.data.rows
     for (let i = 0; i < response.data.rows.length; i++) {
-      if (items.value[i].currencyType == "0") {
-        items.value[i].currencyType = "日常";
+      if (items.value[i].currencyType == '0') {
+        items.value[i].currencyType = '日常'
       } else {
-        items.value[i].currencyType = "服装";
+        items.value[i].currencyType = '服装'
       }
     }
   } catch (error) {
-    console.error("请求商品数据失败:", error);
+    console.error('请求商品数据失败:', error)
   }
-};
+}
 
 // 挂载时获取列表
 onMounted(() => {
-  fetchGoods(currentPage.value);
-});
+  fetchGoods(currentPage.value)
+})
 
 //发送增加的请求
-const putimg = ref("点击提交图片");
+const putimg = ref('点击提交图片')
 const addAll = () => {
-  loadflag.value = true;
-  addItems.value = true;
-  ruleForm.name = "";
-  ruleForm.price = null;
-  ruleForm.type = "";
-  ruleForm.currencyType = [];
-  ruleForm.status = [];
-  ruleForm.limitNum = null;
-  ruleForm.limitType = [];
-  ruleForm.amount = null;
-  ruleForm.intro = "";
-  ruleForm.imageUrl = "";
-  loadtitle.value = "上传图片";
-  alter_title.value = "增加货物";
-};
+  loadflag.value = true
+  addItems.value = true
+  ruleForm.name = ''
+  ruleForm.price = null
+  ruleForm.type = ''
+  ruleForm.currencyType = []
+  ruleForm.status = []
+  ruleForm.limitNum = null
+  ruleForm.limitType = []
+  ruleForm.amount = null
+  ruleForm.intro = ''
+  ruleForm.imageUrl = ''
+  loadtitle.value = '上传图片'
+  alter_title.value = '增加货物'
+}
 const addItem = () => {
-  if (alter_title.value === "增加货物") {
+  if (alter_title.value === '增加货物') {
     if (!ruleForm.imageUrl) {
-      ElMessage.error("请先上传商品图片");
-      return;
+      ElMessage.error('请先上传商品图片')
+      return
     }
     if (uploading.value) {
-      ElMessage.warning("图片正在上传中，请稍后再试");
-      return;
+      ElMessage.warning('图片正在上传中，请稍后再试')
+      return
     }
-    addGoods();
-    fetchGoods(currentPage.value);
+    addGoods()
+    fetchGoods(currentPage.value)
   } else {
-    modifyGoods(indexx.value);
-    fetchGoods(currentPage.value);
+    modifyGoods(indexx.value)
+    fetchGoods(currentPage.value)
   }
-};
+}
 const cancel = () => {
-  addItems.value = false;
-};
+  addItems.value = false
+}
 const addGoods = async () => {
-  console.log(ruleForm.status);
+  console.log(ruleForm.status)
 
-  status.value = ruleForm.status === "上架中" ? "0" : "1";
+  status.value = ruleForm.status === '上架中' ? '0' : '1'
   try {
     const requestData = {
       name: ruleForm.name,
@@ -629,122 +621,112 @@ const addGoods = async () => {
       limitType: ruleForm.limitType,
       quantifier: quantifier.value,
       imageUrl: ruleForm.imageUrl,
-    };
-    const response = await Axios.post(
-      `http://59.110.62.188:8080/market/goods`,
-      requestData,
-    );
-    fetchGoods(currentPage.value);
-    if (response.data.code === 200) ElMessage.success("增加商品成功");
-    else ElMessage.error("增加商品失败，" + response.data.msg);
+    }
+    const response = await Axios.post(`http://59.110.62.188:8080/market/goods`, requestData)
+    fetchGoods(currentPage.value)
+    if (response.data.code === 200) ElMessage.success('增加商品成功')
+    else ElMessage.error('增加商品失败，' + response.data.msg)
   } catch (error) {
-    console.error("请求商品数据失败:", error);
-    ElMessage.error("增加商品失败");
+    console.error('请求商品数据失败:', error)
+    ElMessage.error('增加商品失败')
   }
-};
+}
 
-let idArr = ref([]);
+let idArr = ref([])
 const selected = (data) => {
-  idArr.value = [];
+  idArr.value = []
   data.forEach((value) => {
-    idArr.value.push(value.id);
-  });
-};
+    idArr.value.push(value.id)
+  })
+}
 
 // 删除功能
 // 删除指定项
 const deleteItem = (index: number) => {
-  delectGoods(items.value[index].id);
-  fetchGoods(currentPage.value);
-};
+  delectGoods(items.value[index].id)
+  fetchGoods(currentPage.value)
+}
 // 删除请求
 const delectGoods = async (idArr) => {
   try {
-    const response = await Axios.delete(
-      `http://59.110.62.188:8080/market/goods/${idArr}`,
-    ); // 请求商品数据
-    if (response.data.code === 200) ElMessage.success("删除成功");
-    else ElMessage.error(response.data.msg);
-    fetchGoods(currentPage.value);
+    const response = await Axios.delete(`http://59.110.62.188:8080/market/goods/${idArr}`) // 请求商品数据
+    if (response.data.code === 200) ElMessage.success('删除成功')
+    else ElMessage.error(response.data.msg)
+    fetchGoods(currentPage.value)
     // ElMessage.success('删除成功')
   } catch (error) {
-    console.error("请求商品数据失败:", error);
-    ElMessage.error("删除失败");
+    console.error('请求商品数据失败:', error)
+    ElMessage.error('删除失败')
   }
-};
+}
 // 删除全部
 const deleteALl = () => {
-  delectGoods(idArr.value);
-  checkAll.value = false;
-};
+  delectGoods(idArr.value)
+  checkAll.value = false
+}
 
 // 修改功能
 // 1.处理文件选择
-const selectedFile = ref(null);
-const fileInput = ref(null);
+const selectedFile = ref(null)
+const fileInput = ref(null)
 // 上传文件
 const handleFileChange = (event) => {
-  uploading.value = true;
-  const formData = new FormData();
-  const imageFile = event.target.files[0];
-  const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+  uploading.value = true
+  const formData = new FormData()
+  const imageFile = event.target.files[0]
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
   if (imageFile) {
     if (!allowedTypes.includes(imageFile.type)) {
-      ElMessage.error("只能上传 JPG, PNG 或 GIF 格式的图片");
-      uploading.value = false;
-      return; // 如果文件类型不符合要求，直接返回
+      ElMessage.error('只能上传 JPG, PNG 或 GIF 格式的图片')
+      uploading.value = false
+      return // 如果文件类型不符合要求，直接返回
     }
-    formData.append("file", imageFile);
-    addFile(formData);
+    formData.append('file', imageFile)
+    addFile(formData)
   }
-};
+}
 const addFile = async (formData) => {
   try {
-    const authToken = localStorage.getItem("token");
-    const clientId = localStorage.getItem("client_id");
-    axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-    axios.defaults.headers.common["clientId"] = clientId;
-    const response = await axios.post(
-      "http://59.110.62.188:8080/resource/oss/upload",
-      formData,
-    );
-    ruleForm.imageUrl = response.data.data.ossId;
-    getimag(ruleForm.imageUrl);
+    const authToken = localStorage.getItem('token')
+    const clientId = localStorage.getItem('client_id')
+    axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
+    axios.defaults.headers.common['clientId'] = clientId
+    const response = await axios.post('http://59.110.62.188:8080/resource/oss/upload', formData)
+    ruleForm.imageUrl = response.data.data.ossId
+    getimag(ruleForm.imageUrl)
     if (response.data.code === 200) {
-      ElMessage.success("上传图片成功");
-      loadtitle.value = "上传成功";
-      loadflag.value = false;
-    } else ElMessage.error("上传图片失败");
+      ElMessage.success('上传图片成功')
+      loadtitle.value = '上传成功'
+      loadflag.value = false
+    } else ElMessage.error('上传图片失败')
   } catch (error) {
-    ElMessage.error("上传图片失败");
+    ElMessage.error('上传图片失败')
   }
-  uploading.value = false;
-};
+  uploading.value = false
+}
 // 图片回显
 const getimag = async (ossIds) => {
-  const response = await Axios.get(
-    `http://59.110.62.188:8080/resource/oss/listByIds/${ossIds}`,
-  );
-  imageUrlUrl.value = response.data.data[0].url;
-  ruleForm.imageUrl = response.data.data[0].ossId;
-  console.log(response.data.data[0].url);
-};
+  const response = await Axios.get(`http://59.110.62.188:8080/resource/oss/listByIds/${ossIds}`)
+  imageUrlUrl.value = response.data.data[0].url
+  ruleForm.imageUrl = response.data.data[0].ossId
+  console.log(response.data.data[0].url)
+}
 // 上传图片的两个点击事件
 const handleFileChange2 = (event) => {
-  fileInput.value.click();
-};
+  fileInput.value.click()
+}
 const triggerFileInput = () => {
-  fileInput.value.click();
-};
+  fileInput.value.click()
+}
 // 修改商品的接口的接口
 const modifyGoods = async (indexx) => {
-  ruleForm.status = ruleForm.status === "上架中" ? "0" : "1";
+  ruleForm.status = ruleForm.status === '上架中' ? '0' : '1'
   try {
     let requestData = {
       id: items.value[indexx].id,
       name: ruleForm.name,
       price: ruleForm.price,
-      currencyType: ruleForm.currencyType === "日用币" ? "0" : "1",
+      currencyType: ruleForm.currencyType === '日用币' ? '0' : '1',
       type: typeValue,
       status: ruleForm.status,
       barcode: barcode.value,
@@ -754,109 +736,100 @@ const modifyGoods = async (indexx) => {
       quantifier: quantifier.value,
       imageUrl: ruleForm.imageUrl,
       amount: ruleForm.amount,
-    };
-    const response = await Axios.put(
-      `http://59.110.62.188:8080/market/goods`,
-      requestData,
-    );
-    if (response.data.code === 200) ElMessage.success("修改成功");
-    else ElMessage.error("修改失败");
+    }
+    const response = await Axios.put(`http://59.110.62.188:8080/market/goods`, requestData)
+    if (response.data.code === 200) ElMessage.success('修改成功')
+    else ElMessage.error('修改失败')
   } catch (error) {
-    console.error("请求商品数据失败:", error);
-    ElMessage.error("修改失败");
+    console.error('请求商品数据失败:', error)
+    ElMessage.error('修改失败')
   }
-  fetchGoods(currentPage.value);
-};
-const indexx = ref(0);
+  fetchGoods(currentPage.value)
+}
+const indexx = ref(0)
 const modifyItem = (index: number) => {
-  indexx.value = index;
-  alter_title.value = "修改货物";
-  addItems.value = true;
-  datailGoods(items.value[index].id, index);
-};
+  indexx.value = index
+  alter_title.value = '修改货物'
+  addItems.value = true
+  datailGoods(items.value[index].id, index)
+}
 
 // 查看详情功能
 const detail = (index: number) => {
-  centerDialogVisibledetail.value = true;
-  datailGoods(items.value[index].id, index);
-};
+  centerDialogVisibledetail.value = true
+  datailGoods(items.value[index].id, index)
+}
 const datailGoods = async (id, index) => {
   try {
-    const response = await Axios.get(
-      `http://59.110.62.188:8080/market/goods/${id}`,
-    );
-    if (response.data.code != 200) ElMessage.error("查看该商品失败");
-    console.log(response.data.data.status);
+    const response = await Axios.get(`http://59.110.62.188:8080/market/goods/${id}`)
+    if (response.data.code != 200) ElMessage.error('查看该商品失败')
+    console.log(response.data.data.status)
 
-    ruleForm.name = response.data.data.name;
-    ruleForm.price = response.data.data.price;
-    ruleForm.currencyType =
-      response.data.data.currencyType === "0" ? "日用币" : "服装币";
-    ruleForm.type = response.data.data.type === "0" ? "日用品" : "学习用品";
-    ruleForm.status = response.data.data.status == "0" ? "上架中" : "下架";
-    barcode.value = response.data.data.barcode;
-    ruleForm.intro = response.data.data.intro;
-    ruleForm.limitNum = response.data.data.limitNum;
-    ruleForm.limitType = response.data.data.limitType;
-    quantifier.value = response.data.data.quantifier;
-    ruleForm.imageUrl = response.data.data.imageUrl;
-    campus.value = response.data.data.campus;
-    imageUrlUrl.value = response.data.data.imageUrlUrl;
-    ruleForm.imageUrl = response.data.data.imageUrl;
-    ruleForm.amount = response.data.data.amount;
+    ruleForm.name = response.data.data.name
+    ruleForm.price = response.data.data.price
+    ruleForm.currencyType = response.data.data.currencyType === '0' ? '日用币' : '服装币'
+    ruleForm.type = response.data.data.type === '0' ? '日用品' : '学习用品'
+    ruleForm.status = response.data.data.status == '0' ? '上架中' : '下架'
+    barcode.value = response.data.data.barcode
+    ruleForm.intro = response.data.data.intro
+    ruleForm.limitNum = response.data.data.limitNum
+    ruleForm.limitType = response.data.data.limitType
+    quantifier.value = response.data.data.quantifier
+    ruleForm.imageUrl = response.data.data.imageUrl
+    campus.value = response.data.data.campus
+    imageUrlUrl.value = response.data.data.imageUrlUrl
+    ruleForm.imageUrl = response.data.data.imageUrl
+    ruleForm.amount = response.data.data.amount
   } catch (error) {
-    console.error("请求商品数据失败:", error);
-    ElMessage.error("查看商品失败");
+    console.error('请求商品数据失败:', error)
+    ElMessage.error('查看商品失败')
   }
-};
+}
 const defines = () => {
-  displayed2.value = "none";
-};
+  displayed2.value = 'none'
+}
 
 // 分页器
 // 页码改变时重新加载商品
-const currentPage = ref(1);
+const currentPage = ref(1)
 const handlePageChange = (newPage) => {
-  currentPage.value = newPage;
-  fetchGoods(currentPage.value);
-  checkAll.value = false;
-};
+  currentPage.value = newPage
+  fetchGoods(currentPage.value)
+  checkAll.value = false
+}
 
 // 增加进货记录
 // 使用 ref 创建每个字段的响应式引用
-const goodsId = ref("1");
-const amount2 = ref(null);
-const displayed3 = ref("none");
+const goodsId = ref('1')
+const amount2 = ref(null)
+const displayed3 = ref('none')
 const addGoodsRecord = (index) => {
-  form1.amount2 = null;
-  addRecords.value = true;
-  name.value = items.value[index].name;
-  goodsId.value = items.value[index].id;
+  form1.amount2 = null
+  addRecords.value = true
+  name.value = items.value[index].name
+  goodsId.value = items.value[index].id
   // console.log(items.value[index].id);
-};
+}
 const cancel2 = () => {
-  addRecords.value = false;
-};
+  addRecords.value = false
+}
 const addRecord = async (index) => {
-  addRecords.value = false;
+  addRecords.value = false
   try {
     const requestData = {
       goodsId: goodsId.value,
       amount: form1.amount2,
-    };
-    const response = await Axios.post(
-      `http://59.110.62.188:8080/market/restock`,
-      requestData,
-    );
-    if (response.data.code === 200) ElMessage.success("增加进货成功");
-    else ElMessage.success("增加进货失败");
+    }
+    const response = await Axios.post(`http://59.110.62.188:8080/market/restock`, requestData)
+    if (response.data.code === 200) ElMessage.success('增加进货成功')
+    else ElMessage.success('增加进货失败')
   } catch (error) {
-    console.error("请求商品数据失败:", error);
-    ElMessage.success("增加进货失败");
+    console.error('请求商品数据失败:', error)
+    ElMessage.success('增加进货失败')
   }
-  displayed3.value = "none";
-  fetchGoods(currentPage.value);
-};
+  displayed3.value = 'none'
+  fetchGoods(currentPage.value)
+}
 </script>
 
 <style scoped>
