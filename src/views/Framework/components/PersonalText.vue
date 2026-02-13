@@ -1,6 +1,37 @@
 <template>
   <div class="tab-container">
-    <el-tabs v-model="activeTab" class="custom-tabs" type="card">
+    <template v-if="isMobile">
+      <el-select v-model="activeTab" class="mobile-tab-select" size="default">
+        <el-option
+          v-for="option in tabOptions"
+          :key="option.value"
+          :label="option.label"
+          :value="option.value"
+        />
+      </el-select>
+
+      <div v-if="activeTab === 'profile' && role === '资助对象'" class="mobile-content-card">
+        <h2>
+          <font-awesome-icon icon="fa-solid fa-user-graduate" style="color: #2d4059" />
+          学生信息
+        </h2>
+        <div class="text-content">
+          <information-form v-model="studentInfo" />
+        </div>
+      </div>
+
+      <div v-if="activeTab === 'account'" class="mobile-content-card">
+        <h2>
+          <font-awesome-icon icon="fa-solid fa-key" style="color: #2d4059" />
+          修改密码
+        </h2>
+        <div class="text-content">
+          <password-form />
+        </div>
+      </div>
+    </template>
+
+    <el-tabs v-else v-model="activeTab" class="custom-tabs" type="card">
       <el-tab-pane v-if="role === '资助对象'" label="基本信息" name="profile">
         <h2>
           <font-awesome-icon icon="fa-solid fa-user-graduate" style="color: #2d4059" />
@@ -24,21 +55,54 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import InformationForm from "./InformationForm.vue";
-import PasswordForm from "./PasswordForm.vue";
-import type { FundUserInfo } from "@/api/user.api";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import InformationForm from './InformationForm.vue'
+import PasswordForm from './PasswordForm.vue'
+import type { FundUserInfo } from '@/api/user.api'
 
-const studentInfo = defineModel("fundUserInfo", {
+const studentInfo = defineModel('fundUserInfo', {
   default: {} as FundUserInfo,
   required: false,
-});
-const role = defineModel("role", {
-  default: "" as string,
+})
+const role = defineModel('role', {
+  default: '' as string,
   required: false,
-});
+})
 
-const activeTab = ref("profile");
+const activeTab = ref('profile')
+const isMobile = ref(window.innerWidth <= 768)
+
+const tabOptions = computed(() => {
+  const options = [] as Array<{ label: string; value: string }>
+  if (role.value === '资助对象') {
+    options.push({ label: '基本信息', value: 'profile' })
+  }
+  options.push({ label: '修改密码', value: 'account' })
+  return options
+})
+
+const updateDeviceState = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+watch(
+  () => role.value,
+  (newRole) => {
+    if (newRole !== '资助对象' && activeTab.value === 'profile') {
+      activeTab.value = 'account'
+    }
+  },
+  { immediate: true },
+)
+
+onMounted(() => {
+  updateDeviceState()
+  window.addEventListener('resize', updateDeviceState)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateDeviceState)
+})
 </script>
 <style scoped lang="scss">
 /* 标题样式 */
@@ -66,6 +130,20 @@ h2:after {
 .tab-container {
   padding: 24px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+
+  .mobile-tab-select {
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .mobile-content-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.05),
+      0 1px 3px rgba(0, 0, 0, 0.1);
+  }
 
   :deep(.custom-tabs) {
     .el-tabs__header {
@@ -159,8 +237,13 @@ h2:after {
 
 // 响应式设计
 @media (max-width: 768px) {
+  h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
   .tab-container {
-    padding: 16px;
+    padding: 12px;
 
     :deep(.custom-tabs) {
       .el-tabs__header {
@@ -171,7 +254,7 @@ h2:after {
       }
 
       .el-tabs__content {
-        padding: 20px;
+        padding: 16px;
       }
     }
   }

@@ -172,26 +172,25 @@ onMounted(() => {
 /* 响应式*/
 @media (max-width: 768px) {
   .form-container {
-    padding: 10px;
-    width: 180%;
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0;
   }
 
-  h2 {
-    font-size: 4vw;
-    margin-bottom: 2vh;
+  .form-item {
+    max-width: 100%;
+    padding: 12px;
+    gap: 6px;
   }
 
-  .field label {
-    font-size: 3.2vw;
-    line-height: 4vw;
+  .form-item label {
+    min-width: 0;
+    font-size: 13px;
   }
 
-  .field span {
-    width: 50%;
-    font-size: 3.2vw;
-    line-height: 4vw;
-    text-align: left;
-    margin-left: 8vw;
+  .form-item span {
+    font-size: 14px;
   }
 }
 </style>

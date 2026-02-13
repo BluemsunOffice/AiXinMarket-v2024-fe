@@ -1,19 +1,11 @@
 <template>
   <el-container class="layout-container">
-    <el-button v-if="isMobile" class="menu-toggle" @click="toggleSidebar">
-      <el-icon>
-        <component :is="sidebarVisible ? ArrowLeft : ArrowRight" />
-      </el-icon>
-    </el-button>
-
-    <el-aside
-      v-if="sidebarVisible || !isMobile"
-      :width="isMobile ? '68vw' : '240px'"
-      class="sidebar"
-    >
+    <el-aside v-if="!isMobile" width="240px" class="sidebar">
       <div class="sidebar-title">
         <span class="sidebar-title-text">{{ currentRole }} 导航</span>
-        <LogoutAction placement="right" />
+        <span class="logout-action">
+          <LogoutAction placement="right" />
+        </span>
       </div>
       <el-scrollbar class="sidebar-scroll">
         <el-menu :default-active="activeMenu" class="sidebar-menu" router>
@@ -34,15 +26,31 @@
     <el-container>
       <el-header class="header">
         <h1 class="title">爱心超市管理系统 - {{ currentModuleLabel }}</h1>
-        <el-button v-if="canAccessSuperMarket" class="market-entry" link @click="goToSuperMarket">
-          <span>
-            前往爱心超市
-            <font-awesome-icon
-              icon="fa-solid fa-angles-right"
-              style="color: rgba(116, 192, 252, 1)"
+        <div class="header-actions">
+          <el-select
+            v-if="isMobile"
+            v-model="mobileMenuValue"
+            class="mobile-menu-select"
+            size="small"
+            @change="handleMobileMenuChange"
+          >
+            <el-option
+              v-for="item in visibleMenus"
+              :key="item.key"
+              :label="item.label"
+              :value="item.route || item.key"
             />
-          </span>
-        </el-button>
+          </el-select>
+          <el-button v-if="canAccessSuperMarket" class="market-entry" link @click="goToSuperMarket">
+            <span>
+              前往爱心超市
+              <font-awesome-icon
+                icon="fa-solid fa-angles-right"
+                style="color: rgba(116, 192, 252, 1)"
+              />
+            </span>
+          </el-button>
+        </div>
       </el-header>
 
       <el-main class="main-content">
@@ -65,7 +73,6 @@
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
 import PersonalText from '@/views/Framework/components/PersonalText.vue'
@@ -87,10 +94,10 @@ const { roleGroup: userRole, userProfile, fundUserProfile } = storeToRefs(userSt
 
 const router = useRouter()
 const route = useRoute()
-const sidebarVisible = ref(true)
 const isMobile = ref(window.innerWidth <= 768)
 const activeMenu = ref('/framework')
 const currentPage = ref('personalCenter')
+const mobileMenuValue = ref('/framework')
 
 const menuList: MenuItem[] = [
   {
@@ -132,15 +139,8 @@ const currentModuleLabel = computed(() => {
   return matchedMenu?.label || '个人中心'
 })
 
-const toggleSidebar = () => {
-  sidebarVisible.value = !sidebarVisible.value
-}
-
 const updateDeviceState = () => {
   isMobile.value = window.innerWidth <= 768
-  if (!isMobile.value) {
-    sidebarVisible.value = true
-  }
 }
 
 const handleMenuClick = (item: MenuItem) => {
@@ -148,7 +148,18 @@ const handleMenuClick = (item: MenuItem) => {
   currentPage.value = item.page
 
   if (isMobile.value) {
-    sidebarVisible.value = false
+    mobileMenuValue.value = activeMenu.value
+  }
+}
+
+const handleMobileMenuChange = (routePath: string) => {
+  const matched = menuList.find((item) => (item.route || item.key) === routePath)
+  if (!matched) {
+    return
+  }
+  handleMenuClick(matched)
+  if (matched.route) {
+    router.push(matched.route)
   }
 }
 
@@ -161,11 +172,13 @@ const syncMenuByRoute = () => {
   if (matched) {
     activeMenu.value = matched.route || matched.key
     currentPage.value = matched.page
+    mobileMenuValue.value = activeMenu.value
     return
   }
 
   activeMenu.value = '/framework'
   currentPage.value = 'personalCenter'
+  mobileMenuValue.value = '/framework'
 }
 
 onMounted(async () => {
@@ -213,6 +226,7 @@ const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
 }
 
 .sidebar-title {
+  width: 100%;
   height: 56px;
   display: flex;
   align-items: center;
@@ -226,6 +240,12 @@ const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
 
 .sidebar-title-text {
   pointer-events: none;
+}
+.logout-action {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .sidebar-scroll {
@@ -261,10 +281,11 @@ const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
   height: 56px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
   background: #ffffff;
   border-bottom: 1px solid #e5eaf3;
+  padding: 0 18px;
 }
 
 .title {
@@ -275,9 +296,17 @@ const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
   letter-spacing: 0.08em;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .market-entry {
-  position: absolute;
-  right: 18px;
+  width: 132px;
+}
+
+.mobile-menu-select {
   width: 132px;
 }
 
@@ -291,47 +320,36 @@ const handleUploadAvatar = (payload: { file: File; dataUrl: string }) => {
   gap: 12px;
 }
 
-.menu-toggle {
-  position: fixed;
-  top: 8px;
-  left: 8px;
-  z-index: 1000;
-  background: #3a7bfa;
-  color: #fff;
-  border: none;
-}
-
 @media (max-width: 768px) {
-  .sidebar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 68vw;
-    max-width: 280px;
-    transition: all 0.3s ease;
-  }
-
-  .sidebar-title {
-    font-size: 14px;
-  }
-
-  .menu-item {
-    margin: 4px 8px;
-    font-size: 14px;
+  .header {
+    height: auto;
+    min-height: 56px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
   .title {
     font-size: 16px;
+    letter-spacing: 0.03em;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .market-entry {
-    right: 10px;
     width: 120px;
   }
 
-  .menu-toggle {
-    padding: 8px;
+  .mobile-menu-select {
+    width: 140px;
+  }
+
+  .main-content {
+    padding: 12px;
   }
 }
 </style>

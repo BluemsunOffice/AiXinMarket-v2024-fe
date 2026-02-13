@@ -1,6 +1,7 @@
 import { get, post } from "@/utils/request";
 import type { ApiResponse } from "@/types/request.types";
 import request from "@/api/request";
+import type { CoinType } from "@/types/goodsInfo";
 
 export type AdminOrderStatus = "0" | "1" | "2";
 
@@ -22,7 +23,7 @@ export interface OrderInfoItem {
   goodsName: string;
   price: number | string;
   amount: number;
-  currencyType: string;
+  currencyType: CoinType;
   imageUrl: string;
   intro: string;
 }
@@ -38,7 +39,7 @@ export interface UserOrderItem {
 
 export interface UserOrderInfoItem {
   goodsName: string;
-  currentType: number;
+  currentType: CoinType;
   amount: number;
   price: number | string;
   imageUrl: string;

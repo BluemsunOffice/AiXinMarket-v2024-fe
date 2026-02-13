@@ -40,104 +40,101 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch } from 'vue'
 
 // 定义Props接口
 interface Props {
-  name?: string;
-  studentId?: string;
-  role?: string;
-  avatarUrl?: string;
+  name?: string
+  studentId?: string
+  role?: string
+  avatarUrl?: string
 }
 
-const studentId = defineModel("studentId", {
-  default: "-" as string,
+const studentId = defineModel('studentId', {
+  default: '-' as string,
   required: false,
-});
-const name = defineModel("name", {
-  default: "-" as string,
+})
+const name = defineModel('name', {
+  default: '-' as string,
   required: false,
-});
-const role = defineModel("role", {
-  default: "学生" as string,
+})
+const role = defineModel('role', {
+  default: '学生' as string,
   required: false,
-});
-const avatarUrl = defineModel("avatarUrl", {
-  default: "" as string | null,
+})
+const avatarUrl = defineModel('avatarUrl', {
+  default: '' as string | null,
   required: false,
-});
+})
 
 // 定义Emits
-const emit =
-  defineEmits<
-    (e: "avatar-changed", payload: { file: File; dataUrl: string }) => void
-  >();
+const emit = defineEmits<(e: 'avatar-changed', payload: { file: File; dataUrl: string }) => void>()
 
 // 响应式数据
-const localAvatarUrl = ref<string>(avatarUrl.value || "");
-const fileInput = ref<HTMLInputElement | null>(null);
+const localAvatarUrl = ref<string>(avatarUrl.value || '')
+const fileInput = ref<HTMLInputElement | null>(null)
 
 // 计算属性
 const defaultAvatarText = computed(() => {
   // 根据角色生成默认头像文字
-  return name.value.charAt(0);
-});
+  return name.value.charAt(0)
+})
 
 // 方法
 const triggerFileInput = () => {
   if (fileInput.value) {
-    fileInput.value.click();
+    fileInput.value.click()
   }
-};
+}
 
 const handleAvatarUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
 
-  if (!file) return;
+  if (!file) return
 
   // 验证文件类型
-  if (!file.type.startsWith("image/")) {
-    alert("请选择图片文件");
-    return;
+  if (!file.type.startsWith('image/')) {
+    alert('请选择图片文件')
+    return
   }
 
   // 验证文件大小（限制10MB）
   if (file.size > 10 * 1024 * 1024) {
-    alert("图片大小不能超过10MB");
-    return;
+    alert('图片大小不能超过10MB')
+    return
   }
 
   // 创建本地预览URL
-  const reader = new FileReader();
+  const reader = new FileReader()
   reader.onload = (e) => {
-    const result = e.target?.result as string;
-    localAvatarUrl.value = result;
+    const result = e.target?.result as string
+    localAvatarUrl.value = result
 
     // 触发上传事件给父组件
-    emit("avatar-changed", {
+    emit('avatar-changed', {
       file,
       dataUrl: result,
-    });
-  };
-  reader.readAsDataURL(file);
+    })
+  }
+  reader.readAsDataURL(file)
 
   // 清空input，以便再次选择同一文件
-  target.value = "";
-};
+  target.value = ''
+}
 
 // 监听props.avatarUrl变化
 watch(
   () => avatarUrl.value,
   (newVal) => {
-    localAvatarUrl.value = newVal;
+    localAvatarUrl.value = newVal
   },
-);
+)
 
 // 如果需要暴露给父组件使用的方法，可以使用defineExpose
 defineExpose({
   triggerFileInput,
-});
+})
 </script>
 
 <style scoped>
@@ -255,13 +252,24 @@ defineExpose({
 /* 响应式设计 */
 @media (max-width: 480px) {
   .user-card-horizontal {
-    gap: 15px;
+    gap: 12px;
     padding: 12px;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .avatar-container {
-    width: 70px;
-    height: 70px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .info-section {
+    width: 100%;
+  }
+
+  .info-row {
+    justify-content: space-between;
+    gap: 10px;
   }
 
   .info-label {

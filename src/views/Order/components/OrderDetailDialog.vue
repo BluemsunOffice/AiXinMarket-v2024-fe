@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { OrderInfoItem } from '@/api/order.api'
+import { CoinName } from '@/types/goodsInfo'
 
 const props = defineProps<{
   visible: boolean
@@ -75,7 +76,7 @@ const descriptionItems = computed(() => {
   return [
     { label: '名称', value: detail.goodsName },
     { label: '价格', value: detail.price },
-    { label: '货币类型', value: detail.currencyType === '0' ? '日用币' : '服装币' },
+    { label: '货币类型', value: CoinName[detail.currencyType] || '-' },
     { label: '数量', value: detail.amount },
     { label: '商品介绍', value: detail.intro },
   ]
