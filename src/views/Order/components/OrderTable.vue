@@ -31,13 +31,13 @@
         <el-popconfirm
           v-if="statusText(scope.row.status) === '待处理'"
           title="确定核销该订单？"
-          @confirm="emit('check-one', Number(scope.row.id))"
+          @confirm="emit('check-one', scope.row.id)"
         >
           <template #reference>
             <el-button text type="primary">核销订单</el-button>
           </template>
         </el-popconfirm>
-        <el-button text type="primary" @click="emit('view-detail', Number(scope.row.id))">
+        <el-button text type="primary" @click="emit('view-detail', scope.row.id)">
           查看详情
         </el-button>
       </template>
@@ -65,9 +65,9 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'selection-change': [ids: number[]]
-  'check-one': [orderId: number]
-  'view-detail': [orderId: number]
+  'selection-change': [ids: string[]]
+  'check-one': [orderId: string]
+  'view-detail': [orderId: string]
 }>()
 
 const columns: OrderTableColumn[] = [
@@ -109,7 +109,7 @@ const columns: OrderTableColumn[] = [
 ]
 
 const handleSelectionChange = (rows: AdminOrderItem[]) => {
-  const ids = rows.map((row) => Number(row.id)).filter((id) => !Number.isNaN(id))
+  const ids = rows.map((row) => row.id)
   emit('selection-change', ids)
 }
 </script>

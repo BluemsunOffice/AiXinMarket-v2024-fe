@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { authConfig } from "@/config/request.config";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -76,6 +77,48 @@ const router = createRouter({
       meta: { role: ["老师", "超级管理员"] },
     },
   ],
+});
+
+const ADMIN_ROLES = ["超市管理员", "超级管理员"];
+
+const getCachedRole = () => {
+  return localStorage.getItem("roleGroup") || localStorage.getItem("role") || "";
+};
+
+const resolveHomePathByRole = (role: string) => {
+  if (ADMIN_ROLES.includes(role)) {
+    return "/manage";
+  }
+  if (role === "资助对象") {
+    return "/home";
+  }
+  if (role === "老师") {
+    return "/studentFiles";
+  }
+  return "/framework";
+};
+
+router.beforeEach((to, _from, next) => {
+  const token = localStorage.getItem(authConfig.tokenKey);
+  const role = getCachedRole();
+  const allowRoles = (to.meta?.role as string[] | undefined) || [];
+
+  if (!token && to.path !== "/") {
+    next("/");
+    return;
+  }
+
+  if (token && to.path === "/") {
+    next(resolveHomePathByRole(role));
+    return;
+  }
+
+  if (allowRoles.length && role && !allowRoles.includes(role)) {
+    next(resolveHomePathByRole(role));
+    return;
+  }
+
+  next();
 });
 
 //暴露出去router

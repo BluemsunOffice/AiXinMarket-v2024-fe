@@ -11,11 +11,12 @@
       >
         <el-table-column prop="status" label="订单状态" minWidth="100">
           <template #default="{ row }">
-            {{ statusMap[row.status] || '-' }}
+            <el-tag :type="getStatusTagType(row.status)"
+              >{{ statusMap[row.status] || '-' }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="下单时间" minWidth="140" />
-        <!-- <el-table-column prop="amount" label="数量" widminWidthth="140" /> -->
         <el-table-column prop="generalBalance" label="日用币" minWidth="140" />
         <el-table-column prop="clothingBalance" label="服装币" minWidth="140" />
         <el-table-column prop="operate" label="操作" width="150">
@@ -90,7 +91,7 @@
             <el-table-column property="goodsName" label="商品名称" minWidth="200" />
             <el-table-column property="currentType" label="消耗币类型" minWidth="140">
               <template #default="{ row }">
-                {{ row.currentType === 0 ? '服装币' : '日常币' }}
+                <Coins :coinType="row.currencyType" />
               </template>
             </el-table-column>
             <el-table-column property="amount" label="数量" minWidth="140" />
@@ -108,9 +109,10 @@
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import NavBar from '@/components/NavBar/index.vue'
-import { useOrderListStore } from '@/stores/orderListStore'
+import { useOrderStore } from '@/stores/orderStore'
+import Coins from '@/components/coins/index.vue'
 
-const orderListStore = useOrderListStore()
+const orderStore = useOrderStore()
 const {
   tableData,
   detailTableData,
@@ -121,8 +123,19 @@ const {
   loadings,
   statusMap,
   visible,
-} = storeToRefs(orderListStore)
-const { setPageSize, setPageNum, cancelOrder, showDetail, initPage } = orderListStore
+} = storeToRefs(orderStore)
+const { setPageSize, setPageNum, cancelOrder, showDetail, initPage } = orderStore
+
+const getStatusTagType = (status: string) => {
+  switch (status) {
+    case '2':
+      return 'success'
+    case '1':
+      return 'danger'
+    default:
+      return ''
+  }
+}
 
 const handleSizeChange = (val: number) => {
   setPageSize(val)

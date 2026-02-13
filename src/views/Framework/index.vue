@@ -56,8 +56,8 @@
       <el-main class="main-content">
         <section v-if="currentPage === 'personalCenter'" class="personal-container">
           <personal-box
-            :student-id="fundUserProfile.studentId"
-            :name="userProfile.userName"
+            :student-id="fundUserProfile?.studentId || userProfile.userId"
+            :name="userProfile.userName||userProfile.nickName"
             :role="userRole"
             :avatar-url="userProfile.avatar"
             @avatar-changed="handleUploadAvatar"

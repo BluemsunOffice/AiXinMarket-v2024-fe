@@ -3,10 +3,11 @@ import type { ApiResponse } from "@/types/request.types";
 import request from "@/api/request";
 import type { CoinType } from "@/types/goodsInfo";
 
+export type ManageOrderDirection = 0 | 1 | null;
 export type AdminOrderStatus = "0" | "1" | "2";
 
 export interface AdminOrderItem {
-  id: number;
+  id: string;
   status: AdminOrderStatus;
   checked?: boolean;
   userId: string;
@@ -50,7 +51,7 @@ export interface OrderListQuery {
   pageSize: number;
   pageNum: number;
   status?: number | null;
-  isAsc?: 0 | 1 | null;
+  isAsc?: ManageOrderDirection;
 }
 
 export interface OrderInfoPageQuery {
@@ -83,7 +84,7 @@ export const orderApi = {
       (response) => response as unknown as PagedRows<OrderInfoItem>,
     ),
 
-  checkOrders: (orderIds: number[]): Promise<ApiResponse> =>
+  checkOrders: (orderIds: string[]): Promise<ApiResponse> =>
     post(`/market/order/check/${orderIds.join(",")}`),
 
   getUserList: (params: UserOrderListQuery): Promise<PagedRows<UserOrderItem>> =>

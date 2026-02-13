@@ -35,6 +35,7 @@ export const useUserStore = defineStore("user", () => {
     localStorage.getItem(authConfig.tokenKey) || "",
   );
   const role = ref<string>(localStorage.getItem("role") || "");
+  const roleGroup = ref<string>(localStorage.getItem("roleGroup") || "");
   const ruleForm = reactive<LoginParams>({
     tenantId: "000000",
     isMobile: false,
@@ -45,7 +46,6 @@ export const useUserStore = defineStore("user", () => {
   });
   const userProfile = ref<User>({} as User);
   const fundUserProfile = ref<FundUserInfo>({} as FundUserInfo);
-  const roleGroup = ref<string>();
   const campusName = ref("");
   const avatarUrl = ref("");
   const generalBalance = ref(0);
@@ -122,6 +122,7 @@ export const useUserStore = defineStore("user", () => {
         authToken.value = data.access_token || "";
         role.value = data.roles[0].roleName || "";
         localStorage.setItem(authConfig.tokenKey, authToken.value);
+        localStorage.setItem("role", role.value);
         setRememberMe();
         // 获取用户信息
         await getProfile();
@@ -152,7 +153,8 @@ export const useUserStore = defineStore("user", () => {
       if (code === 200) {
         userProfile.value = data.user;
         fundUserProfile.value = data.fundUserInfo;
-        roleGroup.value = data.roleGroup;
+        roleGroup.value = data.roleGroup || "";
+        localStorage.setItem("roleGroup", roleGroup.value);
         campusName.value = data.user?.deptName || "";
         avatarUrl.value = data.user?.avatar || "";
       }
@@ -274,6 +276,7 @@ export const useUserStore = defineStore("user", () => {
   const logout = () => {
     authToken.value = "";
     role.value = "";
+    roleGroup.value = "";
     campusName.value = "";
     avatarUrl.value = "";
     generalBalance.value = 0;
@@ -281,6 +284,7 @@ export const useUserStore = defineStore("user", () => {
     navDataLoaded.value = false;
     localStorage.removeItem(authConfig.tokenKey);
     localStorage.removeItem("role");
+    localStorage.removeItem("roleGroup");
   };
 
   return {

@@ -42,7 +42,7 @@ export const cartApi = {
     del(`/market/cart/${removeItemIds.join(",")}`),
 
   settle: (data: { carts: CartItemPayload[] }): Promise<ApiResponse> =>
-    post("/market/cart/settle", { data }),
+    post("/market/cart/settle", data),
 
   update: (data: CartItemPayload): Promise<ApiResponse> =>
     put("/market/cart", data),

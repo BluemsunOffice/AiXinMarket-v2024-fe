@@ -3,20 +3,22 @@
     <div class="header-content">
       <div class="header-left">
         <div v-if="isMobile" ref="mobileEntryRef" class="mobile-entry">
-          <button
-            class="mobile-trigger icon-menu"
-            @click="toggleMenu"
-            aria-label="展开导航"
-          >
+          <button class="mobile-trigger icon-menu" @click="toggleMenu" aria-label="展开导航">
             <font-awesome-icon
               icon="fa-solid fa-ellipsis-vertical"
               style="color: rgba(116, 192, 252, 1)"
             />
           </button>
           <ul v-show="isMenuVisible" class="mobile-dropdown">
-            <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)">首页</li>
-            <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)">购物车</li>
-            <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)">订单</li>
+            <li
+              v-for="item in menuItems"
+              :key="item.path"
+              :class="{ active: activePath === item.path }"
+              @click="navigateTo(item.path)"
+            >
+              <font-awesome-icon :icon="item.icon" />
+              {{ item.label }}
+            </li>
           </ul>
         </div>
 
@@ -30,23 +32,14 @@
         <div class="menuList" v-show="!isMobile">
           <span class="hello">爱心超市</span>
           <div class="divider"></div>
-          <li :class="{ active: activeIndex === 0 }" @click="navigateToIndex(0)">
-            <font-awesome-icon icon="fa-solid fa-heart" style="color: rgba(116, 192, 252, 1)" />
-            首页
-          </li>
-          <li :class="{ active: activeIndex === 1 }" @click="navigateToIndex(1)">
-            <font-awesome-icon
-              icon="fa-solid fa-cart-arrow-down"
-              style="color: rgba(116, 192, 252, 1)"
-            />
-            购物车
-          </li>
-          <li :class="{ active: activeIndex === 2 }" @click="navigateToIndex(2)">
-            <font-awesome-icon
-              icon="fa-solid fa-rectangle-list"
-              style="color: rgba(116, 192, 252, 1)"
-            />
-            订单
+          <li
+            v-for="item in menuItems"
+            :key="item.path"
+            :class="{ active: activePath === item.path }"
+            @click="navigateTo(item.path)"
+          >
+            <font-awesome-icon :icon="item.icon" style="color: rgba(116, 192, 252, 1)" />
+            {{ item.label }}
           </li>
         </div>
       </div>
@@ -74,7 +67,7 @@ import { CoinType } from '@/types/goodsInfo'
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
-const activeIndex = ref(0)
+const activePath = ref(route.path)
 const mobileEntryRef = ref<HTMLElement | null>(null)
 
 // 定义 isMobile 和 isMenuVisible
@@ -116,17 +109,33 @@ const handleOutsideClick = (event: MouseEvent) => {
 const generalBalance = computed(() => userStore.generalBalance)
 const clothingBalance = computed(() => userStore.clothingBalance)
 const campusName = computed(() => userStore.campusName)
+const currentRole = computed(() => userStore.roleGroup || userStore.role || '')
+const isManager = computed(() => ['超市管理员', '超级管理员'].includes(currentRole.value))
 
-const pathToIndexMap: Record<string, number> = {
-  '/home': 0,
-  '/cart': 1,
-  '/orderList': 2,
+interface MenuItem {
+  path: string
+  label: string
+  icon: string
 }
+
+const userMenuItems: MenuItem[] = [
+  { path: '/home', label: '首页', icon: 'fa-solid fa-heart' },
+  { path: '/cart', label: '购物车', icon: 'fa-solid fa-cart-arrow-down' },
+  { path: '/orderList', label: '订单', icon: 'fa-solid fa-rectangle-list' },
+]
+
+const managerMenuItems: MenuItem[] = [
+  { path: '/manage', label: '货物管理', icon: 'fa-solid fa-box-open' },
+  { path: '/record', label: '进货记录', icon: 'fa-solid fa-truck-ramp-box' },
+  { path: '/order', label: '订单管理', icon: 'fa-solid fa-clipboard-list' },
+]
+
+const menuItems = computed(() => (isManager.value ? managerMenuItems : userMenuItems))
 
 watch(
   () => route.path,
   (currentPath) => {
-    activeIndex.value = pathToIndexMap[currentPath] ?? 0
+    activePath.value = currentPath
     closeMenu()
   },
   { immediate: true },
@@ -138,13 +147,16 @@ watch(isMobile, (mobile) => {
   }
 })
 
-const navigateToIndex = (index: number) => {
-  activeIndex.value = index // 更新激活项
-  const path = ['home', 'cart', 'orderList'][index]
+const navigateTo = (path: string) => {
+  if (path === route.path) {
+    closeMenu()
+    return
+  }
+
   if (isMobile.value) {
     closeMenu()
   }
-  router.push(`/${path}`)
+  router.push(path)
 }
 
 onMounted(async () => {
@@ -201,7 +213,7 @@ onMounted(async () => {
 }
 
 .brand-title {
-  font-size: clamp(26px, 1.8vw, 34px);
+  font-size: clamp(22px, 1.4vw, 28px);
   letter-spacing: 0.06em;
 }
 
@@ -251,12 +263,12 @@ onMounted(async () => {
 .menuList li {
   height: 72px;
   line-height: 72px;
-  padding: 0 16px;
+  padding: 0 14px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   color: #303133;
   text-decoration: none;
   transition: all 0.25s ease;
@@ -340,10 +352,11 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 8px;
   padding: 0 10px;
   border-radius: 8px;
   color: #303133;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
 }
 

@@ -1,13 +1,11 @@
 <template>
   <main class="order-page">
     <Nav />
-
     <section class="order-container">
       <header class="order-header">
         <h2>订单列表</h2>
         <OrderFilters
           :status-title="statusTitle"
-          :sort-title="sortTitle"
           :can-batch-check="canBatchCheck"
           :status-options="statusOptions"
           :sort-options="sortOptions"
@@ -54,7 +52,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import Nav from '@/components/ManagerNav/index.vue'
+import Nav from '@/components/NavBar/index.vue'
 import { useOrderStore } from '@/stores/orderStore'
 import OrderFilters from './components/OrderFilters.vue'
 import OrderTable from './components/OrderTable.vue'
@@ -66,10 +64,7 @@ const {
   orders,
   loading,
   paging,
-  statusOptions,
-  sortOptions,
   statusTitle,
-  sortTitle,
   canBatchCheck,
   detailDialogVisible,
   detailLoading,
@@ -78,6 +73,8 @@ const {
 } = storeToRefs(orderStore)
 
 const {
+  statusOptions,
+  sortOptions,
   fetchOrders,
   updateOrderPage,
   updateSelection,
