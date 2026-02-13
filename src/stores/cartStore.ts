@@ -1,403 +1,272 @@
+import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import { ref, computed, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useRouter } from "vue-router";
-import { martApi } from "@/api/mart.api";
+import { cartApi, type CartBalance, type CartItem } from "@/api/cart.api";
+
+interface PendingQuantityUpdate {
+  quantity: number;
+  timer: ReturnType<typeof setTimeout> | null;
+}
+
+const UPDATE_DEBOUNCE_MS = 400;
 
 export const useCartStore = defineStore("cartStore", () => {
-  const cartItems: any = ref([]);
-  const filteredItems: any = ref([...cartItems.value]);
-  const selectedItems: any = ref([]);
-  const userBalance: any = ref([]);
-  const checkoutInfo: any = ref(false); // 用于控制弹窗的显示
-  const isAllSelected: any = ref(false);
-  const isSettling: any = ref(false);
-  const isLoading: any = ref(true); // 添加加载状态变量，默认为加载中
-
-  // 定义路由
   const router = useRouter();
 
-  const toHome = () => {
-    console.log("跳转");
-    router.push("/home");
-  };
+  const cartItems = ref<CartItem[]>([]);
+  const filteredItems = computed(() => cartItems.value);
+  const selectedItems = ref<number[]>([]);
+  const userBalance = ref<CartBalance>({
+    generalBalance: 0,
+    clothingBalance: 0,
+  });
 
-  // 获取用户购物车商品
-  async function getItem() {
-    isLoading.value = true; // 开始加载
-    try {
-      const { data } = await martApi.cartList();
-      console.log("getItem", data);
+  const checkoutDialogVisible = ref(false);
+  const isLoading = ref(true);
+  const isSettling = ref(false);
 
-      // 整理购物车数据，将相同商品合并
-      if (data && Array.isArray(data)) {
-        const mergedItems: any[] = [];
-        const itemMap = new Map<number, any>();
+  const pendingQuantityUpdates = new Map<number, PendingQuantityUpdate>();
 
-        // 遍历所有项目，将相同goodsId的项目合并
-        data.forEach((item: any) => {
-          if (itemMap.has(item.goodsId)) {
-            // 如果已经存在相同商品，更新数量
-            const existingItem = itemMap.get(item.goodsId);
-            existingItem.num += item.num;
-
-            // 确保数量不超过限制
-            if (existingItem.num > existingItem.limitNum) {
-              existingItem.num = existingItem.limitNum;
-            }
-          } else {
-            // 否则添加新项目
-            itemMap.set(item.goodsId, { ...item });
-            mergedItems.push(itemMap.get(item.goodsId));
-          }
-        });
-
-        cartItems.value = mergedItems;
-
-        // 使用Promise.all等待所有库存信息获取完成
-        const stockPromises = cartItems.value.map(async (item: any) => {
-          try {
-            const { code, data } = await martApi.goodsDetail(item.goodsId);
-            if (data.code === 200 && data.data) {
-              const currentStock = data.data.amount;
-              item.limitNum = currentStock; // 更新库存信息
-
-              // 如果当前数量超过库存，则调整数量
-              if (item.num > currentStock) {
-                item.num = currentStock;
-              }
-            }
-          } catch (error) {
-            console.error(`获取商品 ${item.goodsId} 的库存信息失败:`, error);
-          }
-        });
-
-        // 等待所有库存信息获取完成
-        await Promise.all(stockPromises);
-      } else {
-        cartItems.value = data || [];
+  const isAllSelected = computed({
+    get: () => {
+      if (filteredItems.value.length === 0) {
+        return false;
       }
+      return selectedItems.value.length === filteredItems.value.length;
+    },
+    set: (checked: boolean) => {
+      selectedItems.value = checked
+        ? filteredItems.value.map((item) => item.goodsId)
+        : [];
+    },
+  });
 
-      // 在所有库存信息更新后再设置filteredItems
-      filteredItems.value = [...cartItems.value];
-    } catch (error) {
-      console.log(error);
-    } finally {
-      isLoading.value = false; // 无论成功与否，加载结束
-    }
-  }
+  const selectedCartItems = computed(() => {
+    return cartItems.value.filter((item) => selectedItems.value.includes(item.goodsId));
+  });
 
-  // 获取用户余额
-  async function getCurrency() {
-    const { data } = await martApi.userBalance();
-    userBalance.value = data;
-  }
-
-  // 计算服装币和日用币的总价
   const clothingTotal = computed(() => {
-    return selectedItems.value.reduce((total: number, id: any) => {
-      const item = cartItems.value.find(
-        (item: { goodsId: any; currencyType: string }) =>
-          item.goodsId === id && item.currencyType === "1",
-      );
-      return total + (item ? item.price * item.num : 0);
+    return selectedCartItems.value.reduce((total, item) => {
+      if (item.currencyType === "1") {
+        return total + item.price * item.num;
+      }
+      return total;
     }, 0);
   });
 
   const dailyTotal = computed(() => {
-    return selectedItems.value.reduce((total: number, id: any) => {
-      const item = cartItems.value.find(
-        (item: { goodsId: any; currencyType: string }) =>
-          item.goodsId === id && item.currencyType === "0",
-      );
-      return total + (item ? item.price * item.num : 0);
+    return selectedCartItems.value.reduce((total, item) => {
+      if (item.currencyType === "0") {
+        return total + item.price * item.num;
+      }
+      return total;
     }, 0);
   });
 
-  // 移除选中的商品
-  const removeSelectedItems = async (itemId: any) => {
-    try {
-      const response = await martApi.removeCartItem([itemId]);
+  const formatPrice = (row: { price: number }) => `¥${row.price.toFixed(2)}`;
 
-      if (response.data.code === 200) {
-        cartItems.value = cartItems.value.filter(
-          (item: { goodsId: any }) => item.goodsId !== itemId,
-        );
-        filteredItems.value = filteredItems.value.filter(
-          (item: { goodsId: any }) => item.goodsId !== itemId,
-        );
-        ElMessage.success("选中商品删除成功");
+  const toHome = () => {
+    router.push("/home");
+  };
+
+  const mergeCartItems = (items: CartItem[]) => {
+    const itemMap = new Map<number, CartItem>();
+
+    items.forEach((item) => {
+      const goodsId = Number(item.goodsId);
+      const existing = itemMap.get(goodsId);
+
+      if (existing) {
+        existing.num += item.num;
       } else {
-        ElMessage.warning("删除商品失败，请稍后重试！");
+        itemMap.set(goodsId, {
+          ...item,
+          goodsId,
+        });
       }
-    } catch (error) {
-      console.error("删除商品时出错:", error);
-      ElMessage.error("删除商品时出现错误！");
-    }
-  };
-
-  // 更新选中商品的总价
-  const updateSelectedTotalPrice = () => {
-    // 计算总价会自动更新，因为使用了计算属性
-  };
-
-  // 格式化价格
-  const formatPrice = (row: { price: number }) => {
-    return `¥${row.price.toFixed(2)}`;
-  };
-
-  // 显示结算信息（打开弹窗）
-  const checkout = () => {
-    if (selectedItems.value.length > 0) {
-      checkoutInfo.value = true; // 显示弹窗
-    } else {
-      ElMessage.warning("购物车没有选中的商品，无法结算！");
-    }
-  };
-
-  // 结算防抖定时器
-  let settleDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-  // 上次结算请求时间
-  let lastSettleTime = 0;
-  // 结算防抖时间间隔(毫秒)
-  const settleDebounceInterval = 2000;
-
-  // 确认结算
-  const reCheckout = async () => {
-    // 如果已经在处理结算，直接返回
-    if (isSettling.value) {
-      return;
-    }
-
-    // 检查是否在防抖时间内
-    const now = Date.now();
-    if (now - lastSettleTime < settleDebounceInterval) {
-      return;
-    }
-
-    // 设置最后结算时间
-    lastSettleTime = now;
-
-    // 准备要结算的商品
-    const selectedItemsData = selectedItems.value.map((id: any) => {
-      const item = cartItems.value.find(
-        (item: { goodsId: any }) => item.goodsId === id,
-      );
-      return {
-        goodsId: item.goodsId,
-        num: item.num,
-      };
     });
 
-    const payload = {
-      carts: selectedItemsData, // 形成请求体
-    };
+    return Array.from(itemMap.values());
+  };
 
-    // 本地先更新UI，标记为处理中
-    isSettling.value = true;
-
-    // 如果有前一个定时器，取消它
-    if (settleDebounceTimer) {
-      clearTimeout(settleDebounceTimer);
-    }
-
+  const refreshStockLimit = async (item: CartItem) => {
     try {
-      // 发送结算请求
-      const response = await martApi.settleCartItems(payload);
-      console.log("结算response", response);
-      console.log("response.data.code", response.data.code);
-
-      if (response.data.code == 200) {
-        // 结算成功的处理逻辑
-        userBalance.value.clothingBalance -= clothingTotal.value;
-        userBalance.value.generalBalance -= dailyTotal.value;
-
-        // 移除选中的商品
-        const successIds = selectedItems.value;
-        cartItems.value = cartItems.value.filter(
-          (item: { goodsId: any }) => !successIds.includes(item.goodsId),
-        );
-        filteredItems.value = [...cartItems.value];
-
-        selectedItems.value = [];
-        checkoutInfo.value = false; // 结算后关闭弹窗
-
-        ElMessage.success("结算成功");
-
-        // 刷新用户余额和购物车数据
-        getCurrency();
-        getItem();
-
-        isAllSelected.value = false; // 取消全选状态
-      } else if (response.data.code === 500) {
-        const warning = response.data.msg;
-        // 使用更引人注意的方式显示错误消息
-        ElMessageBox.alert(warning, "结算失败", {
-          confirmButtonText: "确定",
-          type: "warning",
-        });
-      } else {
-        ElMessage.warning("结算失败，请稍后重试");
+      const detailResp = await cartApi.goodsDetail(item.goodsId);
+      console.log(`商品 ${item.goodsId} 库存信息:`, detailResp.data);
+      const latestAmount = Number(detailResp.data?.amount ?? item.limitNum ?? 0);
+      item.limitNum = latestAmount;
+      if (item.num > latestAmount) {
+        item.num = latestAmount;
       }
     } catch (error) {
-      console.error(error);
-      ElMessage.error("结算过程中出现错误！");
-    } finally {
-      // 无论成功失败，在2秒后才结束处理状态，防止用户频繁点击
-      settleDebounceTimer = setTimeout(() => {
-        isSettling.value = false;
-        settleDebounceTimer = null;
-      }, settleDebounceInterval);
+      console.error(`获取商品 ${item.goodsId} 库存失败:`, error);
     }
   };
 
-  // 切换全选状态
-  const toggleSelectAll = () => {
-    if (isAllSelected.value) {
-      selectedItems.value = filteredItems.value.map(
-        (item: { goodsId: any }) => item.goodsId,
-      );
-    } else {
-      selectedItems.value = [];
-    }
-  };
-
-  // 监听 selectedItems 变化，更新全选按钮的状态
-  watch(selectedItems, (newSelectedItems) => {
-    isAllSelected.value =
-      newSelectedItems.length === filteredItems.value.length;
-  });
-
-  // 使用一个Map来存储每个商品最后一次发送请求的时间
-  const lastUpdateTimeMap = new Map<number, number>();
-  // 使用一个Map来存储每个商品的更新请求队列
-  const pendingUpdates = new Map<
-    number,
-    { quantity: number; timestamp: number }
-  >();
-  // 防抖时间间隔（毫秒）
-  const debounceInterval = 2000;
-
-  // 更新商品数量的方法
-  const updateItemQuantity = async (itemId: number, newQuantity: number) => {
+  const getItem = async () => {
+    isLoading.value = true;
     try {
-      // 找到对应的商品
-      const item = cartItems.value.find(
-        (item: { goodsId: number }) => item.goodsId === itemId,
-      );
-      if (!item) {
-        ElMessage.warning("商品不存在");
+      const listResp = await cartApi.list();
+      const list = Array.isArray(listResp.data) ? listResp.data : [];
+
+      const mergedItems = mergeCartItems(list);
+      await Promise.all(mergedItems.map((item) => refreshStockLimit(item)));
+
+      cartItems.value = mergedItems;
+
+      const validIds = new Set(mergedItems.map((item) => item.goodsId));
+      selectedItems.value = selectedItems.value.filter((id) => validIds.has(id));
+    } catch (error) {
+      console.error("获取购物车失败:", error);
+      ElMessage.error("获取购物车失败，请稍后重试");
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const getCurrency = async () => {
+    try {
+      const balanceResp = await cartApi.balance();
+      userBalance.value = {
+        generalBalance: Number(balanceResp.data?.generalBalance ?? 0),
+        clothingBalance: Number(balanceResp.data?.clothingBalance ?? 0),
+      };
+    } catch (error) {
+      console.error("获取余额失败:", error);
+    }
+  };
+
+  const initCartPage = async () => {
+    await Promise.allSettled([getItem(), getCurrency()]);
+  };
+
+  const toggleSelectAll = (checked: boolean) => {
+    isAllSelected.value = checked;
+  };
+
+  const updateSelectedTotalPrice = () => {
+    return;
+  };
+
+  const removeSelectedItems = async (itemId: number) => {
+    try {
+      const response = await cartApi.remove([itemId]);
+      if (response.code === 200) {
+        cartItems.value = cartItems.value.filter((item) => item.goodsId !== itemId);
+        selectedItems.value = selectedItems.value.filter((id) => id !== itemId);
+        ElMessage.success("商品移除成功");
+      } else {
+        ElMessage.warning("删除商品失败，请稍后重试");
+      }
+    } catch (error) {
+      console.error("删除商品失败:", error);
+      ElMessage.error("删除商品失败，请稍后重试");
+    }
+  };
+
+  const checkout = () => {
+    if (selectedItems.value.length === 0) {
+      ElMessage.warning("请先选择商品再结算");
+      return;
+    }
+    checkoutDialogVisible.value = true;
+  };
+
+  const reCheckout = async () => {
+    if (isSettling.value || selectedItems.value.length === 0) {
+      return;
+    }
+
+    isSettling.value = true;
+    try {
+      const carts = selectedCartItems.value.map((item) => ({
+        goodsId: item.goodsId,
+        num: item.num,
+      }));
+
+      const response = await cartApi.settle({ carts });
+      if (response.code === 200) {
+        ElMessage.success("结算成功");
+        selectedItems.value = [];
+        checkoutDialogVisible.value = false;
+        await initCartPage();
         return;
       }
 
-      // 检查是否超过库存限制
-      if (newQuantity > item.limitNum) {
-        newQuantity = item.limitNum;
-        ElMessage.warning(`商品数量已调整为库存上限: ${item.limitNum}`);
+      if (response.code === 500) {
+        await ElMessageBox.alert(response.message || "结算失败", "结算失败", {
+          confirmButtonText: "确定",
+          type: "warning",
+        });
+        return;
       }
 
-      // 立即在本地更新数量
-      item.num = newQuantity;
-
-      // 记录当前时间
-      const now = Date.now();
-
-      // 添加到待更新队列
-      pendingUpdates.set(itemId, {
-        quantity: newQuantity,
-        timestamp: now,
-      });
-
-      // 检查是否需要发送请求
-      const lastUpdateTime = lastUpdateTimeMap.get(itemId) || 0;
-      if (now - lastUpdateTime >= debounceInterval) {
-        // 可以发送请求，更新最后发送时间
-        lastUpdateTimeMap.set(itemId, now);
-
-        // 发送请求
-        await syncItemToServer(itemId);
-      } else {
-        // 设置一个定时器，在间隔结束后发送请求
-        setTimeout(
-          async () => {
-            // 检查是否仍需要发送请求
-            const pendingUpdate = pendingUpdates.get(itemId);
-            if (pendingUpdate && now === pendingUpdate.timestamp) {
-              // 更新最后发送时间
-              lastUpdateTimeMap.set(itemId, Date.now());
-
-              // 发送请求
-              await syncItemToServer(itemId);
-            }
-          },
-          debounceInterval - (now - lastUpdateTime),
-        );
-      }
+      ElMessage.warning(response.message || "结算失败，请稍后重试");
     } catch (error) {
-      console.error("更新商品数量时出错:", error);
-      ElMessage.error("更新商品数量时出现错误！");
+      console.error("结算失败:", error);
+      ElMessage.error("结算失败，请稍后重试");
+    } finally {
+      isSettling.value = false;
     }
   };
 
-  // 将商品数据同步到服务器
-  const syncItemToServer = async (itemId: number) => {
-    try {
-      // 获取最新的待更新数据
-      const pendingUpdate = pendingUpdates.get(itemId);
-      if (!pendingUpdate) return;
-
-      // 清除此商品的待更新记录
-      pendingUpdates.delete(itemId);
-
-      // 找到对应的商品
-      const item = cartItems.value.find(
-        (item: { goodsId: number }) => item.goodsId === itemId,
-      );
-      if (!item) return;
-
-      // 请求体结构
-      const payload = {
-        goodsId: item.goodsId,
-        num: pendingUpdate.quantity,
-        imgUrl: item.imageUrlUrl,
-        goodsName: item.goodsName,
-      };
-
-      // 获取最新的商品库存信息（可选，因为我们已经在本地进行了限制）
-      try {
-        const stockResponse = await martApi.goodsDetail(item.goodsId);
-        if (stockResponse.data.code === 200 && stockResponse.data.data) {
-          const currentStock = stockResponse.data.data.amount;
-
-          // 更新本地库存限制
-          item.limitNum = currentStock;
-
-          // 如果请求的数量超过最新库存，调整数量
-          if (payload.num > currentStock) {
-            payload.num = currentStock;
-            item.num = currentStock;
-            ElMessage.warning(`商品库存已更新，数量已调整为${currentStock}`);
-          }
-        }
-      } catch (error) {
-        console.error("获取最新库存信息失败:", error);
-      }
-
-      // 调用后端接口更新数量
-      const response = await martApi.updateCartItem(payload);
-
-      if (response.data.code === 200) {
-        // 显示成功提示消息
-
-        console.log("商品数量已同步到服务器");
-      } else {
-        ElMessage.warning(
-          response.data.msg || "更新商品数量失败，请稍后重试！",
-        );
-      }
-    } catch (error) {
-      console.error("同步商品数量到服务器时出错:", error);
+  const syncItemToServer = async (itemId: number, quantity: number) => {
+    const item = cartItems.value.find((cartItem) => cartItem.goodsId === itemId);
+    if (!item) {
+      return;
     }
+
+    await refreshStockLimit(item);
+    const finalQuantity = Math.min(quantity, item.limitNum);
+    item.num = finalQuantity;
+
+    const payload = {
+      goodsId: item.goodsId,
+      num: finalQuantity,
+      imgUrl: item.imageUrlUrl,
+      goodsName: item.goodsName,
+    };
+
+    const response = await cartApi.update(payload);
+    if (response.code !== 200) {
+      ElMessage.warning(response.message || "更新商品数量失败，请稍后重试");
+    }
+  };
+
+  const updateItemQuantity = async (itemId: number, newQuantity: number) => {
+    const item = cartItems.value.find((cartItem) => cartItem.goodsId === itemId);
+    if (!item) {
+      return;
+    }
+
+    const normalizedQuantity = Math.max(0, Math.min(newQuantity, item.limitNum));
+    item.num = normalizedQuantity;
+
+    const pending = pendingQuantityUpdates.get(itemId);
+    if (pending?.timer) {
+      clearTimeout(pending.timer);
+    }
+
+    const timer = setTimeout(async () => {
+      const latest = pendingQuantityUpdates.get(itemId);
+      if (!latest) {
+        return;
+      }
+
+      try {
+        await syncItemToServer(itemId, latest.quantity);
+      } catch (error) {
+        console.error("同步商品数量失败:", error);
+      } finally {
+        pendingQuantityUpdates.delete(itemId);
+      }
+    }, UPDATE_DEBOUNCE_MS);
+
+    pendingQuantityUpdates.set(itemId, {
+      quantity: normalizedQuantity,
+      timer,
+    });
   };
 
   return {
@@ -406,14 +275,15 @@ export const useCartStore = defineStore("cartStore", () => {
     filteredItems,
     selectedItems,
     userBalance,
-    clothingTotal,
-    dailyTotal,
-    checkoutInfo,
+    checkoutDialogVisible,
     isAllSelected,
     isSettling,
     isLoading,
+    clothingTotal,
+    dailyTotal,
     getItem,
     getCurrency,
+    initCartPage,
     removeSelectedItems,
     checkout,
     reCheckout,

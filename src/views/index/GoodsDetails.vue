@@ -23,9 +23,7 @@
             库存 {{ productDetail.amount }}
           </el-tag>
         </div>
-        <div
-          class="price-cartoon"
-        >
+        <div class="price-cartoon">
           <div class="coin-pill">
             <Coins :coinType="productDetail.currencyType" />
           </div>
@@ -71,9 +69,9 @@
 import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { InfoFilled, ShoppingCart } from '@element-plus/icons-vue'
-import { martApi } from '@/api/mart.api'
+import { cartApi, type CartItemPayload } from '@/api/cart.api'
 import CartoonStepper from './components/CartoonStepper.vue'
-import type { goodItem, Product } from '@/api/mart.api'
+import type { Product } from '@/api/mart.api'
 import Coins from '@/components/coins/index.vue'
 
 const num = ref(1)
@@ -106,12 +104,12 @@ const addToCart = async () => {
   }
 
   try {
-    const listResp = await martApi.cartList()
+    const listResp = await cartApi.list()
     console.log('购物车列表', listResp)
     if (listResp.code === 200 && listResp.data) {
       const cartItems = listResp.data
       const existingItem = cartItems.find(
-        (item: goodItem) => item.goodsId === productDetail.value.id,
+        (item: CartItemPayload) => item.goodsId === productDetail.value.id,
       )
       if (existingItem) {
         const totalQuantity = existingItem.num + num.value
@@ -128,7 +126,7 @@ const addToCart = async () => {
       goodsId: productDetail.value.id,
       num: num.value,
     }
-    const addResp = await martApi.addCartItem(payload)
+    const addResp = await cartApi.add(payload)
     if (addResp.code === 500) {
       ElMessage.error(addResp.message)
       console.log('商品下架', addResp)
