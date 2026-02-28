@@ -52,62 +52,28 @@
         </el-descriptions-item>
       </el-descriptions>
       <el-tabs type="border-card" style="margin-top: 20px">
-        <el-tab-pane label="个人处分">
-          <el-table :data="paginatedPunishVo" height="350">
-            <el-table-column prop="category" label="类别" minWidth="180">
-              <template #default="{ row }">
-                {{ formatPunishType(+row.category) }}
+        <el-tab-pane v-for="tab in detailTabConfigs" :key="tab.section" :label="tab.label">
+          <el-table :data="tab.rows" height="350">
+            <el-table-column
+              v-for="column in tab.columns"
+              :key="column.key"
+              :prop="column.prop"
+              :label="column.label"
+              :min-width="column.minWidth"
+            >
+              <template #default="{ row }" v-if="column.formatter">
+                {{ column.formatter(row) }}
               </template>
             </el-table-column>
-            <el-table-column prop="reason" label="原因" minWidth="180"></el-table-column>
-            <el-table-column prop="punishTime" label="处分时间" minWidth="180"></el-table-column>
           </el-table>
           <el-pagination
             background
             layout="prev, pager, next"
-            :total="punishTotal"
+            :total="tab.total"
             :page-size="detailPageSize"
-            v-model:current-page="punishPage"
+            :current-page="tab.currentPage"
             pager-count="50"
-            @current-change="setDetailPage.bind(null, 'punish')"
-            class="pagination"
-          />
-        </el-tab-pane>
-        <el-tab-pane label="个人奖励">
-          <el-table :data="paginatedScholarshipVo" height="350">
-            <el-table-column prop="category" label="类型" minWidth="180">
-              <template #default="{ row }">
-                {{ formatFundType(+row.type) }}
-              </template>
-            </el-table-column>
-            <el-table-column prop="grantDate" label="授予日期" minWidth="180"></el-table-column>
-            <el-table-column prop="amount" label="金额" minWidth="180"></el-table-column>
-          </el-table>
-          <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="scholarshipTotal"
-            :page-size="detailPageSize"
-            v-model:current-page="scholarshipPage"
-            pager-count="50"
-            @current-change="setDetailPage.bind(null, 'scholarship')"
-            class="pagination"
-          />
-        </el-tab-pane>
-        <el-tab-pane label="社会经历">
-          <el-table :data="paginatedProjectVo" height="350">
-            <el-table-column prop="startDate" label="开始日期" minWidth="180"></el-table-column>
-            <el-table-column prop="endDate" label="结束日期" minWidth="180"></el-table-column>
-            <el-table-column prop="experience" label="经历描述" minWidth="180"></el-table-column>
-          </el-table>
-          <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="projectTotal"
-            :page-size="detailPageSize"
-            v-model:current-page="projectPage"
-            pager-count="50"
-            @current-change="setDetailPage.bind(null, 'project')"
+            @current-change="setDetailPage(tab.section, $event)"
             class="pagination"
           />
         </el-tab-pane>
@@ -123,14 +89,14 @@
 
 <script setup lang="ts">
 import SearchBox from './components/search-box.vue'
-import { onMounted } from 'vue'
+import { onActivated, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { formatFundType, formatPunishType } from '@/constants/default'
 import { useStudentStore } from '@/stores/student-store'
 
 const studentStore = useStudentStore()
 
 const {
+  tableColumns,
   getDisplayValue,
   handleSelectionChange,
   handleViewDetail,
@@ -139,11 +105,10 @@ const {
   handleSizeChange,
   handleCurrentChange,
   setDetailPage,
-  getList,
+  initPage,
 } = studentStore
 
 const {
-  tableColumns,
   fieldConfigs,
   tableData,
   query,
@@ -152,19 +117,17 @@ const {
   studentRow,
   visible,
   detailPageSize,
-  projectTotal,
-  punishTotal,
-  scholarshipTotal,
-  projectPage,
-  punishPage,
-  scholarshipPage,
-  paginatedProjectVo,
-  paginatedPunishVo,
-  paginatedScholarshipVo,
+  detailTabConfigs,
 } = storeToRefs(studentStore)
 
 onMounted(() => {
-  getList()
+  void initPage()
+})
+
+onActivated(() => {
+  if (!tableData.value.length) {
+    void initPage()
+  }
 })
 </script>
 

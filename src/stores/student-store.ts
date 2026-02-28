@@ -6,6 +6,8 @@ import {
   formatEthnicity,
   formatCollege,
   formatMajor,
+  formatFundType,
+  formatPunishType,
   formatAssistLevel,
   formatCampus,
   formatDegree,
@@ -36,6 +38,23 @@ interface StudentTableColumn {
 }
 
 type DetailSection = 'project' | 'punish' | 'scholarship'
+
+interface DetailColumn {
+  key: string
+  prop: string
+  label: string
+  minWidth: number
+  formatter?: (row: Record<string, any>) => string
+}
+
+interface DetailTabConfig {
+  section: DetailSection
+  label: string
+  rows: any[]
+  total: number
+  currentPage: number
+  columns: DetailColumn[]
+}
 
 export const useStudentStore = defineStore('student', () => {
   const getDisplayValue = getFieldDisplayValue
@@ -131,6 +150,57 @@ export const useStudentStore = defineStore('student', () => {
   const projectTotal = computed(() => fundProjectVo.value.length)
   const punishTotal = computed(() => fundPunishVo.value.length)
   const scholarshipTotal = computed(() => fundScholarshipVo.value.length)
+
+  const detailTabConfigs = computed<DetailTabConfig[]>(() => [
+    {
+      section: 'punish',
+      label: '个人处分',
+      rows: paginatedPunishVo.value,
+      total: punishTotal.value,
+      currentPage: punishPage.value,
+      columns: [
+        {
+          key: 'category',
+          prop: 'category',
+          label: '类别',
+          minWidth: 180,
+          formatter: (row) => formatPunishType(Number(row.category)),
+        },
+        { key: 'reason', prop: 'reason', label: '原因', minWidth: 180 },
+        { key: 'punishTime', prop: 'punishTime', label: '处分时间', minWidth: 180 },
+      ],
+    },
+    {
+      section: 'scholarship',
+      label: '个人奖励',
+      rows: paginatedScholarshipVo.value,
+      total: scholarshipTotal.value,
+      currentPage: scholarshipPage.value,
+      columns: [
+        {
+          key: 'type',
+          prop: 'type',
+          label: '类型',
+          minWidth: 180,
+          formatter: (row) => formatFundType(Number(row.type)),
+        },
+        { key: 'grantDate', prop: 'grantDate', label: '授予日期', minWidth: 180 },
+        { key: 'amount', prop: 'amount', label: '金额', minWidth: 180 },
+      ],
+    },
+    {
+      section: 'project',
+      label: '社会经历',
+      rows: paginatedProjectVo.value,
+      total: projectTotal.value,
+      currentPage: projectPage.value,
+      columns: [
+        { key: 'startDate', prop: 'startDate', label: '开始日期', minWidth: 180 },
+        { key: 'endDate', prop: 'endDate', label: '结束日期', minWidth: 180 },
+        { key: 'experience', prop: 'experience', label: '经历描述', minWidth: 180 },
+      ],
+    },
+  ])
 
   const hasSelectedItems = computed(() => selectedIds.value.length > 0)
 
@@ -291,6 +361,10 @@ export const useStudentStore = defineStore('student', () => {
     await getList(val, query.pageSize)
   }
 
+  const initPage = async () => {
+    await getList(1, query.pageSize)
+  }
+
   const setDetailPage = (section: DetailSection, page: number) => {
     if (section === 'project') {
       projectPage.value = page
@@ -317,15 +391,7 @@ export const useStudentStore = defineStore('student', () => {
     studentRow,
     visible,
     detailPageSize,
-    projectTotal,
-    punishTotal,
-    scholarshipTotal,
-    projectPage,
-    punishPage,
-    scholarshipPage,
-    paginatedProjectVo,
-    paginatedPunishVo,
-    paginatedScholarshipVo,
+    detailTabConfigs,
 
     getList,
     resetSearchForm,
@@ -337,6 +403,7 @@ export const useStudentStore = defineStore('student', () => {
     exportStudentInfo,
     handleSizeChange,
     handleCurrentChange,
+    initPage,
     setDetailPage,
   }
 })
