@@ -51,7 +51,7 @@ export const useRecordStore = defineStore('record', () => {
 
       items.value = []
       total.value = 0
-      ElMessage.error(response.message || response.msg || '获取进货记录失败')
+      ElMessage.error(response.msg || '获取进货记录失败')
     } catch (error) {
       items.value = []
       total.value = 0
@@ -78,7 +78,7 @@ export const useRecordStore = defineStore('record', () => {
       }
 
       detail.value = defaultDetail()
-      ElMessage.error(response.message || response.msg || '获取详情失败')
+      ElMessage.error(response.msg || '获取详情失败')
     } catch (error) {
       detail.value = defaultDetail()
       ElMessage.error('获取详情失败，请稍后重试')

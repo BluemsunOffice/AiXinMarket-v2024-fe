@@ -57,7 +57,7 @@ export class RequestCore {
         console.log(`[Response] ${response.config.url}`, response.data)
 
         const responseBody = response.data as
-          | (ApiResponse & { msg?: string; message?: string })
+          | (ApiResponse & { msg?: string })
           | undefined
 
         // 业务状态码 401（例如：{ code: 401, data: null, msg: "认证失败，无法访问系统资源" }）
@@ -66,7 +66,7 @@ export class RequestCore {
 
           const unauthorizedError: ErrorResponse = {
             code: 401,
-            message: responseBody.msg || responseBody.message || '登录状态已过期，请重新登录',
+            msg: responseBody.msg || responseBody.msg || '登录状态已过期，请重新登录',
             success: false,
           }
 
@@ -89,7 +89,7 @@ export class RequestCore {
         // 统一错误处理
         const errorResponse: ErrorResponse = {
           code: error.response?.status || 500,
-          message: error.response?.data?.message || error.message || '请求失败',
+          msg: error.response?.data?.msg || error.msg || '请求失败',
           success: false,
         }
 

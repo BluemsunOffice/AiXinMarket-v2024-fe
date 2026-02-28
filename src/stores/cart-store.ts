@@ -234,7 +234,7 @@ export const useCartStore = defineStore('cartStore', () => {
 
     const response = await cartApi.update(payload)
     if (response.code !== 200) {
-      ElMessage.warning(response.message || '更新商品数量失败，请稍后重试')
+      ElMessage.warning(response.msg || '更新商品数量失败，请稍后重试')
     }
   }
 

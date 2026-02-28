@@ -83,7 +83,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
       }
       goodsList.value = []
       total.value = 0
-      ElMessage.error(response.message || response.msg || '商品列表加载失败')
+      ElMessage.error(response.msg || '商品列表加载失败')
     } catch (error) {
       goodsList.value = []
       total.value = 0
@@ -116,7 +116,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
         await fetchGoods()
         return
       }
-      ElMessage.error(response.message || response.msg || '删除失败')
+      ElMessage.error(response.msg || '删除失败')
     } catch (error) {
       ElMessage.error('删除失败，请稍后重试')
     }
@@ -131,7 +131,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
     try {
       const response = await manageGoodsApi.getGoodsDetail(item.id)
       if (response.code !== 200) {
-        ElMessage.error(response.message || response.msg || '加载商品详情失败')
+        ElMessage.error(response.msg || '加载商品详情失败')
         return
       }
 
@@ -166,7 +166,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
     try {
       const uploadResponse = await manageGoodsApi.uploadImage(file)
       if (uploadResponse.code !== 200 || !uploadResponse.data?.ossId) {
-        ElMessage.error(uploadResponse.message || uploadResponse.msg || '上传失败')
+        ElMessage.error(uploadResponse.msg || '上传失败')
         return
       }
 
@@ -225,7 +225,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
         return true
       }
 
-      ElMessage.error(response.message || response.msg || '保存失败')
+      ElMessage.error(response.msg || '保存失败')
       return false
     } catch (error) {
       ElMessage.error('保存失败，请稍后重试')
@@ -262,7 +262,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
         await fetchGoods()
         return true
       }
-      ElMessage.error(response.message || response.msg || '进货失败')
+      ElMessage.error(response.msg || '进货失败')
       return false
     } catch (error) {
       ElMessage.error('进货失败，请稍后重试')

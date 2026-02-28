@@ -123,7 +123,7 @@ export const useUserStore = defineStore('user', () => {
     loginBtnLoading.value = true
     setClientId()
     try {
-      const { code, data, message: msg } = await userApi.login(ruleForm)
+      const { code, data, msg } = await userApi.login(ruleForm)
       if (code === 200) {
         authToken.value = data.access_token || ''
         role.value = data.roles[0].roleName || ''
@@ -135,18 +135,19 @@ export const useUserStore = defineStore('user', () => {
 
         return Promise.resolve({
           success: true,
-          message: '登录成功',
+          msg: '登录成功',
         })
       } else {
         return Promise.reject({
           success: false,
-          message: msg,
+          msg: msg,
         })
       }
     } catch (error) {
+      console.log('登录失败:', error)
       return Promise.reject({
         success: false,
-        message: error instanceof Error ? error.message : String((error as { msg?: unknown }).msg),
+        msg: (error as any)?.msg || '登录失败，请稍后重试',
       })
     } finally {
       loginBtnLoading.value = false

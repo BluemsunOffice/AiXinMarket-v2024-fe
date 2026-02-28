@@ -126,7 +126,7 @@ const addToCart = async () => {
     }
     const addResp = await cartApi.add(payload)
     if (addResp.code === 500) {
-      ElMessage.error(addResp.message)
+      ElMessage.error(addResp.msg)
       console.log('商品下架', addResp)
     } else if (addResp.code === 200) {
       console.log('加入购物车成功', addResp)

@@ -80,7 +80,7 @@ export const useOrderStore = defineStore('order', () => {
 
       orders.value = []
       paging.total = 0
-      ElMessage.error(response.message || response.msg || '订单列表加载失败')
+      ElMessage.error(response.msg || '订单列表加载失败')
     } catch (error) {
       orders.value = []
       paging.total = 0
@@ -137,7 +137,7 @@ export const useOrderStore = defineStore('order', () => {
         await fetchOrders()
         return
       }
-      ElMessage.error(response.message || response.msg || '核销失败')
+      ElMessage.error(response.msg || '核销失败')
     } catch (error) {
       ElMessage.error('核销失败，请稍后重试')
     }
@@ -157,7 +157,7 @@ export const useOrderStore = defineStore('order', () => {
         await fetchOrders()
         return
       }
-      ElMessage.error(response.message || response.msg || '批量核销失败')
+      ElMessage.error(response.msg || '批量核销失败')
     } catch (error) {
       ElMessage.error('批量核销失败，请稍后重试')
     }
@@ -201,7 +201,7 @@ export const useOrderStore = defineStore('order', () => {
 
       currentDetail.value = null
       detailPaging.total = 0
-      ElMessage.error(response.message || response.msg || '订单详情加载失败')
+      ElMessage.error(response.msg || '订单详情加载失败')
     } catch (error) {
       currentDetail.value = null
       detailPaging.total = 0
@@ -266,7 +266,7 @@ export const useOrderStore = defineStore('order', () => {
         ElMessage.success('取消成功')
         await fetchOrderList(query.pageNum, query.pageSize)
       } else {
-        ElMessage.error(response.message || response.msg || '取消失败')
+        ElMessage.error(response.msg || '取消失败')
       }
     } catch (error) {
       ElMessage.error('取消订单失败')

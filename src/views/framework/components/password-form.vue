@@ -193,7 +193,7 @@ const resetPassword = async (oldPassword: string, newPassword: string) => {
       ElMessage.success('密码修改成功')
       handleReset()
     } else {
-      ElMessage.error(response.msg || response.message || '密码修改失败')
+      ElMessage.error(response.msg || '密码修改失败')
     }
   } catch (error: any) {
     console.error('请求错误:', error)
@@ -205,8 +205,8 @@ const resetPassword = async (oldPassword: string, newPassword: string) => {
       } else if (error.response.data?.msg) {
         errorMessage = error.response.data.msg
       }
-    } else if (error?.message) {
-      errorMessage = error.message
+    } else if (error?.msg) {
+      errorMessage = error.msg
     }
 
     ElMessage.error(errorMessage)

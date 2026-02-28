@@ -1,6 +1,6 @@
 export interface ApiResponse<T = any> {
   code: number
-  message: string
+  msg: string
   data: T
   success: boolean
   [key: string]: any
@@ -8,7 +8,7 @@ export interface ApiResponse<T = any> {
 
 export interface ErrorResponse {
   code: number
-  message: string
+  msg: string
   success: boolean
 }
 

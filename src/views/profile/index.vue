@@ -452,7 +452,7 @@ const saveProfileEdit = async () => {
       ElMessage.success('信息更新成功')
       editDialogVisible.value = false
     } else {
-      ElMessage.error(response.message || '信息更新失败')
+      ElMessage.error(response.msg || '信息更新失败')
     }
   } catch (error) {
     ElMessage.error('请求失败')
