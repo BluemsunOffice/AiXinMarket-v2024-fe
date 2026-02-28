@@ -79,8 +79,12 @@
         </el-tab-pane>
         <el-button
           style="display: block; margin: 0px auto; padding: 10px 20px"
+          :loading="exportingStudentInfo"
           @click="exportStudentInfo()"
-          >导出信息</el-button
+          ><font-awesome-icon
+            icon="fa-solid fa-file-arrow-down"
+            style="color: rgb(116, 192, 252)"
+          />导出信息</el-button
         >
       </el-tabs>
     </el-dialog>
@@ -96,6 +100,7 @@ import { useStudentStore } from '@/stores/student-store'
 const studentStore = useStudentStore()
 
 const {
+  fieldConfigs,
   tableColumns,
   getDisplayValue,
   handleSelectionChange,
@@ -109,11 +114,11 @@ const {
 } = studentStore
 
 const {
-  fieldConfigs,
   tableData,
   query,
   total,
   loadings,
+  exportingStudentInfo,
   studentRow,
   visible,
   detailPageSize,

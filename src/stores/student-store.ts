@@ -121,6 +121,7 @@ export const useStudentStore = defineStore('student', () => {
   })
 
   const viewedUserId = ref('')
+  const exportingStudentInfo = ref(false)
   const studentRow = ref<Record<string, any>>({})
   const fundPunishVo = ref<any[]>([])
   const fundScholarshipVo = ref<any[]>([])
@@ -333,6 +334,14 @@ export const useStudentStore = defineStore('student', () => {
       return
     }
 
+    exportingStudentInfo.value = true
+    const exportingMessage = ElMessage({
+      type: 'info',
+      message: '正在导出中，请稍候...',
+      duration: 0,
+      showClose: true,
+    })
+
     try {
       const response = await studentFilesApi.exportStudentInfo(viewedUserId.value)
 
@@ -350,6 +359,9 @@ export const useStudentStore = defineStore('student', () => {
       ElMessage.success('导出成功')
     } catch (error) {
       ElMessage.error('导出失败，请稍后重试')
+    } finally {
+      exportingStudentInfo.value = false
+      exportingMessage.close()
     }
   }
 
@@ -387,6 +399,7 @@ export const useStudentStore = defineStore('student', () => {
     query,
     total,
     loadings,
+    exportingStudentInfo,
     hasSelectedItems,
     studentRow,
     visible,
