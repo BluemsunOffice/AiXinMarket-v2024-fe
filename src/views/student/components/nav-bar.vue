@@ -16,24 +16,6 @@ const router = useRouter()
 const goToFramework = () => {
   router.push('/framework')
 }
-
-const handleLogout = async () => {
-  try {
-    const { code, msg, message } = await userApi.logout()
-    if (code === 200) {
-      ElMessage.success('退出成功！')
-      clearAuth()
-
-      setTimeout(() => {
-        router.push('/')
-      }, 60)
-    } else {
-      ElMessage.error((msg || message || '退出失败') + '!')
-    }
-  } catch (error) {
-    ElMessage.error('请求失败！')
-  }
-}
 </script>
 
 <style scoped>

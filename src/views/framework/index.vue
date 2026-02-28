@@ -118,13 +118,13 @@ const menuList: MenuItem[] = [
     label: '个人成长档案',
     page: 'personalProfile',
     route: '/framework/profile',
-    roles: ['资助对象', '超级管理员'],
+    roles: ['资助对象'],
   },
   {
     key: 'studentsProfile',
     label: '学生档案',
     page: 'studentsProfile',
-    route: '/studentFiles',
+    route: '/framework/studentFiles',
     roles: ['老师', '超级管理员'],
   },
 ]

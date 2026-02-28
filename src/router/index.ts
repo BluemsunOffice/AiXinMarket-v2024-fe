@@ -68,13 +68,13 @@ const router = createRouter({
           name: 'profile',
           component: () => import('@/views/profile/index.vue'),
         },
+        {
+          path: 'studentFiles',
+          name: 'studentFiles',
+          component: () => import('@/views/student/index.vue'),
+          meta: { role: ['老师', '超级管理员'] },
+        },
       ],
-    },
-    {
-      path: '/studentFiles',
-      name: 'studentFiles',
-      component: () => import('@/views/student/index.vue'),
-      meta: { role: ['老师', '超级管理员'] },
     },
   ],
 })
@@ -89,7 +89,7 @@ const resolveHomePathByRole = (role: string) => {
     return '/home'
   }
   if (role === '老师') {
-    return '/studentFiles'
+    return '/framework/studentFiles'
   }
   return '/framework'
 }
@@ -110,7 +110,12 @@ router.beforeEach((to, _from, next) => {
   }
 
   if (allowRoles.length && role && !allowRoles.includes(role)) {
-    next(resolveHomePathByRole(role))
+    const fallbackPath = resolveHomePathByRole(role)
+    if (fallbackPath === to.path) {
+      next()
+      return
+    }
+    next(fallbackPath)
     return
   }
 
