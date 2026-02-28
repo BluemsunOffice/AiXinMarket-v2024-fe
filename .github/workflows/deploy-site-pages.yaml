@@ -21,28 +21,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Read Bun version
-        run: echo "BUN_VERSION=$(cat .bun-version)" >> $GITHUB_ENV
-      - uses: oven-sh/setup-bun@v2
+      - uses: pnpm/action-setup@v4
         with:
-          bun-version: ${{ env.BUN_VERSION }}
-      - name: Install Dependencies (retry)
-        run: |
-          for i in 1 2 3; do
-            echo "Attempt $i: bun install --frozen-lockfile"
-            if bun install --frozen-lockfile; then
-              exit 0
-            fi
-            if [ "$i" -lt 3 ]; then
-              echo "Install failed, retrying in 10s..."
-              sleep 10
-            fi
-          done
-          echo "bun install failed after 3 attempts"
-          exit 1
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
       - name: Build Vite site
         run: |
-          bun run build-only
+          pnpm run build-only
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:

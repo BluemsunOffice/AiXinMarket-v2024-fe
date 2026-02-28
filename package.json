@@ -2,7 +2,6 @@
   "name": "bluemsun",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "bun@1.3.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,6 +14,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
+    "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
