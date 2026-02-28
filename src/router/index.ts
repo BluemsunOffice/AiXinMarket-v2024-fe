@@ -43,19 +43,19 @@ const router = createRouter({
       path: '/manage',
       name: 'manage',
       component: () => import('@/views/manage/index.vue'),
-      meta: { role: ['超市管理员'] },
+      meta: { role: ['超市管理员', '超级管理员'] },
     },
     {
       path: '/order',
       name: 'order',
       component: () => import('@/views/order/index.vue'),
-      meta: { role: ['超市管理员'] },
+      meta: { role: ['超市管理员', '超级管理员'] },
     },
     {
       path: '/record',
       name: 'record',
       component: () => import('@/views/record/index.vue'),
-      meta: { role: ['超市管理员'] },
+      meta: { role: ['超市管理员', '超级管理员'] },
     },
     {
       path: '/framework',
