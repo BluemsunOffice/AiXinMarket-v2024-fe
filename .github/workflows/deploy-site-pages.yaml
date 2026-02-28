@@ -24,9 +24,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - name: Remove bun.lock
-        run: |
-          rm -f bun.lock
+      # - name: Remove bun.lock
+      #   run: |
+      #     rm -f bun.lock
       - name: Install Dependencies
         run: bun install
       - name: Build Vite site
