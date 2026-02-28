@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: 22
       - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
       - name: Build Vite site
         run: |
           pnpm run build-only
