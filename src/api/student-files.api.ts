@@ -16,7 +16,8 @@ export interface StudentDetailData {
 export const studentFilesApi = {
   getStudentList: (params: StudentListParams) => request.get('/grow/userInfo/listAll', { params }),
 
-  getStudentDetail: (userId: string) => request.get('/grow/userInfo/detail', { params: { userId } }),
+  getStudentDetail: (userId: string) =>
+    request.get('/grow/userInfo/detail', { params: { userId } }),
 
   exportStudentInfo: (userId: string) =>
     request.get('/grow/userOwnInfo/exportAll', {

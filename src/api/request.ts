@@ -12,7 +12,7 @@ request.interceptors.request.use((config) => {
   config.headers = config.headers || {}
 
   Object.entries(authHeaders).forEach(([key, value]) => {
-    ; (config.headers as Record<string, string>)[key] = value
+    ;(config.headers as Record<string, string>)[key] = value
   })
 
   return config
