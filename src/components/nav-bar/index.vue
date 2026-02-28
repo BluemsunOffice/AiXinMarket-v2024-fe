@@ -63,6 +63,7 @@ import LogoutAction from '@/components/logout-action/index.vue'
 import { useUserStore } from '@/stores/user-store'
 import Coins from '@/components/coins/index.vue'
 import { CoinType } from '@/types/goods-info'
+import { authConfig } from '@/config/request.config'
 
 const router = useRouter()
 const route = useRoute()
@@ -160,8 +161,7 @@ const navigateTo = (path: string) => {
 }
 
 onMounted(async () => {
-  if (!localStorage.getItem('token')) {
-    router.push('/')
+  if (!localStorage.getItem(authConfig.tokenKey)) {
     return
   }
 
