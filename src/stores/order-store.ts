@@ -229,7 +229,7 @@ export const useOrderStore = defineStore('order', () => {
   })
 
   const statusMap = ref<Record<string, string>>({
-    0: '未知',
+    0: '待处理',
     1: '失败',
     2: '成功',
   })
