@@ -1,23 +1,22 @@
 <template>
   <div class="search-box">
     <div class="input-row">
-      <el-input v-model="searchData.grade" class="search-input" placeholder="年级" clearable />
-      <el-input v-model="searchData.name" class="search-input" placeholder="名字" clearable />
+      <el-input v-model="searchForm.grade" class="search-input" placeholder="年级" clearable />
+      <el-input v-model="searchForm.name" class="search-input" placeholder="名字" clearable />
     </div>
     <div class="input-row">
-      <el-input v-model="searchData.studentId" class="search-input" placeholder="学号" clearable />
-      <el-input v-model="searchData.major" class="search-input" placeholder="专业" clearable />
+      <el-input v-model="searchForm.studentId" class="search-input" placeholder="学号" clearable />
+      <el-input v-model="searchForm.major" class="search-input" placeholder="专业" clearable />
     </div>
     <div class="input-row">
-      <el-select v-model="searchData.degree" class="search-input" placeholder="学位" clearable>
+      <el-select v-model="searchForm.degree" class="search-input" placeholder="学位" clearable>
         <el-option label="本科" value="0" />
         <el-option label="研究生" value="1" />
       </el-select>
-      <!-- 移除搜索未知专业的复选框 -->
     </div>
     <div class="button-row">
-      <el-button @click="reset" type="primary" class="action-btn">重置</el-button>
-      <el-button @click="onSearch" type="primary" class="action-btn">搜索</el-button>
+      <el-button @click="resetSearchForm" type="primary" class="action-btn">重置</el-button>
+      <el-button @click="submitSearch" type="primary" class="action-btn">搜索</el-button>
       <el-tooltip
         :disabled="hasSelectedItems"
         effect="dark"
@@ -25,7 +24,7 @@
         placement="top"
       >
         <el-button
-          @click="exportInfo"
+          @click="exportSelectedStudentInfo"
           type="primary"
           class="export-btn"
           :disabled="!hasSelectedItems"
@@ -38,95 +37,14 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, inject, ref, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { studentFilesApi } from '@/api/student-files.api'
+import { storeToRefs } from 'pinia'
+import { useStudentStore } from '@/stores/student-store'
 
-const emit = defineEmits(['search'])
+const studentStore = useStudentStore()
 
-const searchData = reactive({
-  grade: '',
-  name: '',
-  studentId: '',
-  major: '',
-  degree: '',
-})
+const { searchForm, hasSelectedItems } = storeToRefs(studentStore)
 
-// 移除搜索未知专业的复选框相关变量
-const selectedIds = ref(inject('selectedIds', []))
-
-// 计算是否有选中的条目
-const hasSelectedItems = computed(() => {
-  return selectedIds.value && selectedIds.value.length > 0
-})
-
-const reset = () => {
-  searchData.grade = ''
-  searchData.name = ''
-  searchData.studentId = ''
-  searchData.major = ''
-  searchData.degree = ''
-}
-
-const onSearch = () => {
-  // 创建一个新的对象，用于发送给后端
-  const dataToSend: any = { ...searchData }
-
-  // ========== 专业字段核心逻辑 ==========
-  if (dataToSend.major === '未知') {
-    // 1. 输入"未知" → 传空字符串
-    dataToSend.major = ''
-  } else if (dataToSend.major === '') {
-    // 2. 输入框为空 → 删除字段，不传
-    delete dataToSend.major
-  }
-  // 3. 输入其他内容 → 保留原值，正常传
-
-  // ========== 其他字段处理逻辑 ==========
-  // 空字符串则删除字段，不传；有值则保留
-  ;['grade', 'name', 'studentId', 'degree'].forEach((key) => {
-    if (dataToSend[key] === '') {
-      delete dataToSend[key]
-    }
-  })
-
-  emit('search', dataToSend)
-}
-
-const exportInfo = async () => {
-  // 如果没有选中的条目，提示用户并返回
-  if (!hasSelectedItems.value) {
-    ElMessage.warning('请先在列表中选择要导出的条目')
-    return
-  }
-
-  try {
-    const response = await studentFilesApi.exportSelectedStudentInfo(selectedIds.value)
-
-    const blob = response.data
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-
-    const disposition = response.headers['content-disposition']
-    let fileName = 'exported_file.xlsx'
-    if (disposition) {
-      const fileNameMatch = disposition.match(/filename="(.+)"/)
-      if (fileNameMatch && fileNameMatch[1]) {
-        fileName = fileNameMatch[1]
-      }
-    }
-
-    link.download = fileName
-    link.click()
-    window.URL.revokeObjectURL(url)
-
-    ElMessage.success('导出成功！')
-  } catch (error) {
-    console.error('导出信息时出错:', error)
-    ElMessage.error('导出失败，请重试')
-  }
-}
+const { resetSearchForm, submitSearch, exportSelectedStudentInfo } = studentStore
 </script>
 
 <style scoped>

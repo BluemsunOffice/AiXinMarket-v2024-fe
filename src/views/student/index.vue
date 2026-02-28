@@ -1,9 +1,6 @@
 <template>
-  <NavBar />
-
   <div class="student-file">
-    <SearchBox @search="search" />
-
+    <SearchBox />
     <el-table
       :data="tableData"
       class="student-table"
@@ -68,11 +65,11 @@
           <el-pagination
             background
             layout="prev, pager, next"
-            :total="totalNum2"
-            :page-size="6"
-            v-model:current-page="currentPage2"
+            :total="punishTotal"
+            :page-size="detailPageSize"
+            v-model:current-page="punishPage"
             pager-count="50"
-            @current-change="handlePageChange2"
+            @current-change="setDetailPage.bind(null, 'punish')"
             class="pagination"
           />
         </el-tab-pane>
@@ -89,11 +86,11 @@
           <el-pagination
             background
             layout="prev, pager, next"
-            :total="totalNum3"
-            :page-size="6"
-            v-model:current-page="currentPage3"
+            :total="scholarshipTotal"
+            :page-size="detailPageSize"
+            v-model:current-page="scholarshipPage"
             pager-count="50"
-            @current-change="handlePageChange3"
+            @current-change="setDetailPage.bind(null, 'scholarship')"
             class="pagination"
           />
         </el-tab-pane>
@@ -106,11 +103,11 @@
           <el-pagination
             background
             layout="prev, pager, next"
-            :total="totalNum"
-            :page-size="6"
-            v-model:current-page="currentPage"
+            :total="projectTotal"
+            :page-size="detailPageSize"
+            v-model:current-page="projectPage"
             pager-count="50"
-            @current-change="handlePageChange"
+            @current-change="setDetailPage.bind(null, 'project')"
             class="pagination"
           />
         </el-tab-pane>
@@ -125,9 +122,8 @@
 </template>
 
 <script setup lang="ts">
-import NavBar from './components/nav-bar.vue'
 import SearchBox from './components/search-box.vue'
-import { onMounted, provide } from 'vue'
+import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { formatFundType, formatPunishType } from '@/constants/default'
 import { useStudentStore } from '@/stores/student-store'
@@ -136,16 +132,13 @@ const studentStore = useStudentStore()
 
 const {
   getDisplayValue,
-  search,
   handleSelectionChange,
   handleViewDetail,
   closeDialog,
   exportStudentInfo,
   handleSizeChange,
   handleCurrentChange,
-  handlePageChange,
-  handlePageChange2,
-  handlePageChange3,
+  setDetailPage,
   getList,
 } = studentStore
 
@@ -153,24 +146,22 @@ const {
   tableColumns,
   fieldConfigs,
   tableData,
-  selectedIds,
   query,
   total,
   loadings,
   studentRow,
   visible,
-  totalNum,
-  totalNum2,
-  totalNum3,
-  currentPage,
-  currentPage2,
-  currentPage3,
+  detailPageSize,
+  projectTotal,
+  punishTotal,
+  scholarshipTotal,
+  projectPage,
+  punishPage,
+  scholarshipPage,
   paginatedProjectVo,
   paginatedPunishVo,
   paginatedScholarshipVo,
 } = storeToRefs(studentStore)
-
-provide('selectedIds', selectedIds)
 
 onMounted(() => {
   getList()
