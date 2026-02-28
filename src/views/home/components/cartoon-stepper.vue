@@ -1,6 +1,10 @@
 <template>
   <div class="cartoon-stepper-box">
-    <button class="stepper-btn" @click="decrease" :disabled="modelValue <= min || disabled">
+    <button
+      class="stepper-btn"
+      @click="throttledDecrease"
+      :disabled="modelValue <= min || disabled"
+    >
       <el-icon><Minus /></el-icon>
     </button>
     <input
@@ -11,7 +15,11 @@
       @keyup.enter="handleInput"
       :disabled="disabled"
     />
-    <button class="stepper-btn" @click="increase" :disabled="modelValue >= max || disabled">
+    <button
+      class="stepper-btn"
+      @click="throttledIncrease"
+      :disabled="modelValue >= max || disabled"
+    >
       <el-icon><Plus /></el-icon>
     </button>
   </div>
@@ -42,6 +50,16 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+const createThrottle = (fn: () => void, delay = 200) => {
+  let lastExecuteTime = 0
+  return () => {
+    const now = Date.now()
+    if (now - lastExecuteTime < delay) return
+    lastExecuteTime = now
+    fn()
+  }
+}
+
 const decrease = () => {
   if (props.modelValue > props.min) {
     emit('update:modelValue', props.modelValue - 1)
@@ -53,6 +71,9 @@ const increase = () => {
     emit('update:modelValue', props.modelValue + 1)
   }
 }
+
+const throttledDecrease = createThrottle(decrease)
+const throttledIncrease = createThrottle(increase)
 
 const handleInput = (e: Event) => {
   const target = e.target as HTMLInputElement

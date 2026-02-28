@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { cartApi, type CartBalance, type CartItem } from '@/api/cart.api'
+import { useUserStore } from '@/stores/user-store'
 
 interface PendingQuantityUpdate {
   quantity: number
@@ -13,6 +14,7 @@ const UPDATE_DEBOUNCE_MS = 400
 
 export const useCartStore = defineStore('cartStore', () => {
   const router = useRouter()
+  const userStore = useUserStore()
 
   const cartItems = ref<CartItem[]>([])
   const filteredItems = computed(() => cartItems.value)
@@ -196,18 +198,19 @@ export const useCartStore = defineStore('cartStore', () => {
       }
 
       if (response.code === 500) {
-        await ElMessageBox.alert(response.message || '结算失败', '结算失败', {
+        await ElMessageBox.alert(response.msg || '结算失败', '结算失败', {
           confirmButtonText: '确定',
           type: 'warning',
         })
         return
       }
 
-      ElMessage.warning(response.message || '结算失败，请稍后重试')
+      ElMessage.warning(response.msg || '结算失败，请稍后重试')
     } catch (error) {
       console.error('结算失败:', error)
-      ElMessage.error('结算失败，请稍后重试')
+      ElMessage.error((error as { msg?: string }).msg || '结算失败，请稍后重试')
     } finally {
+      await userStore.fetchNavBarData(true)
       isSettling.value = false
     }
   }
