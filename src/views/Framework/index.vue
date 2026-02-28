@@ -57,7 +57,7 @@
         <section v-if="currentPage === 'personalCenter'" class="personal-container">
           <personal-box
             :student-id="fundUserProfile?.studentId || userProfile.userId"
-            :name="userProfile.userName||userProfile.nickName"
+            :name="userProfile.userName || userProfile.nickName"
             :role="userRole"
             :avatar-url="userProfile.avatar"
             @avatar-changed="handleUploadAvatar"
@@ -74,11 +74,11 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
-import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
-import PersonalText from '@/views/Framework/components/PersonalText.vue'
-import LogoutAction from '@/components/LogoutAction/index.vue'
+import PersonalBox from '@/views/framework/components/personal-box.vue'
+import PersonalText from '@/views/framework/components/personal-text.vue'
+import LogoutAction from '@/components/logout-action/index.vue'
 import { isLoggedIn } from '@/utils/auth'
-import { useUserStore } from '@/stores/userStore'
+import { useUserStore } from '@/stores/user-store'
 import { storeToRefs } from 'pinia'
 
 interface MenuItem {

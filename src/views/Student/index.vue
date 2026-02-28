@@ -136,8 +136,8 @@
 </template>
 
 <script setup lang="ts">
-import NavBar from './components/NavBar.vue'
-import SearchBox from './components/SearchBox.vue'
+import NavBar from './components/nav-bar.vue'
+import SearchBox from './components/search-box.vue'
 import { onMounted, ref, provide, computed } from 'vue'
 import {
   formatEthnicity,
@@ -156,11 +156,17 @@ import {
 import axios from 'axios'
 import request from '@/api/request'
 import { ElMessage } from 'element-plus'
-import { getFieldDisplayValue, type FieldConfigType } from '@/utils/fieldConfig'
+import { getFieldDisplayValue, type FieldConfigType } from '@/utils/field-config'
 
-import { formatDay } from '@/utils/formatTime'
+import { formatDay } from '@/utils/format-time'
 
-defineModel('fundStudentInfo', { type: Object, required: true })
+const fundStudentInfo = defineModel('fundStudentInfo', { type: Object, required: true })
+const formatEdu = formatDegree
+const getDisplayValue = getFieldDisplayValue
+const closeDialog = () => {
+  visible.value = false
+}
+const userInfo = fundStudentInfo
 
 // 字段配置
 const fieldConfigs: FieldConfigType[] = [
@@ -189,10 +195,10 @@ const fieldConfigs: FieldConfigType[] = [
 provide('userInfo', userInfo)
 
 const tableData = ref([])
-const selectedIds = ref([]) // 用来存储选中的学生ID
-const handleSelectionChange = (selection) => {
+const selectedIds = ref<string[]>([]) // 用来存储选中的学生ID
+const handleSelectionChange = (selection: Array<{ userId: string }>) => {
   // 提取选中行的学号（ID）
-  selectedIds.value = selection.map((student) => student.userId)
+  selectedIds.value = selection.map((student: { userId: string }) => student.userId)
 }
 provide('selectedIds', selectedIds)
 

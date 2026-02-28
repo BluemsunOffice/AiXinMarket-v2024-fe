@@ -160,8 +160,8 @@ import {
 } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage } from 'element-plus'
-import PersonalBox from '@/views/Framework/components/PersonalBox.vue'
-import { useUserStore } from '@/stores/userStore'
+import PersonalBox from '@/views/framework/components/personal-box.vue'
+import { useUserStore } from '@/stores/user-store'
 import type { FundUserInfo, UpdateOwnProfilePayload } from '@/api/user.api'
 import {
   assistLevelMap,

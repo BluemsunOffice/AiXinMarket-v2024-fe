@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { CoinType, CoinColor, CoinName } from '@/types/goodsInfo'
+import { CoinType, CoinColor, CoinName } from '@/types/goods-info'
 
 defineModel('coinType', {
   default: CoinType.CareCoin,

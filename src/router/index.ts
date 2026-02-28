@@ -7,73 +7,73 @@ const router = createRouter({
     // 登录
     {
       path: "/",
-      component: () => import("@/views/Login/index.vue"),
+      component: () => import("@/views/login/index.vue"),
     },
     {
       name: "details",
       path: "/details",
-      component: () => import("@/views/index/GoodsDetails.vue"),
+      component: () => import("@/views/home/goods-details.vue"),
       meta: { role: ["资助对象"] },
     },
     {
       path: "/cart",
-      component: () => import("@/views/ShopCart/index.vue"),
+      component: () => import("@/views/shop-cart/index.vue"),
       meta: { role: ["资助对象"] },
     },
     {
       name: "OrderList",
       path: "/orderList",
-      component: () => import("@/views/OrderList/OrderListIndex.vue"),
+      component: () => import("@/views/order-list/index.vue"),
       meta: { role: ["资助对象"] },
     },
     {
       //首页
       path: "/home",
       name: "home",
-      component: () => import("@/views/index/index.vue"),
+      component: () => import("@/views/home/index.vue"),
       meta: { role: ["资助对象"] },
     },
     {
       name: "shopcart",
       path: "/shopcart",
-      component: () => import("@/views/ShopCart/index.vue"),
+      component: () => import("@/views/shop-cart/index.vue"),
       meta: { role: ["资助对象"] },
     },
     {
       path: "/manage",
       name: "manage",
-      component: () => import("@/views/Manage/index.vue"),
+      component: () => import("@/views/manage/index.vue"),
       meta: { role: ["超市管理员"] },
     },
     {
       path: "/order",
       name: "order",
-      component: () => import("@/views/Order/index.vue"),
+      component: () => import("@/views/order/index.vue"),
       meta: { role: ["超市管理员"] },
     },
     {
       path: "/record",
       name: "record",
-      component: () => import("@/views/Record/index.vue"),
+      component: () => import("@/views/record/index.vue"),
       meta: { role: ["超市管理员"] },
     },
     {
       path: "/framework",
       name: "framework",
-      component: () => import("@/views/Framework/index.vue"),
+      component: () => import("@/views/framework/index.vue"),
       meta: { role: ["超市管理员", "资助对象", "老师", "超级管理员"] },
       children: [
         {
           path: "profile",
           name: "profile",
-          component: () => import("@/views/Profile/index.vue"),
+          component: () => import("@/views/profile/index.vue"),
         },
       ]
     },
     {
       path: "/studentFiles",
       name: "studentFiles",
-      component: () => import("@/views/Student/index.vue"),
+      component: () => import("@/views/student/index.vue"),
       meta: { role: ["老师", "超级管理员"] },
     },
   ],

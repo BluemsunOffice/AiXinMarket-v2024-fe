@@ -176,9 +176,9 @@
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { Delete, Edit, Plus, Upload } from '@element-plus/icons-vue'
-import NavBar from '@/components/NavBar/index.vue'
-import { useManageGoodsStore } from '@/stores/manageGoodsStore'
-import type { GoodsCurrencyType, GoodsType, ManageGoodsItem } from '@/api/manageGoods.api'
+import NavBar from '@/components/nav-bar/index.vue'
+import { useManageGoodsStore } from '@/stores/manage-goods-store'
+import type { GoodsCurrencyType, GoodsType, ManageGoodsItem } from '@/api/manage-goods.api'
 
 const manageGoodsStore = useManageGoodsStore()
 

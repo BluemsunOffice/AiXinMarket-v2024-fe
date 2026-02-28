@@ -52,11 +52,11 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import Nav from '@/components/NavBar/index.vue'
-import { useOrderStore } from '@/stores/orderStore'
-import OrderFilters from './components/OrderFilters.vue'
-import OrderTable from './components/OrderTable.vue'
-import OrderDetailDialog from './components/OrderDetailDialog.vue'
+import Nav from '@/components/nav-bar/index.vue'
+import { useOrderStore } from '@/stores/order-store'
+import OrderFilters from './components/order-filters.vue'
+import OrderTable from './components/order-table.vue'
+import OrderDetailDialog from './components/order-detail-dialog.vue'
 
 const orderStore = useOrderStore()
 

@@ -1,6 +1,6 @@
 import { del, get, post, put } from "@/utils/request";
 import type { ApiResponse } from "@/types/request.types";
-import type { CoinType } from "@/types/goodsInfo";
+import type { CoinType } from "@/types/goods-info";
 
 export interface CartItemPayload {
   goodsId: string;

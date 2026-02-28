@@ -69,8 +69,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import NavBar from '@/components/NavBar/index.vue'
-import { useRecordStore } from '@/stores/recordStore'
+import NavBar from '@/components/nav-bar/index.vue'
+import { useRecordStore } from '@/stores/record-store'
 
 const recordStore = useRecordStore()
 const { loading, items, total, pager, detailVisible, detailLoading, detail, increaseAmount } =

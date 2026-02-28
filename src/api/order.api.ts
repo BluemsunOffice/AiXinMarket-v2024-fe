@@ -1,7 +1,7 @@
 import { get, post } from "@/utils/request";
 import type { ApiResponse } from "@/types/request.types";
 import request from "@/api/request";
-import type { CoinType } from "@/types/goodsInfo";
+import type { CoinType } from "@/types/goods-info";
 
 export type ManageOrderDirection = 0 | 1 | null;
 export type AdminOrderStatus = "0" | "1" | "2";

@@ -1,6 +1,6 @@
 import { get } from "@/utils/request";
 import type { ApiResponse } from "@/types/request.types";
-import type { CoinType } from "@/types/goodsInfo";
+import type { CoinType } from "@/types/goods-info";
 
 export type OrderType = "price" | "name" | "type" | "createTime";
 export type OrderDirection = "asc" | "desc" | null;
