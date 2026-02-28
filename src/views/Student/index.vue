@@ -153,10 +153,9 @@ import {
   formatPoliticalStatus,
   formatStudentStatus,
 } from '@/constants/default'
-import axios from 'axios'
-import request from '@/api/request'
 import { ElMessage } from 'element-plus'
 import { getFieldDisplayValue, type FieldConfigType } from '@/utils/field-config'
+import { studentFilesApi } from '@/api/student-files.api'
 
 import { formatDay } from '@/utils/format-time'
 
@@ -217,23 +216,6 @@ const search = (params: any) => {
   getList(1, query.value.pageSize, params)
 }
 
-const objectToUrlParams = (obj: Record<string, any>): string => {
-  return (
-    '?' +
-    Object.keys(obj)
-      .map((key) => {
-        if (Array.isArray(obj[key])) {
-          return obj[key]
-            .map((value) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-            .join('&')
-        } else {
-          return `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`
-        }
-      })
-      .join('&')
-  )
-}
-
 const getList = async (pageNum = 1, pageSize = query.value.pageSize, queryData: any = {}) => {
   try {
     const params = {
@@ -243,9 +225,7 @@ const getList = async (pageNum = 1, pageSize = query.value.pageSize, queryData: 
     }
     loadings.value.table = true
     tableData.value = []
-    const res = await request.get(
-      'http://59.110.62.188:8080/grow/userInfo/listAll' + objectToUrlParams(params),
-    )
+    const res = await studentFilesApi.getStudentList(params)
     if (res.data.rows) {
       const { rows } = res.data
       query.value.pageNum = pageNum
@@ -259,15 +239,12 @@ const getList = async (pageNum = 1, pageSize = query.value.pageSize, queryData: 
     loadings.value.table = false
   }
 }
-const token = localStorage.getItem('token')
 // 导出学生信息
 const viewedUserId = ref('') // 创建一个响应式变量来存储查看的学生的userId
 
 const handleViewDetail = async (row: any) => {
   viewedUserId.value = row.userId // 获取点击的学生的userId
-  const res = await request.get(
-    'http://59.110.62.188:8080/grow/userInfo/detail?userId=' + row.userId,
-  )
+  const res = await studentFilesApi.getStudentDetail(row.userId)
 
   studentRow.value = res.data.data.fundUserInfoVo
   fundProjectVo.value = res.data.data.fundProjectVo
@@ -286,21 +263,7 @@ const handleViewDetail = async (row: any) => {
 
 const exportStudentInfo = async () => {
   try {
-    const config = {
-      headers: {
-        Authorization: 'Bear ' + token,
-        clientid: localStorage.getItem('client_id'),
-        'Content-Type': 'application/json',
-      },
-    }
-    const params = {
-      userId: viewedUserId.value, // 使用查看的学生的userId
-    }
-    const response = await axios.get('http://59.110.62.188:8080/grow/userOwnInfo/exportAll', {
-      ...config,
-      params,
-      responseType: 'blob',
-    })
+    const response = await studentFilesApi.exportStudentInfo(viewedUserId.value)
 
     const blob = new Blob([response.data], {
       type: 'application/vnd.ms-excel',
@@ -861,8 +824,7 @@ const formatBirthday = (birthday: string): string => {
     .my-pagination .el-pagination__pager li:first-child,
     .my-pagination .el-pagination__pager li:last-child,
     .my-pagination .el-pagination__pager li.active,
-    .my-pagination .el-pagination__pager li.active + li,
-    .my-pagination .el-pagination__pager li.active - li
+    .my-pagination .el-pagination__pager li.active + li
   ) {
     display: inline-block !important;
   }

@@ -1,8 +1,8 @@
+import { clearAuth } from '@/utils/auth'
+
 export default {
   onBeforeUnmount() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('client_id')
-    localStorage.removeItem('role')
+    clearAuth()
     console.log('Token and role have been removed from localStorage')
   },
 }

@@ -125,7 +125,7 @@ import {
   type FormInstance,
 } from 'element-plus'
 import { Lock, Key, Check, Close, View, Hide } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { userApi } from '@/api/user.api'
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
@@ -187,29 +187,13 @@ const resetPassword = async (oldPassword: string, newPassword: string) => {
   try {
     loading.value = true
 
-    const token = localStorage.getItem('token') || ''
-    const clientid = localStorage.getItem('client_id') || ''
+    const response = await userApi.updatePassword({ oldPassword, newPassword })
 
-    const response = await axios.put(
-      'http://59.110.62.188:8080/system/user/profile/updatePwd',
-      {
-        oldPassword,
-        newPassword,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          clientid: clientid,
-        },
-      },
-    )
-
-    if (response.data.code === 200) {
+    if (response.code === 200) {
       ElMessage.success('密码修改成功')
       handleReset()
     } else {
-      ElMessage.error(response.data.msg || '密码修改失败')
+      ElMessage.error(response.msg || response.message || '密码修改失败')
     }
   } catch (error: any) {
     console.error('请求错误:', error)
@@ -221,6 +205,8 @@ const resetPassword = async (oldPassword: string, newPassword: string) => {
       } else if (error.response.data?.msg) {
         errorMessage = error.response.data.msg
       }
+    } else if (error?.message) {
+      errorMessage = error.message
     }
 
     ElMessage.error(errorMessage)

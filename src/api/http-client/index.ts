@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getAuthToken, getClientIdFromStorage } from '@/utils/auth'
 
 // 创建一个 axios 实例
 const instance = axios.create({
@@ -8,14 +9,12 @@ const instance = axios.create({
 // 请求拦截器：在请求发送之前附加 Authorization 头
 instance.interceptors.request.use(
   (config) => {
-    // 直接从localStorage获取client_id
-    const clientId = localStorage.getItem('client_id')
-    const token = localStorage.getItem('token')
+    const clientId = getClientIdFromStorage()
+    const token = getAuthToken()
 
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
       config.headers['Content-Type'] = 'application/json'
-      // 如果存在client_id，则使用它
       if (clientId) {
         config.headers['clientid'] = clientId
       }

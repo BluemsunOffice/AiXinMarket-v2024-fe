@@ -4,7 +4,7 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios'
-import { authConfig } from '@/config/request.config'
+import { clearAuth, getAuthToken, getClientIdFromStorage } from '@/utils/auth'
 import type { ApiResponse, RequestOptions, ErrorResponse } from '@/types/request.types'
 
 export class RequestCore {
@@ -18,18 +18,6 @@ export class RequestCore {
   }
 
   /**
-   * 获取认证令牌
-   */
-  private getAuthToken(): string | null {
-    try {
-      return localStorage.getItem(authConfig.tokenKey)
-    } catch (error) {
-      console.warn('Failed to get auth token from localStorage:', error)
-      return null
-    }
-  }
-
-  /**
    * 设置请求拦截器
    */
   private setupInterceptors(): void {
@@ -37,13 +25,16 @@ export class RequestCore {
     this.requestInterceptor = this.instance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         // 获取认证令牌
-        const token = this.getAuthToken()
+        const token = getAuthToken()
+        const clientId = getClientIdFromStorage()
 
         // 添加认证头
         if (token) {
           config.headers = config.headers || {}
           config.headers.Authorization = `Bearer ${token}`
-          config.headers.clientId = authConfig.clientId
+          if (clientId) {
+            config.headers.clientid = clientId
+          }
         }
 
         // 这里可以添加其他全局请求处理逻辑
@@ -116,8 +107,7 @@ export class RequestCore {
    * 处理认证失败
    */
   private handleUnauthorized(): void {
-    // 清除本地认证信息
-    localStorage.removeItem(authConfig.tokenKey)
+    clearAuth()
 
     // 这里可以添加跳转到登录页的逻辑
     console.warn('Authentication failed, redirecting to login...')

@@ -1,4 +1,3 @@
-import { authConfig } from '@/config/request.config'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import {
@@ -11,7 +10,17 @@ import {
   type User,
 } from '@/api/user.api'
 import { getClientId } from '@/utils/device'
-import { isLoggedIn } from '@/utils/auth'
+import {
+  clearAuth,
+  getAuthToken,
+  getRole,
+  getRoleGroup,
+  isLoggedIn,
+  saveAuthToken,
+  saveClientId,
+  saveRole,
+  saveRoleGroup,
+} from '@/utils/auth'
 
 interface LoginParams {
   isMobile: boolean
@@ -31,9 +40,9 @@ interface PagingState {
 
 export const useUserStore = defineStore('user', () => {
   const loginBtnLoading = ref(false)
-  const authToken = ref<string>(localStorage.getItem(authConfig.tokenKey) || '')
-  const role = ref<string>(localStorage.getItem('role') || '')
-  const roleGroup = ref<string>(localStorage.getItem('roleGroup') || '')
+  const authToken = ref<string>(getAuthToken() || '')
+  const role = ref<string>(getRole() || '')
+  const roleGroup = ref<string>(getRoleGroup() || '')
   const ruleForm = reactive<LoginParams>({
     tenantId: '000000',
     isMobile: false,
@@ -72,8 +81,8 @@ export const useUserStore = defineStore('user', () => {
 
   const initLoginState = async () => {
     initRemember()
-    if (!isLoggedIn()) {
-      localStorage.removeItem(authConfig.tokenKey)
+    if (!(await isLoggedIn())) {
+      clearAuth()
     }
   }
   const detectDeviceType = () => {
@@ -95,7 +104,7 @@ export const useUserStore = defineStore('user', () => {
   const setClientId = () => {
     const id = getClientId()
     ruleForm.clientId = id
-    localStorage.setItem(authConfig.clientIdKey, id)
+    saveClientId(id)
   }
 
   const setRememberMe = () => {
@@ -118,8 +127,8 @@ export const useUserStore = defineStore('user', () => {
       if (code === 200) {
         authToken.value = data.access_token || ''
         role.value = data.roles[0].roleName || ''
-        localStorage.setItem(authConfig.tokenKey, authToken.value)
-        localStorage.setItem('role', role.value)
+        saveAuthToken(authToken.value)
+        saveRole(role.value)
         setRememberMe()
         // 获取用户信息
         await getProfile()
@@ -151,7 +160,7 @@ export const useUserStore = defineStore('user', () => {
         userProfile.value = data.user
         fundUserProfile.value = data.fundUserInfo
         roleGroup.value = data.roleGroup || ''
-        localStorage.setItem('roleGroup', roleGroup.value)
+        saveRoleGroup(roleGroup.value)
         campusName.value = data.user?.deptName || ''
         avatarUrl.value = data.user?.avatar || ''
       }
@@ -274,9 +283,7 @@ export const useUserStore = defineStore('user', () => {
     generalBalance.value = 0
     clothingBalance.value = 0
     navDataLoaded.value = false
-    localStorage.removeItem(authConfig.tokenKey)
-    localStorage.removeItem('role')
-    localStorage.removeItem('roleGroup')
+    clearAuth()
   }
 
   return {

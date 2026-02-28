@@ -42,6 +42,7 @@ import { WarningFilled } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { userApi } from '@/api/user.api'
 import { useUserStore } from '@/stores/user-store'
+import { clearClientId } from '@/utils/auth'
 
 withDefaults(
   defineProps<{
@@ -83,7 +84,7 @@ const handleLogout = async () => {
       ElMessage.success('退出成功！')
       outerVisible.value = false
       userStore.logout()
-      localStorage.removeItem('client_id')
+      clearClientId()
       setTimeout(() => {
         router.push('/')
       }, 120)

@@ -10,24 +10,8 @@ import {
   type UserOrderItem,
 } from '@/api/order.api'
 import type { ManageOrderDirection } from '@/api/order.api'
-
-const MOBILE_CLIENT_ID = '428a8310cd442757ae699df5d894f051'
-const PC_CLIENT_ID = 'e5cd7e4891bf95d1d19206ce24a7b32e'
-
-const isPcDevice = () => {
-  const userAgent = navigator.userAgent
-  const mobileAgents: RegExp[] = [
-    /android/i,
-    /iphone|ipad|ipod/i,
-    /windows phone/i,
-    /blackberry/i,
-    /opera mini/i,
-    /mobile/i,
-    /touch/i,
-  ]
-
-  return !mobileAgents.some((regex) => regex.test(userAgent))
-}
+import { getClientId } from '@/utils/device'
+import { saveClientId } from '@/utils/auth'
 
 export interface FilterOption<T> {
   label: string
@@ -317,8 +301,7 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   const initPage = async () => {
-    const clientId = isPcDevice() ? PC_CLIENT_ID : MOBILE_CLIENT_ID
-    localStorage.setItem('clientid', clientId)
+    saveClientId(getClientId())
     await fetchOrderList()
   }
 

@@ -133,6 +133,11 @@ export interface AddProjectPayload {
   experience: string
 }
 
+export interface UpdatePasswordPayload {
+  oldPassword: string
+  newPassword: string
+}
+
 // 用户相关API
 export const userApi = {
   // 检查登录状态
@@ -157,6 +162,9 @@ export const userApi = {
 
   addSocialExperience: (data: AddProjectPayload): Promise<ApiResponse<void>> =>
     post('/grow/project/addProject', data),
+
+  updatePassword: (data: UpdatePasswordPayload): Promise<ApiResponse<void>> =>
+    put('/system/user/profile/updatePwd', data),
 
   uploadAvatar: (file: File): Promise<ApiResponse<{ imgUrl: string }>> => {
     const formData = new FormData()

@@ -9,6 +9,8 @@ export interface RequestConfig {
 export interface AuthConfig {
   tokenKey: string
   clientIdKey: string
+  roleKey: string
+  roleGroupKey: string
   clientId: string
 }
 
@@ -23,5 +25,7 @@ export const requestConfig: RequestConfig = {
 export const authConfig: AuthConfig = {
   tokenKey: 'auth_token',
   clientIdKey: 'client_id',
+  roleKey: 'role',
+  roleGroupKey: 'roleGroup',
   clientId: getClientId(),
 }

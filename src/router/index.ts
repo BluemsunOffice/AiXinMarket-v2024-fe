@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authConfig } from '@/config/request.config'
+import { getAuthToken, getCachedRole } from '@/utils/auth'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -81,10 +81,6 @@ const router = createRouter({
 
 const ADMIN_ROLES = ['超市管理员', '超级管理员']
 
-const getCachedRole = () => {
-  return localStorage.getItem('roleGroup') || localStorage.getItem('role') || ''
-}
-
 const resolveHomePathByRole = (role: string) => {
   if (ADMIN_ROLES.includes(role)) {
     return '/manage'
@@ -99,7 +95,7 @@ const resolveHomePathByRole = (role: string) => {
 }
 
 router.beforeEach((to, _from, next) => {
-  const token = localStorage.getItem(authConfig.tokenKey)
+  const token = getAuthToken()
   const role = getCachedRole()
   const allowRoles = (to.meta?.role as string[] | undefined) || []
 

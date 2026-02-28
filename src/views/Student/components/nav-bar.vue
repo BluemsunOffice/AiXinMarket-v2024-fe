@@ -6,10 +6,10 @@
 </template>
 
 <script setup lang="ts">
-import Axios from '@/api/http-client'
-import { ref } from 'vue'
+import { userApi } from '@/api/user.api'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { clearAuth } from '@/utils/auth'
 
 const router = useRouter()
 
@@ -19,18 +19,16 @@ const goToFramework = () => {
 
 const handleLogout = async () => {
   try {
-    const response = await Axios.post('http://59.110.62.188:8080/auth/logout ', {})
-    if (response.data.code === 200) {
+    const { code, msg, message } = await userApi.logout()
+    if (code === 200) {
       ElMessage.success('退出成功！')
-      localStorage.removeItem('token')
-      localStorage.removeItem('role')
-      localStorage.removeItem('client_id')
+      clearAuth()
 
       setTimeout(() => {
         router.push('/')
       }, 60)
     } else {
-      ElMessage.error(response.data.msg + '!')
+      ElMessage.error((msg || message || '退出失败') + '!')
     }
   } catch (error) {
     ElMessage.error('请求失败！')

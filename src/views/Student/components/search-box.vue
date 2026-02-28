@@ -39,11 +39,9 @@
 
 <script setup lang="ts">
 import { reactive, inject, ref, computed } from 'vue'
-import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { studentFilesApi } from '@/api/student-files.api'
 
-const authToken = localStorage.getItem('token')
-const token = `Bearer ${authToken}`
 const emit = defineEmits(['search'])
 
 const searchData = reactive({
@@ -103,24 +101,7 @@ const exportInfo = async () => {
   }
 
   try {
-    const config = {
-      headers: {
-        Authorization: token,
-        clientid: localStorage.getItem('client_id'),
-        'Content-Type': 'application/json',
-      },
-    }
-    const params = {
-      userId: selectedIds.value,
-    }
-    const response = await axios.post(
-      'http://59.110.62.188:8080/grow/userOwnInfo/exportOne',
-      params,
-      {
-        ...config,
-        responseType: 'blob',
-      },
-    )
+    const response = await studentFilesApi.exportSelectedStudentInfo(selectedIds.value)
 
     const blob = response.data
     const url = window.URL.createObjectURL(blob)
