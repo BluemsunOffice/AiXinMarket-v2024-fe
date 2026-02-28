@@ -1,14 +1,14 @@
-import { authConfig } from "@/config/request.config";
-import { userApi } from "@/api/user.api";
+import { authConfig } from '@/config/request.config'
+import { userApi } from '@/api/user.api'
 
 /**
  * 保存认证令牌
  */
 export function saveAuthToken(token: string): void {
   try {
-    localStorage.setItem(authConfig.tokenKey, token);
+    localStorage.setItem(authConfig.tokenKey, token)
   } catch (error) {
-    console.error("Failed to save auth token:", error);
+    console.error('Failed to save auth token:', error)
   }
 }
 
@@ -17,10 +17,10 @@ export function saveAuthToken(token: string): void {
  */
 export function getAuthToken(): string | null {
   try {
-    return localStorage.getItem(authConfig.tokenKey);
+    return localStorage.getItem(authConfig.tokenKey)
   } catch (error) {
-    console.error("Failed to get auth token:", error);
-    return null;
+    console.error('Failed to get auth token:', error)
+    return null
   }
 }
 
@@ -29,9 +29,9 @@ export function getAuthToken(): string | null {
  */
 export function clearAuth(): void {
   try {
-    localStorage.removeItem(authConfig.tokenKey);
+    localStorage.removeItem(authConfig.tokenKey)
   } catch (error) {
-    console.error("Failed to clear auth:", error);
+    console.error('Failed to clear auth:', error)
   }
 }
 
@@ -40,8 +40,8 @@ export function clearAuth(): void {
  */
 export async function isLoggedIn(): Promise<boolean> {
   if (!getAuthToken()) {
-    return false;
+    return false
   }
-  const { code } = await userApi.isLogin();
-  return code === 200;
+  const { code } = await userApi.isLogin()
+  return code === 200
 }

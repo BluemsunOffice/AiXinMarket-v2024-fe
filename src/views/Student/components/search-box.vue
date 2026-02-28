@@ -38,114 +38,114 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, inject, ref, computed } from "vue";
-import axios from "axios";
-import { ElMessage } from "element-plus";
+import { reactive, inject, ref, computed } from 'vue'
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
 
-const authToken = localStorage.getItem("token");
-const token = `Bearer ${authToken}`;
-const emit = defineEmits(["search"]);
+const authToken = localStorage.getItem('token')
+const token = `Bearer ${authToken}`
+const emit = defineEmits(['search'])
 
 const searchData = reactive({
-  grade: "",
-  name: "",
-  studentId: "",
-  major: "",
-  degree: "",
-});
+  grade: '',
+  name: '',
+  studentId: '',
+  major: '',
+  degree: '',
+})
 
 // 移除搜索未知专业的复选框相关变量
-const selectedIds = ref(inject("selectedIds", []));
+const selectedIds = ref(inject('selectedIds', []))
 
 // 计算是否有选中的条目
 const hasSelectedItems = computed(() => {
-  return selectedIds.value && selectedIds.value.length > 0;
-});
+  return selectedIds.value && selectedIds.value.length > 0
+})
 
 const reset = () => {
-  searchData.grade = "";
-  searchData.name = "";
-  searchData.studentId = "";
-  searchData.major = "";
-  searchData.degree = "";
-};
+  searchData.grade = ''
+  searchData.name = ''
+  searchData.studentId = ''
+  searchData.major = ''
+  searchData.degree = ''
+}
 
 const onSearch = () => {
   // 创建一个新的对象，用于发送给后端
-  const dataToSend: any = { ...searchData };
+  const dataToSend: any = { ...searchData }
 
   // ========== 专业字段核心逻辑 ==========
-  if (dataToSend.major === "未知") {
+  if (dataToSend.major === '未知') {
     // 1. 输入"未知" → 传空字符串
-    dataToSend.major = "";
-  } else if (dataToSend.major === "") {
+    dataToSend.major = ''
+  } else if (dataToSend.major === '') {
     // 2. 输入框为空 → 删除字段，不传
-    delete dataToSend.major;
+    delete dataToSend.major
   }
   // 3. 输入其他内容 → 保留原值，正常传
 
   // ========== 其他字段处理逻辑 ==========
   // 空字符串则删除字段，不传；有值则保留
-  ["grade", "name", "studentId", "degree"].forEach((key) => {
-    if (dataToSend[key] === "") {
-      delete dataToSend[key];
+  ;['grade', 'name', 'studentId', 'degree'].forEach((key) => {
+    if (dataToSend[key] === '') {
+      delete dataToSend[key]
     }
-  });
+  })
 
-  emit("search", dataToSend);
-};
+  emit('search', dataToSend)
+}
 
 const exportInfo = async () => {
   // 如果没有选中的条目，提示用户并返回
   if (!hasSelectedItems.value) {
-    ElMessage.warning("请先在列表中选择要导出的条目");
-    return;
+    ElMessage.warning('请先在列表中选择要导出的条目')
+    return
   }
 
   try {
     const config = {
       headers: {
         Authorization: token,
-        clientid: localStorage.getItem("client_id"),
-        "Content-Type": "application/json",
+        clientid: localStorage.getItem('client_id'),
+        'Content-Type': 'application/json',
       },
-    };
+    }
     const params = {
       userId: selectedIds.value,
-    };
+    }
     const response = await axios.post(
-      "http://59.110.62.188:8080/grow/userOwnInfo/exportOne",
+      'http://59.110.62.188:8080/grow/userOwnInfo/exportOne',
       params,
       {
         ...config,
-        responseType: "blob",
+        responseType: 'blob',
       },
-    );
+    )
 
-    const blob = response.data;
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
+    const blob = response.data
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
 
-    const disposition = response.headers["content-disposition"];
-    let fileName = "exported_file.xlsx";
+    const disposition = response.headers['content-disposition']
+    let fileName = 'exported_file.xlsx'
     if (disposition) {
-      const fileNameMatch = disposition.match(/filename="(.+)"/);
+      const fileNameMatch = disposition.match(/filename="(.+)"/)
       if (fileNameMatch && fileNameMatch[1]) {
-        fileName = fileNameMatch[1];
+        fileName = fileNameMatch[1]
       }
     }
 
-    link.download = fileName;
-    link.click();
-    window.URL.revokeObjectURL(url);
+    link.download = fileName
+    link.click()
+    window.URL.revokeObjectURL(url)
 
-    ElMessage.success("导出成功！");
+    ElMessage.success('导出成功！')
   } catch (error) {
-    console.error("导出信息时出错:", error);
-    ElMessage.error("导出失败，请重试");
+    console.error('导出信息时出错:', error)
+    ElMessage.error('导出失败，请重试')
   }
-};
+}
 </script>
 
 <style scoped>

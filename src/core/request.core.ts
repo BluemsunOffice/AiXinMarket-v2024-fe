@@ -3,22 +3,18 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
   type InternalAxiosRequestConfig,
-} from "axios";
-import { authConfig } from "@/config/request.config";
-import type {
-  ApiResponse,
-  RequestOptions,
-  ErrorResponse,
-} from "@/types/request.types";
+} from 'axios'
+import { authConfig } from '@/config/request.config'
+import type { ApiResponse, RequestOptions, ErrorResponse } from '@/types/request.types'
 
 export class RequestCore {
-  private instance: AxiosInstance;
-  private requestInterceptor?: number;
-  private responseInterceptor?: number;
+  private instance: AxiosInstance
+  private requestInterceptor?: number
+  private responseInterceptor?: number
 
   constructor(config: AxiosRequestConfig) {
-    this.instance = axios.create(config);
-    this.setupInterceptors();
+    this.instance = axios.create(config)
+    this.setupInterceptors()
   }
 
   /**
@@ -26,10 +22,10 @@ export class RequestCore {
    */
   private getAuthToken(): string | null {
     try {
-      return localStorage.getItem(authConfig.tokenKey);
+      return localStorage.getItem(authConfig.tokenKey)
     } catch (error) {
-      console.warn("Failed to get auth token from localStorage:", error);
-      return null;
+      console.warn('Failed to get auth token from localStorage:', error)
+      return null
     }
   }
 
@@ -41,80 +37,79 @@ export class RequestCore {
     this.requestInterceptor = this.instance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         // 获取认证令牌
-        const token = this.getAuthToken();
+        const token = this.getAuthToken()
 
         // 添加认证头
         if (token) {
-          config.headers = config.headers || {};
-          config.headers.Authorization = `Bearer ${token}`;
-          config.headers.clientId = authConfig.clientId;
+          config.headers = config.headers || {}
+          config.headers.Authorization = `Bearer ${token}`
+          config.headers.clientId = authConfig.clientId
         }
 
         // 这里可以添加其他全局请求处理逻辑
         console.log(`[Request] ${config.method?.toUpperCase()} ${config.url}`, {
           data: config.data,
           params: config.params,
-        });
+        })
 
-        return config;
+        return config
       },
       (error) => {
-        console.error("[Request Error]", error);
-        return Promise.reject(error);
+        console.error('[Request Error]', error)
+        return Promise.reject(error)
       },
-    );
+    )
 
     // 响应拦截器
     this.responseInterceptor = this.instance.interceptors.response.use(
       (response: AxiosResponse<ApiResponse>) => {
-        console.log(`[Response] ${response.config.url}`, response.data);
+        console.log(`[Response] ${response.config.url}`, response.data)
 
         const responseBody = response.data as
           | (ApiResponse & { msg?: string; message?: string })
-          | undefined;
+          | undefined
 
         // 业务状态码 401（例如：{ code: 401, data: null, msg: "认证失败，无法访问系统资源" }）
         if (responseBody?.code === 401) {
-          this.handleUnauthorized();
+          this.handleUnauthorized()
 
           const unauthorizedError: ErrorResponse = {
             code: 401,
-            message:
-              responseBody.msg || responseBody.message || "登录状态已过期，请重新登录",
+            message: responseBody.msg || responseBody.message || '登录状态已过期，请重新登录',
             success: false,
-          };
+          }
 
-          return Promise.reject(unauthorizedError);
+          return Promise.reject(unauthorizedError)
         }
 
         // 可以根据业务需求统一处理响应数据
-        if (response.data && typeof response.data === "object") {
+        if (response.data && typeof response.data === 'object') {
           // 示例：检查业务状态码
           if (response.data.code !== 200 && response.data.code !== 0) {
-            return Promise.reject(response.data);
+            return Promise.reject(response.data)
           }
         }
 
-        return response;
+        return response
       },
       (error) => {
-        console.error("[Response Error]", error);
+        console.error('[Response Error]', error)
 
         // 统一错误处理
         const errorResponse: ErrorResponse = {
           code: error.response?.status || 500,
-          message: error.response?.data?.message || error.message || "请求失败",
+          message: error.response?.data?.message || error.message || '请求失败',
           success: false,
-        };
+        }
 
         // 认证失败处理（401）
         if (error.response?.status === 401) {
-          this.handleUnauthorized();
+          this.handleUnauthorized()
         }
 
-        return Promise.reject(errorResponse);
+        return Promise.reject(errorResponse)
       },
-    );
+    )
   }
 
   /**
@@ -122,11 +117,11 @@ export class RequestCore {
    */
   private handleUnauthorized(): void {
     // 清除本地认证信息
-    localStorage.removeItem(authConfig.tokenKey);
+    localStorage.removeItem(authConfig.tokenKey)
 
     // 这里可以添加跳转到登录页的逻辑
-    console.warn("Authentication failed, redirecting to login...");
-    window.location.href = "/";
+    console.warn('Authentication failed, redirecting to login...')
+    window.location.href = '/'
   }
 
   /**
@@ -135,22 +130,21 @@ export class RequestCore {
   async request<T = any>(options: RequestOptions): Promise<ApiResponse<T>> {
     const config: AxiosRequestConfig = {
       url: options.url,
-      method: options.method || "GET",
+      method: options.method || 'GET',
       data: options.data,
       params: options.params,
       headers: options.headers,
       timeout: options.timeout,
       withCredentials: options.withCredentials,
       responseType: options.responseType,
-      validateStatus:
-        options.validateStatus || ((status) => status >= 200 && status < 300),
-    };
+      validateStatus: options.validateStatus || ((status) => status >= 200 && status < 300),
+    }
 
     try {
-      const response = await this.instance.request<ApiResponse<T>>(config);
-      return response.data;
+      const response = await this.instance.request<ApiResponse<T>>(config)
+      return response.data
     } catch (error) {
-      throw error;
+      throw error
     }
   }
 
@@ -164,10 +158,10 @@ export class RequestCore {
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: "GET",
+      method: 'GET',
       params,
       ...options,
-    });
+    })
   }
 
   /**
@@ -180,10 +174,10 @@ export class RequestCore {
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: "POST",
+      method: 'POST',
       data,
       ...options,
-    });
+    })
   }
 
   /**
@@ -196,10 +190,10 @@ export class RequestCore {
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: "PUT",
+      method: 'PUT',
       data,
       ...options,
-    });
+    })
   }
 
   /**
@@ -212,10 +206,10 @@ export class RequestCore {
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: "DELETE",
+      method: 'DELETE',
       data,
       ...options,
-    });
+    })
   }
 
   /**
@@ -228,10 +222,10 @@ export class RequestCore {
   ): Promise<ApiResponse<T>> {
     return this.request<T>({
       url,
-      method: "PATCH",
+      method: 'PATCH',
       data,
       ...options,
-    });
+    })
   }
 
   /**
@@ -239,10 +233,10 @@ export class RequestCore {
    */
   destroy(): void {
     if (this.requestInterceptor !== undefined) {
-      this.instance.interceptors.request.eject(this.requestInterceptor);
+      this.instance.interceptors.request.eject(this.requestInterceptor)
     }
     if (this.responseInterceptor !== undefined) {
-      this.instance.interceptors.response.eject(this.responseInterceptor);
+      this.instance.interceptors.response.eject(this.responseInterceptor)
     }
   }
 }

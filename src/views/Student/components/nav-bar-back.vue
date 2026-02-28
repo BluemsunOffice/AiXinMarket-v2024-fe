@@ -25,29 +25,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { QuestionFilled } from "@element-plus/icons-vue";
-import {
-  Iphone,
-  Location,
-  OfficeBuilding,
-  Tickets,
-  User,
-} from "@element-plus/icons-vue";
-import { ElMessage, ElMessageBox, ElDialog } from "element-plus";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { QuestionFilled } from '@element-plus/icons-vue'
+import { Iphone, Location, OfficeBuilding, Tickets, User } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox, ElDialog } from 'element-plus'
 
-const router = useRouter();
-const dialogVisible = ref(false);
+const router = useRouter()
+const dialogVisible = ref(false)
 
 const showConfirmDialog = () => {
-  dialogVisible.value = true;
-};
+  dialogVisible.value = true
+}
 
 const handleReturn = () => {
-  dialogVisible.value = false;
-  router.push("/framework");
-};
+  dialogVisible.value = false
+  router.push('/framework')
+}
 </script>
 
 <style scoped>

@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs'
 
 /**
  * 格式化到天级别的时间（只显示年月日）
@@ -8,19 +8,19 @@ import dayjs from "dayjs";
  */
 export function formatDay(
   timestamp: number | string | Date,
-  format: string = "YYYY-MM-DD",
+  format: string = 'YYYY-MM-DD',
 ): string {
-  if (!timestamp && timestamp !== 0) return "";
+  if (!timestamp && timestamp !== 0) return ''
 
   if (isNaN(Number(timestamp))) {
-    const date = dayjs(timestamp);
-    return date.format(format);
+    const date = dayjs(timestamp)
+    return date.format(format)
   }
-  const ts = Number(timestamp);
+  const ts = Number(timestamp)
   // 自动判断时间戳是秒级还是毫秒级（大于10位数为毫秒级）
-  const date = ts > 9999999999 ? dayjs(ts) : dayjs(ts * 1000);
+  const date = ts > 9999999999 ? dayjs(ts) : dayjs(ts * 1000)
 
-  return date.format(format);
+  return date.format(format)
 }
 
 /**
@@ -31,13 +31,13 @@ export function formatDay(
  */
 export function formatTime(
   timestamp: number | string | Date,
-  format: string = "YYYY-MM-DD HH:mm:ss",
+  format: string = 'YYYY-MM-DD HH:mm:ss',
 ): string {
-  if (!timestamp && timestamp !== 0) return "";
+  if (!timestamp && timestamp !== 0) return ''
 
-  const ts = Number(timestamp);
+  const ts = Number(timestamp)
   // 自动判断时间戳是秒级还是毫秒级（大于10位数为毫秒级）
-  const date = ts > 9999999999 ? dayjs(ts) : dayjs(ts * 1000);
+  const date = ts > 9999999999 ? dayjs(ts) : dayjs(ts * 1000)
 
-  return date.format(format);
+  return date.format(format)
 }

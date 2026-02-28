@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts" name="Goods">
-defineProps(["name"]);
+defineProps(['name'])
 </script>
 
 <style scoped>

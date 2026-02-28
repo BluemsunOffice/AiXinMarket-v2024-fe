@@ -1,13 +1,13 @@
 @font-face {
-  font-family: "iconfont"; /* Project id 4755143 */
+  font-family: 'iconfont'; /* Project id 4755143 */
   src:
-    url("iconfont.woff2?t=1732201409181") format("woff2"),
-    url("iconfont.woff?t=1732201409181") format("woff"),
-    url("iconfont.ttf?t=1732201409181") format("truetype");
+    url('iconfont.woff2?t=1732201409181') format('woff2'),
+    url('iconfont.woff?t=1732201409181') format('woff'),
+    url('iconfont.ttf?t=1732201409181') format('truetype');
 }
 
 .iconfont {
-  font-family: "iconfont" !important;
+  font-family: 'iconfont' !important;
   font-size: 16px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
@@ -15,37 +15,37 @@
 }
 
 .icon-xingbie:before {
-  content: "\e7f8";
+  content: '\e7f8';
 }
 
 .icon-icon-mail:before {
-  content: "\e601";
+  content: '\e601';
 }
 
 .icon-shoujihao:before {
-  content: "\e840";
+  content: '\e840';
 }
 
 .icon-gender:before {
-  content: "\e63e";
+  content: '\e63e';
 }
 
 .icon-youxiang:before {
-  content: "\e605";
+  content: '\e605';
 }
 
 .icon-xiaoqu:before {
-  content: "\e76c";
+  content: '\e76c';
 }
 
 .icon-xuehao:before {
-  content: "\e65a";
+  content: '\e65a';
 }
 
 .icon-jiaose:before {
-  content: "\e689";
+  content: '\e689';
 }
 
 .icon-xuehao1:before {
-  content: "\e67e";
+  content: '\e67e';
 }
