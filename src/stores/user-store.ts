@@ -138,15 +138,17 @@ export const useUserStore = defineStore('user', () => {
           message: '登录成功',
         })
       } else {
+        console.error('Login failed:', msg)
         return Promise.reject({
           success: false,
-          messagge: msg,
+          message: msg,
         })
       }
     } catch (error) {
+      console.error('Login error:', error)
       return Promise.reject({
         success: false,
-        message: error,
+        message: error instanceof Error ? error.message : String((error as { msg?: unknown }).msg),
       })
     } finally {
       loginBtnLoading.value = false

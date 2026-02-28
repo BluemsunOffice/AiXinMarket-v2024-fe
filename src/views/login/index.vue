@@ -86,18 +86,32 @@ const rules = ref<FormRules>({
   ],
 })
 
+const getErrorMessage = (error: unknown) => {
+  if (typeof error === 'string') return error
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string') return message
+  }
+  return '登录失败，请稍后重试'
+}
+
 const submitForm = async () => {
   if (!ruleFormRef.value) return
-  await ruleFormRef.value.validate(async (valid) => {
+  try {
+    const valid = await ruleFormRef.value.validate()
     if (!valid) return
+
     const { success, message } = await login()
     if (success) {
       ElMessage.success('登录成功')
       router.push('/framework')
-    } else {
-      ElMessage.error(message)
+      return
     }
-  })
+
+    ElMessage.error(message)
+  } catch (error) {
+    ElMessage.error(getErrorMessage(error))
+  }
 }
 </script>
 
