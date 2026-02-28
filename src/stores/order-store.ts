@@ -35,8 +35,8 @@ export const useOrderStore = defineStore('order', () => {
   const statusOptions: FilterOption<number | null>[] = [
     { label: '全部状态', value: null },
     { label: '待处理', value: 0 },
-    { label: '已核销', value: 1 },
-    { label: '已取消', value: 2 },
+    { label: '已取消', value: 1 },
+    { label: '已核销', value: 2 },
   ]
 
   const sortOptions: FilterOption<ManageOrderDirection>[] = [
