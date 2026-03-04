@@ -104,6 +104,7 @@ export const useStudentStore = defineStore('student', () => {
 
   const tableData = ref<StudentRow[]>([])
   const selectedIds = ref<string[]>([])
+  const selectedRowMap = ref<Record<string, StudentRow>>({})
   const searchForm = reactive({
     grade: '',
     name: '',
@@ -204,9 +205,32 @@ export const useStudentStore = defineStore('student', () => {
   ])
 
   const hasSelectedItems = computed(() => selectedIds.value.length > 0)
+  const selectedStudentRows = computed(() =>
+    selectedIds.value
+      .map((id) => selectedRowMap.value[id])
+      .filter((row): row is StudentRow => Boolean(row)),
+  )
 
   const handleSelectionChange = (selection: StudentRow[]) => {
-    selectedIds.value = selection.map((student) => student.userId)
+    const currentPageIds = new Set(tableData.value.map((student) => student.userId))
+
+    currentPageIds.forEach((id) => {
+      delete selectedRowMap.value[id]
+    })
+
+    selection.forEach((student) => {
+      if (!student.userId) {
+        return
+      }
+      selectedRowMap.value[student.userId] = student
+    })
+
+    selectedIds.value = Object.keys(selectedRowMap.value)
+  }
+
+  const clearSelectedStudents = () => {
+    selectedIds.value = []
+    selectedRowMap.value = {}
   }
 
   const getList = async (
@@ -243,6 +267,7 @@ export const useStudentStore = defineStore('student', () => {
     searchForm.studentId = ''
     searchForm.major = ''
     searchForm.degree = ''
+    clearSelectedStudents()
   }
 
   const buildSearchParams = () => {
@@ -270,17 +295,20 @@ export const useStudentStore = defineStore('student', () => {
   }
 
   const submitSearch = async () => {
+    clearSelectedStudents()
     await getList(1, query.pageSize, buildSearchParams())
   }
 
-  const exportSelectedStudentInfo = async () => {
-    if (!hasSelectedItems.value) {
+  const exportSelectedStudentInfo = async (ids?: string[]) => {
+    const idsToExport = ids?.length ? ids : selectedIds.value
+
+    if (!idsToExport.length) {
       ElMessage.warning('请先在列表中选择要导出的条目')
       return
     }
 
     try {
-      const response = await studentFilesApi.exportSelectedStudentInfo(selectedIds.value)
+      const response = await studentFilesApi.exportSelectedStudentInfo(idsToExport)
       const blob = response.data
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -395,6 +423,7 @@ export const useStudentStore = defineStore('student', () => {
     fieldConfigs,
     tableData,
     selectedIds,
+    selectedStudentRows,
     searchForm,
     query,
     total,

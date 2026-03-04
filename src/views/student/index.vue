@@ -3,11 +3,12 @@
     <SearchBox />
     <el-table
       :data="tableData"
+      row-key="userId"
       class="student-table"
       @selection-change="handleSelectionChange"
       v-loading="loadings.table"
     >
-      <el-table-column type="selection" width="55" />
+      <el-table-column type="selection" width="55" :reserve-selection="true" />
       <el-table-column
         v-for="column in tableColumns"
         :key="column.key"
@@ -81,11 +82,13 @@
           style="display: block; margin: 0px auto; padding: 10px 20px"
           :loading="exportingStudentInfo"
           @click="exportStudentInfo()"
-          ><font-awesome-icon
-            icon="fa-solid fa-file-arrow-down"
-            style="color: rgb(116, 192, 252)"
-          />导出信息</el-button
         >
+          <font-awesome-icon
+            icon="fa-solid fa-download"
+            style="color: rgb(116, 192, 252); margin-right: 4px"
+          />
+          导出信息
+        </el-button>
       </el-tabs>
     </el-dialog>
   </div>
