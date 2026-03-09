@@ -1,6 +1,12 @@
 <template>
-  <article :class="['cart-item', { 'is-selected': selected }]">
-    <el-checkbox :model-value="selected" @change="onSelectChange" />
+  <article
+    :class="['cart-item', { 'is-selected': selected && !isOffShelf, 'is-off-shelf': isOffShelf }]"
+  >
+    <el-checkbox
+      :model-value="selected && !isOffShelf"
+      :disabled="isOffShelf"
+      @change="onSelectChange"
+    />
 
     <div class="item-image-wrap">
       <img :src="item.imageUrlUrl" :alt="item.goodsName" class="item-image" />
@@ -18,6 +24,7 @@
           库存剩余：
           <span :class="{ 'low-stock': item.limitNum <= 5 }">{{ item.limitNum }}</span>
         </p>
+        <p v-if="isOffShelf" class="item-tip">该商品已下架，暂不可结算</p>
       </div>
 
       <div class="item-action">
@@ -38,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, watch } from 'vue'
 import CartoonStepper from '@/views/home/components/cartoon-stepper.vue'
 import type { CartItem } from '@/api/cart.api'
 import Coins from '@/components/coins/index.vue'
@@ -55,9 +63,26 @@ const emit = defineEmits<{
   remove: [goodsId: string]
 }>()
 
+const isOffShelf = computed(() => String(props.item.status ?? '') !== '0')
+
+// Keep parent selection state in sync when an item becomes off-shelf.
+watch(
+  () => [isOffShelf.value, props.selected],
+  ([offShelf, selected]) => {
+    if (offShelf && selected) {
+      emit('toggle-select', props.item.goodsId, false)
+    }
+  },
+  { immediate: true },
+)
+
 const formatPrice = (row: { price: number }) => +row.price.toFixed(2)
 
 const onSelectChange = (checked: string | number | boolean) => {
+  if (isOffShelf.value) {
+    emit('toggle-select', props.item.goodsId, false)
+    return
+  }
   emit('toggle-select', props.item.goodsId, Boolean(checked))
 }
 
@@ -94,6 +119,15 @@ const onQuantityChange = (value: number) => {
 .cart-item.is-selected {
   border-color: #c7dcff;
   box-shadow: 0 8px 22px rgba(64, 158, 255, 0.1);
+}
+
+.cart-item.is-off-shelf {
+  opacity: 0.68;
+  background: #fafafa;
+}
+
+.cart-item.is-off-shelf:hover {
+  box-shadow: none;
 }
 
 .cart-item :deep(.el-checkbox__input) {
@@ -154,6 +188,12 @@ const onQuantityChange = (value: number) => {
   margin: 0;
   font-size: 13px;
   color: #6b7280;
+}
+
+.item-tip {
+  margin: 0;
+  font-size: 12px;
+  color: #f56c6c;
 }
 
 .low-stock {

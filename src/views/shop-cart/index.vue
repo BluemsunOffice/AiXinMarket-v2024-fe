@@ -113,9 +113,9 @@ const {
   clothingTotal,
   dailyTotal,
   checkoutDialogVisible,
-  isAllSelected,
   isSettling,
   isLoading,
+  isAllSelected,
 } = storeToRefs(cartStore)
 
 const {

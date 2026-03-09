@@ -30,15 +30,25 @@ export const useCartStore = defineStore('cartStore', () => {
 
   const pendingQuantityUpdates = new Map<string, PendingQuantityUpdate>()
 
+  const isSelectableItem = (item: CartItem) => String(item.status ?? '') === '0'
+
+  const selectableItems = computed(() => {
+    return filteredItems.value.filter((item) => isSelectableItem(item))
+  })
+
   const isAllSelected = computed({
     get: () => {
-      if (filteredItems.value.length === 0) {
+      if (selectableItems.value.length === 0) {
         return false
       }
-      return selectedItems.value.length === filteredItems.value.length
+      return selectableItems.value.every((item) => selectedItems.value.includes(item.goodsId))
     },
     set: (checked: boolean) => {
-      selectedItems.value = checked ? filteredItems.value.map((item) => item.goodsId) : []
+      if (!checked) {
+        selectedItems.value = []
+        return
+      }
+      selectedItems.value = selectableItems.value.map((item) => item.goodsId)
     },
   })
 
@@ -100,6 +110,7 @@ export const useCartStore = defineStore('cartStore', () => {
       if (item.num > latestAmount) {
         item.num = latestAmount
       }
+      item.status = detailResp.data?.status ?? item.status
     } catch (error) {
       console.error(`获取商品 ${item.goodsId} 库存失败:`, error)
     }
@@ -119,7 +130,11 @@ export const useCartStore = defineStore('cartStore', () => {
       console.log('购物车商品列表:', cartItems.value)
 
       const validIds = new Set(mergedItems.map((item) => item.goodsId))
+      const selectableIds = new Set(
+        mergedItems.filter((item) => isSelectableItem(item)).map((item) => item.goodsId),
+      )
       selectedItems.value = selectedItems.value.filter((id) => validIds.has(id))
+      selectedItems.value = selectedItems.value.filter((id) => selectableIds.has(id))
     } catch (error) {
       console.error('获取购物车失败:', error)
       ElMessage.error(`获取购物车失败: ${error}`)
@@ -146,6 +161,7 @@ export const useCartStore = defineStore('cartStore', () => {
   }
 
   const toggleSelectAll = (checked: boolean) => {
+    console.log(`全选状态改变: ${checked}`)
     isAllSelected.value = checked
   }
 
