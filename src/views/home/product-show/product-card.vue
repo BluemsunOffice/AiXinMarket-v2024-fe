@@ -2,7 +2,10 @@
   <div class="card" @click="handleView">
     <div class="thumb">
       <img :src="product.imageUrlUrl" :alt="product.name" />
-      <div v-if="product.amount === 0" class="badge">缺货</div>
+      <div class="badges">
+        <div v-if="product.amount === 0" class="badge">缺货</div>
+        <div v-if="product.status !== '0'" class="badge">已下架</div>
+      </div>
     </div>
     <div class="body">
       <div class="title" :title="product.name">{{ product.name }}</div>
@@ -61,10 +64,19 @@ const handleView = () => emit('view')
   object-fit: cover;
   display: block;
 }
-.badge {
+.badges {
   position: absolute;
   top: 8px;
   left: 8px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.badge {
+  display: inline-flex;
+  width: fit-content;
   background: #f56c6c;
   color: #fff;
   padding: 4px 8px;
