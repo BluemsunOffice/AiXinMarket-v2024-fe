@@ -12,6 +12,10 @@
       <div class="meta">
         <Coins :coin-type="product.currencyType" :amount="product.price" />
       </div>
+      <div class="meta extra-meta">
+        <span class="meta-label">限购</span>
+        <span class="meta-value">{{ product.limitNum }} 件</span>
+      </div>
       <div class="stock">
         <Stock :amount="product.amount" />
       </div>
@@ -109,6 +113,20 @@ const handleView = () => emit('view')
     line-height: 1.2;
     display: flex;
     color: #666;
+  }
+
+  .extra-meta {
+    gap: 8px;
+    color: #606266;
+  }
+
+  .meta-label {
+    color: #909399;
+  }
+
+  .meta-value {
+    font-weight: 600;
+    color: #409eff;
   }
 }
 </style>

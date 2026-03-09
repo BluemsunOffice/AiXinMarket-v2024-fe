@@ -25,6 +25,10 @@
           <div class="coin-pill">
             <Coins :coinType="productDetail.currencyType" :amount="productDetail.price" />
           </div>
+          <div class="purchase-limit">
+            <span class="limit-label">限购数量</span>
+            <span class="limit-value">{{ productDetail.limitNum }} 件</span>
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -42,7 +46,7 @@
             <CartoonStepper
               v-model="num"
               :min="1"
-              :max="productDetail.amount"
+              :max="maxAvailableQuantity"
               :disabled="productDetail.amount === 0"
             />
             <el-button
@@ -63,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { InfoFilled, ShoppingCart } from '@element-plus/icons-vue'
 import { cartApi, type CartItemPayload } from '@/api/cart.api'
@@ -85,6 +89,9 @@ const props = defineProps({
 })
 
 const productDetail = ref(props.productDetail)
+const maxAvailableQuantity = computed(() =>
+  Math.min(productDetail.value.amount, productDetail.value.limitNum),
+)
 
 watch(
   () => props.productDetail,
@@ -111,9 +118,9 @@ const addToCart = async () => {
       )
       if (existingItem) {
         const totalQuantity = existingItem.num + num.value
-        if (totalQuantity > productDetail.value.amount) {
+        if (totalQuantity > maxAvailableQuantity.value) {
           ElMessage.warning(
-            `该商品在购物车中已有${existingItem.num}个，库存仅剩${productDetail.value.amount}个，无法继续添加${num.value}个`,
+            `该商品在购物车中已有${existingItem.num}个，可购买上限为${maxAvailableQuantity.value}个，无法继续添加${num.value}个`,
           )
           return
         }
@@ -146,15 +153,15 @@ const addToCart = async () => {
   }
 }
 
-// 监听数量变化，确保不超过库存
 watch(num, (newVal) => {
-  if (newVal > productDetail.value.amount) {
-    ElMessage.warning(`数量不能超过库存(${productDetail.value.amount})`)
-    num.value = productDetail.value.amount
+  if (newVal > maxAvailableQuantity.value) {
+    ElMessage.warning(
+      `数量不能超过可购买上限（库存${productDetail.value.amount}，限购${productDetail.value.limitNum}）`,
+    )
+    num.value = maxAvailableQuantity.value
   }
 })
 
-// 关闭弹框的方法
 const close = () => {
   emit('close')
 }
@@ -247,6 +254,7 @@ const close = () => {
 .price-cartoon {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
   margin-top: 14px;
   padding: 8px 16px;
@@ -258,103 +266,101 @@ const close = () => {
   font-family: 'Arial Rounded MT Bold', 'Varela Round', sans-serif;
   line-height: 1;
 }
+.coin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(255, 243, 205, 0.9), rgba(255, 232, 143, 0.7));
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 212, 59, 0.35);
+}
+.purchase-limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 8px 14px;
+  background: rgba(64, 158, 255, 0.1);
+  color: #409eff;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(59, 141, 255, 0.35);
+}
+.limit-label {
+  color: #606266;
+  font-size: 14px;
+}
+.limit-value {
+  font-size: 14px;
+  font-weight: 700;
+}
 .divider {
   height: 1px;
   background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0),
+    90deg,
+    rgba(76, 141, 244, 0),
     rgba(76, 141, 244, 0.25),
-    rgba(0, 0, 0, 0)
+    rgba(76, 141, 244, 0)
   );
-  margin: 12px 0;
+  margin: 14px 0;
 }
 .intro-box {
-  margin-top: 12px;
-  background: #f8fafc;
-  border: 2px dashed #cbd5e1;
-  border-radius: 12px;
-  padding: 12px;
-  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 255, 0.96));
+  border: 1px solid rgba(76, 141, 244, 0.08);
+  border-radius: 14px;
+  padding: 14px;
 }
 .intro-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 8px;
 }
 .intro-icon {
   color: var(--accent);
-  font-size: 16px;
 }
 .intro-title {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--text-main);
-  letter-spacing: 0.5px;
 }
 .intro-content {
-  font-size: 14px;
-  line-height: 1.6;
   color: var(--text-muted);
-  background: #fff;
-  padding: 8px 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  line-height: 1.7;
+  white-space: pre-wrap;
 }
 .actions-cartoon {
-  width: 100%;
+  margin-top: 18px;
+  background: linear-gradient(180deg, rgba(124, 185, 255, 0.12), rgba(124, 185, 255, 0.04));
+  border: 1px dashed rgba(76, 141, 244, 0.25);
+  border-radius: 16px;
+  padding: 14px;
+}
+.stepper-label {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 10px;
+}
+.stepper-wrap {
   display: flex;
   align-items: center;
-  flex-direction: column;
   gap: 12px;
-  margin-top: 16px;
-  .stepper-label {
-    width: 100%;
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--text-main);
-  }
-  .stepper-wrap {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: between;
-    gap: 12px;
-    .add-btn-cartoon {
-      flex: 1;
-      height: 40px;
-      border-radius: 12px !important;
-      font-size: 16px !important;
-      font-weight: 800 !important;
-      letter-spacing: 1px;
-      background-color: #4c8df4 !important; /* 强制使用蓝色背景 */
-      border: none !important;
-      box-shadow: 0 4px 0 #3272d9 !important;
-      color: #ffffff !important; /* 强制使用白色文字 */
-      transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-  }
+  flex-wrap: wrap;
 }
-.add-btn-cartoon:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #3272d9 !important;
+.add-btn-cartoon {
+  border-radius: 999px;
+  padding: 0 18px;
+  height: 42px;
+  box-shadow: 0 10px 18px rgba(76, 141, 244, 0.18);
 }
-.add-btn-cartoon:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #3272d9 !important;
+.btn-icon {
+  margin-right: 6px;
 }
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .dialog-body {
     grid-template-columns: 1fr;
-  }
-  .image-wrap {
-    aspect-ratio: 4 / 3;
   }
 }
 </style>

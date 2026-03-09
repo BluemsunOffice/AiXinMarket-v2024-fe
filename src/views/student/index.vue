@@ -103,8 +103,6 @@ import { useStudentStore } from '@/stores/student-store'
 const studentStore = useStudentStore()
 
 const {
-  fieldConfigs,
-  tableColumns,
   getDisplayValue,
   handleSelectionChange,
   handleViewDetail,
@@ -117,6 +115,8 @@ const {
 } = studentStore
 
 const {
+  fieldConfigs,
+  tableColumns,
   tableData,
   query,
   total,

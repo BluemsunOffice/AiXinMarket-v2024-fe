@@ -60,7 +60,7 @@ export const useStudentStore = defineStore('student', () => {
   const getDisplayValue = getFieldDisplayValue
   const formatEdu = formatDegree
 
-  const tableColumns: StudentTableColumn[] = [
+  const tableColumns = ref<StudentTableColumn[]>([
     { key: 'studentId', prop: 'studentId', label: '学号', minWidth: 180 },
     { key: 'name', prop: 'name', label: '姓名', minWidth: 180 },
     { key: 'grade', prop: 'grade', label: '年级', minWidth: 180 },
@@ -78,9 +78,9 @@ export const useStudentStore = defineStore('student', () => {
       minWidth: 180,
       formatter: (value) => formatEdu(value),
     },
-  ]
+  ])
 
-  const fieldConfigs: FieldConfigType[] = [
+  const fieldConfigs = ref<FieldConfigType[]>([
     { prop: 'studentId', label: '学号' },
     { prop: 'name', label: '姓名' },
     { prop: 'gender', label: '性别', formatter: formatGender },
@@ -100,7 +100,7 @@ export const useStudentStore = defineStore('student', () => {
     { prop: 'political', label: '政治面貌', formatter: formatPoliticalStatus },
     { prop: 'marry', label: '婚姻状态', formatter: formatMarry },
     { prop: 'fundType', label: '资助类型', formatter: formatAssistLevel },
-  ]
+  ])
 
   const tableData = ref<StudentRow[]>([])
   const selectedIds = ref<string[]>([])
@@ -129,24 +129,24 @@ export const useStudentStore = defineStore('student', () => {
   const fundProjectVo = ref<any[]>([])
   const visible = ref(false)
 
-  const detailPageSize = 6
+  const detailPageSize = ref(6)
   const projectPage = ref(1)
   const punishPage = ref(1)
   const scholarshipPage = ref(1)
 
   const paginatedProjectVo = computed(() => {
-    const start = (projectPage.value - 1) * detailPageSize
-    return fundProjectVo.value.slice(start, start + detailPageSize)
+    const start = (projectPage.value - 1) * detailPageSize.value
+    return fundProjectVo.value.slice(start, start + detailPageSize.value)
   })
 
   const paginatedPunishVo = computed(() => {
-    const start = (punishPage.value - 1) * detailPageSize
-    return fundPunishVo.value.slice(start, start + detailPageSize)
+    const start = (punishPage.value - 1) * detailPageSize.value
+    return fundPunishVo.value.slice(start, start + detailPageSize.value)
   })
 
   const paginatedScholarshipVo = computed(() => {
-    const start = (scholarshipPage.value - 1) * detailPageSize
-    return fundScholarshipVo.value.slice(start, start + detailPageSize)
+    const start = (scholarshipPage.value - 1) * detailPageSize.value
+    return fundScholarshipVo.value.slice(start, start + detailPageSize.value)
   })
 
   const projectTotal = computed(() => fundProjectVo.value.length)

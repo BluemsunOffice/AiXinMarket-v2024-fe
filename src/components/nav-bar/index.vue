@@ -58,6 +58,7 @@
 
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import LogoutAction from '@/components/logout-action/index.vue'
 import { useUserStore } from '@/stores/user-store'
@@ -68,6 +69,7 @@ import { getAuthToken } from '@/utils/auth'
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const { generalBalance, clothingBalance, campusName, roleGroup, role } = storeToRefs(userStore)
 const activePath = ref(route.path)
 const mobileEntryRef = ref<HTMLElement | null>(null)
 
@@ -107,10 +109,7 @@ const handleOutsideClick = (event: MouseEvent) => {
   }
 }
 
-const generalBalance = computed(() => userStore.generalBalance)
-const clothingBalance = computed(() => userStore.clothingBalance)
-const campusName = computed(() => userStore.campusName)
-const currentRole = computed(() => userStore.roleGroup || userStore.role || '')
+const currentRole = computed(() => roleGroup.value || role.value || '')
 const isManager = computed(() => ['超市管理员', '超级管理员'].includes(currentRole.value))
 
 interface MenuItem {

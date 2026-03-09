@@ -18,10 +18,13 @@ export interface FilterOption<T> {
   value: T
 }
 
+const CHECKABLE_ORDER_STATUS: AdminOrderStatus = '0'
+
 export const useOrderStore = defineStore('order', () => {
   const orders = ref<AdminOrderItem[]>([])
   const loading = ref(false)
   const selectedOrderIds = ref<string[]>([])
+  const selectedOrderMap = ref<Record<string, AdminOrderItem>>({})
 
   const paging = reactive({
     pageNum: 1,
@@ -32,24 +35,39 @@ export const useOrderStore = defineStore('order', () => {
   const statusFilter = ref<number | null>(null)
   const sortFilter = ref<ManageOrderDirection>(null)
 
-  const statusOptions: FilterOption<number | null>[] = [
+  const statusOptions = ref<FilterOption<number | null>[]>([
     { label: '全部状态', value: null },
     { label: '待处理', value: 0 },
     { label: '已取消', value: 1 },
     { label: '已核销', value: 2 },
-  ]
+  ])
 
-  const sortOptions: FilterOption<ManageOrderDirection>[] = [
+  const sortOptions = ref<FilterOption<ManageOrderDirection>[]>([
     { label: '默认排序', value: null },
     { label: '最新订单', value: 1 },
     { label: '最旧订单', value: 0 },
-  ]
+  ])
 
   const statusTitle = computed(() => {
-    return statusOptions.find((option) => option.value === statusFilter.value)?.label || '订单状态'
+    return statusOptions.value.find((option) => option.value === statusFilter.value)?.label || '订单状态'
   })
 
-  const canBatchCheck = computed(() => selectedOrderIds.value.length > 0)
+  const checkableSelectedOrders = computed(() => {
+    return selectedOrderIds.value
+      .map((id) => selectedOrderMap.value[id])
+      .filter((order): order is AdminOrderItem => Boolean(order))
+      .filter((order) => order.status === CHECKABLE_ORDER_STATUS)
+  })
+
+  const invalidSelectedOrders = computed(() => {
+    return selectedOrderIds.value
+      .map((id) => selectedOrderMap.value[id])
+      .filter((order): order is AdminOrderItem => Boolean(order))
+      .filter((order) => order.status !== CHECKABLE_ORDER_STATUS)
+  })
+
+  const canBatchCheck = computed(() => checkableSelectedOrders.value.length > 0)
+  const batchCheckPreviewVisible = ref(false)
 
   const detailDialogVisible = ref(false)
   const detailLoading = ref(false)
@@ -61,6 +79,20 @@ export const useOrderStore = defineStore('order', () => {
     pageSize: 1,
     total: 0,
   })
+
+  const mergeSelectedOrdersFromCurrentPage = () => {
+    const currentPageIds = new Set(orders.value.map((order) => order.id))
+
+    currentPageIds.forEach((id) => {
+      delete selectedOrderMap.value[id]
+    })
+
+    orders.value.forEach((order) => {
+      if (selectedOrderIds.value.includes(order.id)) {
+        selectedOrderMap.value[order.id] = order
+      }
+    })
+  }
 
   const fetchOrders = async () => {
     loading.value = true
@@ -75,6 +107,7 @@ export const useOrderStore = defineStore('order', () => {
       if (response.code === 200) {
         orders.value = response.rows || []
         paging.total = response.total || 0
+        mergeSelectedOrdersFromCurrentPage()
         return
       }
 
@@ -95,8 +128,22 @@ export const useOrderStore = defineStore('order', () => {
     await fetchOrders()
   }
 
-  const updateSelection = (ids: string[]) => {
-    selectedOrderIds.value = ids
+  const updateSelection = (rows: AdminOrderItem[]) => {
+    const currentPageIds = new Set(orders.value.map((order) => order.id))
+
+    selectedOrderIds.value = selectedOrderIds.value.filter((id) => !currentPageIds.has(id))
+
+    rows.forEach((row) => {
+      selectedOrderMap.value[row.id] = row
+      if (!selectedOrderIds.value.includes(row.id)) {
+        selectedOrderIds.value.push(row.id)
+      }
+    })
+  }
+
+  const clearBatchSelection = () => {
+    selectedOrderIds.value = []
+    selectedOrderMap.value = {}
   }
 
   const getStatusText = (status: string | AdminOrderStatus) => {
@@ -117,6 +164,8 @@ export const useOrderStore = defineStore('order', () => {
     return typeMap[String(status)] || 'primary'
   }
 
+  const isOrderCheckable = (status: string | AdminOrderStatus) => String(status) === CHECKABLE_ORDER_STATUS
+
   const setStatusFilter = async (status: number | null) => {
     statusFilter.value = status
     paging.pageNum = 1
@@ -130,10 +179,18 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   const checkSingleOrder = async (orderId: string) => {
+    const targetOrder = orders.value.find((order) => order.id === orderId) || selectedOrderMap.value[orderId]
+    if (targetOrder && !isOrderCheckable(targetOrder.status)) {
+      ElMessage.warning('该订单当前状态不可核销')
+      return
+    }
+
     try {
       const response = await orderApi.checkOrders([orderId])
       if (response.code === 200) {
         ElMessage.success('核销成功')
+        delete selectedOrderMap.value[orderId]
+        selectedOrderIds.value = selectedOrderIds.value.filter((id) => id !== orderId)
         await fetchOrders()
         return
       }
@@ -143,17 +200,41 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  const checkSelectedOrders = async () => {
+  const openBatchCheckPreview = () => {
     if (!selectedOrderIds.value.length) {
       ElMessage.warning('请先选择订单')
       return
     }
 
+    if (!checkableSelectedOrders.value.length) {
+      ElMessage.warning('选中的订单中没有可核销的待处理订单')
+      return
+    }
+
+    if (invalidSelectedOrders.value.length) {
+      ElMessage.warning('已自动过滤不可核销订单，仅预览待处理订单')
+    }
+
+    batchCheckPreviewVisible.value = true
+  }
+
+  const closeBatchCheckPreview = () => {
+    batchCheckPreviewVisible.value = false
+  }
+
+  const checkSelectedOrders = async () => {
+    const orderIds = checkableSelectedOrders.value.map((order) => order.id)
+    if (!orderIds.length) {
+      ElMessage.warning('没有可核销的待处理订单')
+      return
+    }
+
     try {
-      const response = await orderApi.checkOrders(selectedOrderIds.value)
+      const response = await orderApi.checkOrders(orderIds)
       if (response.code === 200) {
         ElMessage.success('批量核销成功')
-        selectedOrderIds.value = []
+        closeBatchCheckPreview()
+        clearBatchSelection()
         await fetchOrders()
         return
       }
@@ -312,7 +393,11 @@ export const useOrderStore = defineStore('order', () => {
     statusOptions,
     sortOptions,
     statusTitle,
+    selectedOrderIds,
+    checkableSelectedOrders,
+    invalidSelectedOrders,
     canBatchCheck,
+    batchCheckPreviewVisible,
     detailDialogVisible,
     detailLoading,
     detailPaging,
@@ -321,11 +406,15 @@ export const useOrderStore = defineStore('order', () => {
     fetchOrders,
     updateOrderPage,
     updateSelection,
+    clearBatchSelection,
     getStatusText,
     getStatusTagType,
+    isOrderCheckable,
     setStatusFilter,
     setSortFilter,
     checkSingleOrder,
+    openBatchCheckPreview,
+    closeBatchCheckPreview,
     checkSelectedOrders,
     openDetailDialog,
     closeDetailDialog,

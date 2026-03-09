@@ -22,7 +22,11 @@
         </p>
         <p class="item-meta">
           库存剩余：
-          <span :class="{ 'low-stock': item.limitNum <= 5 }">{{ item.limitNum }}</span>
+          <span :class="{ 'low-stock': (item.amount ?? 0) <= 5 }">{{ item.amount ?? 0 }}</span>
+        </p>
+        <p class="item-meta">
+          限购数量：
+          <span>{{ item.limitNum }}</span>
         </p>
         <p v-if="isOffShelf" class="item-tip">该商品已下架，暂不可结算</p>
       </div>
@@ -30,9 +34,9 @@
       <div class="item-action">
         <CartoonStepper
           :model-value="item.num"
-          :min="item.limitNum > 0 ? 1 : 0"
-          :max="item.limitNum"
-          :disabled="item.limitNum === 0"
+          :min="maxQuantity > 0 ? 1 : 0"
+          :max="maxQuantity"
+          :disabled="maxQuantity === 0"
           class="quantity-input"
           @update:model-value="onQuantityChange"
         />
@@ -64,6 +68,7 @@ const emit = defineEmits<{
 }>()
 
 const isOffShelf = computed(() => String(props.item.status ?? '') !== '0')
+const maxQuantity = computed(() => Math.min(props.item.amount ?? 0, props.item.limitNum))
 
 // Keep parent selection state in sync when an item becomes off-shelf.
 watch(
@@ -93,9 +98,8 @@ const onQuantityChange = (value: number) => {
     return
   }
 
-  const minQuantity = props.item.limitNum > 0 ? 1 : 0
-  const maxQuantity = Math.max(props.item.limitNum, minQuantity)
-  const normalizedQuantity = Math.min(maxQuantity, Math.max(minQuantity, Math.trunc(value)))
+  const minQuantity = maxQuantity.value > 0 ? 1 : 0
+  const normalizedQuantity = Math.min(maxQuantity.value, Math.max(minQuantity, Math.trunc(value)))
 
   emit('quantity-change', props.item.goodsId, normalizedQuantity)
 }

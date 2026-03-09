@@ -82,8 +82,8 @@ export const orderApi = {
       (response) => response as unknown as PagedRows<OrderInfoItem>,
     ),
 
-  checkOrders: (orderIds: string[]): Promise<ApiResponse> =>
-    post(`/market/order/check/${orderIds.join(',')}`),
+  checkOrders: (orderIds: Array<string | number>): Promise<ApiResponse> =>
+    post('/market/order/check', { orderIds }),
 
   getUserList: (params: UserOrderListQuery): Promise<PagedRows<UserOrderItem>> =>
     get('/market/order/userlist', params).then(

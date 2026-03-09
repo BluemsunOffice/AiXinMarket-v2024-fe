@@ -105,10 +105,15 @@ export const useCartStore = defineStore('cartStore', () => {
     try {
       const detailResp = await cartApi.goodsDetail(item.goodsId)
       console.log(`商品 ${item.goodsId} 库存信息:`, detailResp.data)
-      const latestAmount = Number(detailResp.data?.amount ?? item.limitNum ?? 0)
-      item.limitNum = latestAmount
-      if (item.num > latestAmount) {
-        item.num = latestAmount
+      const latestAmount = Number(detailResp.data?.amount ?? item.amount ?? 0)
+      const latestLimitNum = Number(detailResp.data?.limitNum ?? item.limitNum ?? latestAmount)
+
+      item.amount = latestAmount
+      item.limitNum = latestLimitNum
+
+      const maxAvailableQuantity = Math.min(latestAmount, latestLimitNum)
+      if (item.num > maxAvailableQuantity) {
+        item.num = maxAvailableQuantity
       }
       item.status = detailResp.data?.status ?? item.status
     } catch (error) {
@@ -239,7 +244,8 @@ export const useCartStore = defineStore('cartStore', () => {
     }
 
     await refreshStockLimit(item)
-    const finalQuantity = Math.min(quantity, item.limitNum)
+    const maxAvailableQuantity = Math.min(item.amount ?? 0, item.limitNum)
+    const finalQuantity = Math.min(quantity, maxAvailableQuantity)
     item.num = finalQuantity
 
     const payload = {
@@ -261,7 +267,8 @@ export const useCartStore = defineStore('cartStore', () => {
       return
     }
 
-    const normalizedQuantity = Math.max(0, Math.min(newQuantity, item.limitNum))
+    const maxAvailableQuantity = Math.min(item.amount ?? 0, item.limitNum)
+    const normalizedQuantity = Math.max(0, Math.min(newQuantity, maxAvailableQuantity))
     item.num = normalizedQuantity
 
     const pending = pendingQuantityUpdates.get(itemId)

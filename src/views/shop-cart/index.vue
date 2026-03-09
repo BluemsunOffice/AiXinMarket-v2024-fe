@@ -151,8 +151,8 @@ const handleQuantityChange = (goodsId: string, value: number) => {
     return
   }
 
-  const minQuantity = targetItem.limitNum > 0 ? 1 : 0
-  const maxQuantity = Math.max(targetItem.limitNum, minQuantity)
+  const maxQuantity = Math.min(targetItem.amount ?? 0, targetItem.limitNum)
+  const minQuantity = maxQuantity > 0 ? 1 : 0
   const normalizedQuantity = Number.isFinite(value)
     ? Math.min(maxQuantity, Math.max(minQuantity, Math.trunc(value)))
     : targetItem.num

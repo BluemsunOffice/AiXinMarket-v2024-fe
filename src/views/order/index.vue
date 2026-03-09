@@ -3,7 +3,13 @@
     <Nav />
     <section class="order-container">
       <header class="order-header">
-        <h2>订单列表</h2>
+        <div class="header-title-wrap">
+          <h2>订单列表</h2>
+          <p v-if="selectedOrderIds.length" class="selection-summary">
+            当前已跨页选中 {{ selectedOrderIds.length }} 条，可核销 {{ checkableSelectedOrders.length }} 条
+          </p>
+          <p v-else class="selection-summary is-empty">当前未选择订单</p>
+        </div>
         <OrderFilters
           :status-title="statusTitle"
           :can-batch-check="canBatchCheck"
@@ -11,15 +17,17 @@
           :sort-options="sortOptions"
           @status-change="setStatusFilter"
           @sort-change="setSortFilter"
-          @batch-check="checkSelectedOrders"
+          @batch-check-preview="openBatchCheckPreview"
         />
       </header>
 
       <OrderTable
         :orders="orders"
         :loading="loading"
+        :selected-order-ids="selectedOrderIds"
         :status-text="getStatusText"
         :status-tag-type="getStatusTagType"
+        :is-order-checkable="isOrderCheckable"
         @selection-change="updateSelection"
         @check-one="checkSingleOrder"
         @view-detail="openDetailDialog"
@@ -36,6 +44,50 @@
         />
       </div>
     </section>
+
+    <el-dialog
+      v-model="batchCheckPreviewVisible"
+      title="批量核销预览"
+      width="900px"
+      :append-to-body="true"
+    >
+      <el-alert
+        v-if="invalidSelectedOrders.length"
+        type="warning"
+        :closable="false"
+        show-icon
+        class="preview-alert"
+        :title="`已自动过滤 ${invalidSelectedOrders.length} 条不可核销订单（已核销或已取消）`"
+      />
+
+      <el-table :data="checkableSelectedOrders" border max-height="420" class="preview-table">
+        <el-table-column prop="createTime" label="订单时间" min-width="180" />
+        <el-table-column prop="username" label="用户名称" min-width="120" />
+        <el-table-column label="订单状态" min-width="120">
+          <template #default="{ row }">
+            <el-tag :type="getStatusTagType(row.status)">{{ getStatusText(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="names" label="商品名称" min-width="220" show-overflow-tooltip />
+        <el-table-column label="订单总价" min-width="220">
+          <template #default="{ row }">
+            服装币: {{ row.clothingBalance }}&nbsp;&nbsp;日用币: {{ row.generalBalance }}
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <template #footer>
+        <div class="preview-footer">
+          <span class="preview-count">共 {{ checkableSelectedOrders.length }} 条待核销</span>
+          <div>
+            <el-button @click="closeBatchCheckPreview">取消</el-button>
+            <el-button type="primary" :disabled="!checkableSelectedOrders.length" @click="checkSelectedOrders">
+              确认核销
+            </el-button>
+          </div>
+        </div>
+      </template>
+    </el-dialog>
 
     <OrderDetailDialog
       :visible="detailDialogVisible"
@@ -64,8 +116,14 @@ const {
   orders,
   loading,
   paging,
+  statusOptions,
+  sortOptions,
   statusTitle,
+  selectedOrderIds,
+  checkableSelectedOrders,
+  invalidSelectedOrders,
   canBatchCheck,
+  batchCheckPreviewVisible,
   detailDialogVisible,
   detailLoading,
   detailPaging,
@@ -73,16 +131,17 @@ const {
 } = storeToRefs(orderStore)
 
 const {
-  statusOptions,
-  sortOptions,
   fetchOrders,
   updateOrderPage,
   updateSelection,
   getStatusText,
   getStatusTagType,
+  isOrderCheckable,
   setStatusFilter,
   setSortFilter,
   checkSingleOrder,
+  openBatchCheckPreview,
+  closeBatchCheckPreview,
   checkSelectedOrders,
   openDetailDialog,
   closeDetailDialog,
@@ -128,10 +187,42 @@ onMounted(() => {
   color: #409eff;
 }
 
+.header-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selection-summary {
+  margin: 0;
+  font-size: 13px;
+  color: #606266;
+}
+
+.selection-summary.is-empty {
+  color: #909399;
+}
+
 .pagination-wrap {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+.preview-alert {
+  margin-bottom: 12px;
+}
+
+.preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.preview-count {
+  color: #606266;
+  font-size: 14px;
 }
 
 @media (max-width: 900px) {
@@ -141,6 +232,11 @@ onMounted(() => {
   }
 
   .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .preview-footer {
     flex-direction: column;
     align-items: flex-start;
   }

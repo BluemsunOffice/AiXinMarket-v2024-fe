@@ -1,12 +1,19 @@
 <template>
   <el-table
+    ref="tableRef"
     :data="orders"
     border
+    row-key="id"
     v-loading="loading"
     class="order-table"
     @selection-change="handleSelectionChange"
   >
-    <el-table-column type="selection" width="52" />
+    <el-table-column
+      type="selection"
+      width="52"
+      :reserve-selection="true"
+      :selectable="isSelectableRow"
+    />
     <el-table-column
       v-for="column in columns"
       :key="column.key"
@@ -46,6 +53,8 @@
 </template>
 
 <script setup lang="ts">
+import { nextTick, ref, watch } from 'vue'
+import type { ElTable } from 'element-plus'
 import type { AdminOrderItem } from '@/api/order.api'
 
 interface OrderTableColumn {
@@ -60,15 +69,20 @@ interface OrderTableColumn {
 const props = defineProps<{
   orders: AdminOrderItem[]
   loading: boolean
+  selectedOrderIds: string[]
   statusText: (status: string) => string
   statusTagType: (status: string) => 'primary' | 'danger' | 'success'
+  isOrderCheckable: (status: string) => boolean
 }>()
 
 const emit = defineEmits<{
-  'selection-change': [ids: string[]]
+  'selection-change': [rows: AdminOrderItem[]]
   'check-one': [orderId: string]
   'view-detail': [orderId: string]
 }>()
+
+const tableRef = ref<InstanceType<typeof ElTable>>()
+const isSyncingSelection = ref(false)
 
 const columns: OrderTableColumn[] = [
   {
@@ -108,9 +122,42 @@ const columns: OrderTableColumn[] = [
   },
 ]
 
+const isSelectableRow = (row: AdminOrderItem) => props.isOrderCheckable(row.status)
+
+const syncSelection = async () => {
+  const table = tableRef.value
+  if (!table) {
+    return
+  }
+
+  isSyncingSelection.value = true
+  table.clearSelection()
+  props.orders.forEach((row) => {
+    if (props.selectedOrderIds.includes(row.id) && props.isOrderCheckable(row.status)) {
+      table.toggleRowSelection(row, true)
+    }
+  })
+
+  await nextTick()
+  isSyncingSelection.value = false
+}
+
+watch(
+  () => [
+    props.orders.map((row) => `${row.id}:${row.status}`).join('|'),
+    props.selectedOrderIds.join('|'),
+  ],
+  () => {
+    void syncSelection()
+  },
+  { immediate: true },
+)
+
 const handleSelectionChange = (rows: AdminOrderItem[]) => {
-  const ids = rows.map((row) => row.id)
-  emit('selection-change', ids)
+  if (isSyncingSelection.value) {
+    return
+  }
+  emit('selection-change', rows)
 }
 </script>
 

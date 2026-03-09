@@ -16,7 +16,9 @@ export interface CartItem {
   currencyType: CoinType
   price: number
   num: number
+  amount?: number
   limitNum: number
+  status?: string
   [key: string]: any
 }
 
@@ -27,6 +29,8 @@ export interface CartBalance {
 
 export interface GoodsDetailData {
   amount: number
+  limitNum: number
+  status?: string
   [key: string]: any
 }
 

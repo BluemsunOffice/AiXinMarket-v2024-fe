@@ -38,19 +38,23 @@
       </template>
     </el-dropdown>
 
-    <el-popconfirm title="确定核销选中订单？" @confirm="emit('batch-check')">
-      <template #reference>
-        <el-button type="primary" :disabled="!canBatchCheck">批量核销</el-button>
-      </template>
-    </el-popconfirm>
+    <el-tooltip
+      :disabled="canBatchCheck"
+      effect="dark"
+      content="请先选择待处理订单"
+      placement="top"
+    >
+      <el-button type="primary" :disabled="!canBatchCheck" @click="emit('batch-check-preview')">
+        批量核销
+      </el-button>
+    </el-tooltip>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ArrowDown } from '@element-plus/icons-vue'
 import type { FilterOption } from '@/stores/order-store'
-import { ElDropdown } from 'element-plus'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type { ManageOrderDirection } from '@/api/order.api'
 
 defineProps<{
@@ -63,7 +67,7 @@ defineProps<{
 const emit = defineEmits<{
   'status-change': [value: number | null]
   'sort-change': [value: ManageOrderDirection]
-  'batch-check': []
+  'batch-check-preview': []
 }>()
 
 const currentStatus = ref<string>('全部状态')
