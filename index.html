@@ -1,22 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>资助平台</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <link rel="icon" href="/favicon.ico">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>资助平台</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
-  </style>
-</head>
+  <body>
+    <div id="app"></div>
+    <script>
+      // Restore route forwarded by public/404.html when refreshing deep links on GitHub Pages.
+      ;(function (location) {
+        if (location.search[1] === '/') {
+          var decoded = location.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&')
+            })
+            .join('?')
 
-<body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
-</body>
-
+          window.history.replaceState(
+            null,
+            '',
+            location.pathname.slice(0, -1) + decoded + location.hash,
+          )
+        }
+      })(window.location)
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
