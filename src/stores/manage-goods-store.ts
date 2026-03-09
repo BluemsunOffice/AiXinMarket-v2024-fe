@@ -178,7 +178,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
       }
       ElMessage.success('图片上传成功')
     } catch (error) {
-      ElMessage.error('图片上传失败，请稍后重试')
+      ElMessage.error(`图片上传失败: ${error}`)
     }
   }
 

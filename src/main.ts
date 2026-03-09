@@ -10,7 +10,6 @@ import router from './router/index'
 import App from './App.vue'
 import clearLocalStorageMixin from './mixins/clear-local-storage'
 import 'amfe-flexible'
-import './assets/iconfont/iconfont.css'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 

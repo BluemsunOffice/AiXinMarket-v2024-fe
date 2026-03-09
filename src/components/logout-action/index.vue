@@ -89,7 +89,7 @@ const handleLogout = async () => {
         router.push('/')
       }, 120)
     } else {
-      ElMessage.error(msg + '!')
+      ElMessage.error(msg || '退出失败！')
     }
   } catch (error) {
     ElMessage.error('请求失败！')

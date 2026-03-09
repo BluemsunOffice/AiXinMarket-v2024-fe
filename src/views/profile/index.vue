@@ -455,7 +455,7 @@ const saveProfileEdit = async () => {
       ElMessage.error(response.msg || '信息更新失败')
     }
   } catch (error) {
-    ElMessage.error('请求失败')
+    ElMessage.error(`请求失败：${error}`)
   }
 }
 

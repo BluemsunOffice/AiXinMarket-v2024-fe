@@ -126,22 +126,22 @@ const addToCart = async () => {
     }
     const addResp = await cartApi.add(payload)
     if (addResp.code === 500) {
-      ElMessage.error(addResp.msg)
+      ElMessage.error(addResp.msg || '加入购物车失败')
       console.log('商品下架', addResp)
     } else if (addResp.code === 200) {
       console.log('加入购物车成功', addResp)
       ElMessage.success('加入购物车成功')
       emit('close')
     } else if (addResp.code === 401) {
-      ElMessage.error('认证失败')
+      ElMessage.error(addResp.msg || '认证失败')
       emit('close')
     } else if (addResp.code === 403) {
-      ElMessage.error('您没有此权限')
+      ElMessage.error(addResp.msg || '您没有此权限')
       emit('close')
     }
   } catch (error) {
     console.error('加入购物车失败', error)
-    ElMessage.error('加入购物车失败')
+    ElMessage.error('加入购物车失败: ' + ((error as { msg?: string }).msg || '请稍后重试'))
     emit('close')
   }
 }

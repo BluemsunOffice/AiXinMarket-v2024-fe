@@ -66,7 +66,7 @@ export class RequestCore {
 
           const unauthorizedError: ErrorResponse = {
             code: 401,
-            msg: responseBody.msg || responseBody.msg || '登录状态已过期，请重新登录',
+            msg: responseBody.msg || '登录状态已过期，请重新登录',
             success: false,
           }
 

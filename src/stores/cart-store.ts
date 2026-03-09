@@ -122,7 +122,7 @@ export const useCartStore = defineStore('cartStore', () => {
       selectedItems.value = selectedItems.value.filter((id) => validIds.has(id))
     } catch (error) {
       console.error('获取购物车失败:', error)
-      ElMessage.error('获取购物车失败，请稍后重试')
+      ElMessage.error(`获取购物车失败: ${error}`)
     } finally {
       isLoading.value = false
     }
@@ -137,6 +137,7 @@ export const useCartStore = defineStore('cartStore', () => {
       }
     } catch (error) {
       console.error('获取余额失败:', error)
+      ElMessage.error(`获取余额失败: ${error}`)
     }
   }
 
@@ -160,11 +161,11 @@ export const useCartStore = defineStore('cartStore', () => {
         selectedItems.value = selectedItems.value.filter((id) => id !== itemId)
         ElMessage.success('商品移除成功')
       } else {
-        ElMessage.warning('删除商品失败，请稍后重试')
+        ElMessage.warning(response.msg || '删除商品失败，请稍后重试')
       }
     } catch (error) {
       console.error('删除商品失败:', error)
-      ElMessage.error('删除商品失败，请稍后重试')
+      ElMessage.error(`删除商品失败: ${error}`)
     }
   }
 
@@ -208,7 +209,7 @@ export const useCartStore = defineStore('cartStore', () => {
       ElMessage.warning(response.msg || '结算失败，请稍后重试')
     } catch (error) {
       console.error('结算失败:', error)
-      ElMessage.error((error as { msg?: string }).msg || '结算失败，请稍后重试')
+      ElMessage.error(`结算失败: ${(error as { msg?: string }).msg || '请稍后重试'}`)
     } finally {
       await userStore.fetchNavBarData(true)
       isSettling.value = false
