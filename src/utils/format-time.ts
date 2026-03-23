@@ -24,6 +24,15 @@ export function formatDay(
 }
 
 /**
+ * 格式化到中文天级别的时间（显示 YYYY年M月D日）
+ * @param timestamp 时间戳或日期字符串
+ * @returns 格式化后的中文日期字符串
+ */
+export function formatChineseDay(timestamp: number | string | Date): string {
+  return formatDay(timestamp, 'YYYY年M月D日')
+}
+
+/**
  * 通用格式化函数，可自定义格式
  * @param timestamp 时间戳（秒级或毫秒级）
  * @param format 格式化字符串

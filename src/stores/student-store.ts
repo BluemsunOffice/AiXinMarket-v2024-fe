@@ -15,6 +15,7 @@ import {
   formatMarry,
   formatPoliticalStatus,
   formatStudentStatus,
+  MAJOR_MAP,
 } from '@/constants/default'
 import { formatDay } from '@/utils/format-time'
 import { studentFilesApi } from '@/api/student-files.api'
@@ -279,9 +280,20 @@ export const useStudentStore = defineStore('student', () => {
       degree: searchForm.degree,
     }
 
-    if (params.major === '未知') {
-      params.major = ''
-    } else if (params.major === '') {
+    // 处理专业：如果是专业名称，则转换为 ID
+    if (params.major) {
+      // 如果不是纯数字（即不是 ID），则尝试通过名称查找 ID
+      if (isNaN(Number(params.major))) {
+        const majorId = Object.keys(MAJOR_MAP).find(
+          (key) => MAJOR_MAP[Number(key)] === params.major,
+        )
+        if (majorId !== undefined) {
+          params.major = majorId
+        }
+      }
+    }
+
+    if (params.major === '未知' || params.major === '') {
       delete params.major
     }
 

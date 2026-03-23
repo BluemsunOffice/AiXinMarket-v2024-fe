@@ -26,7 +26,20 @@
         />
       </el-form-item>
       <el-form-item class="search-form-item" prop="major">
-        <el-input v-model="searchForm.major" class="search-input" placeholder="专业" clearable />
+        <el-select
+          v-model="searchForm.major"
+          class="search-input"
+          placeholder="专业"
+          clearable
+          filterable
+        >
+          <el-option
+            v-for="item in majorOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item class="search-form-item" prop="degree">
         <el-select v-model="searchForm.degree" class="search-input" placeholder="学位" clearable>
@@ -103,6 +116,7 @@
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStudentStore } from '@/stores/student-store'
+import { majorOptions } from '@/constants/default'
 
 const studentStore = useStudentStore()
 const exportPreviewVisible = ref(false)

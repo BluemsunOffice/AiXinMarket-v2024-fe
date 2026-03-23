@@ -23,7 +23,7 @@ import {
   formatDegree,
 } from '../../../constants/default'
 import { userApi, type FundUserInfo } from '@/api/user.api'
-import { formatDay } from '@/utils/format-time'
+import { formatDay, formatChineseDay } from '@/utils/format-time'
 import { type FieldConfigType, getFieldDisplayValue } from '@/utils/field-config'
 // 定义父组件传递的事件
 const emit = defineEmits(['roleName'])
@@ -60,13 +60,13 @@ const fieldConfig = [
   {
     prop: 'birthday',
     label: '生日',
-    formatter: formatDay,
+    formatter: formatChineseDay,
     icon: 'birthday-cake',
   },
   {
     prop: 'admissionDate',
     label: '入学时间',
-    formatter: formatDay,
+    formatter: formatChineseDay,
     icon: 'university',
   },
   {
