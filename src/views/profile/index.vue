@@ -118,6 +118,15 @@
             />
           </el-form-item>
 
+          <el-form-item label="入学时间" prop="admissionDate">
+            <el-date-picker
+              v-model="editFormModel.admissionDate"
+              type="date"
+              value-format="YYYY-MM-DD"
+              placeholder="请选择入学时间"
+            />
+          </el-form-item>
+
           <el-form-item label="手机号" prop="telephone">
             <el-input v-model="editFormModel.telephone" placeholder="请输入手机号" />
           </el-form-item>
@@ -169,7 +178,9 @@ import {
   collegeOptions,
   degreeMap,
   degreeOptions,
+  ethnicOptions,
   ethnicMap,
+  genderOptions,
   genderMap,
   majorMap,
   majorOptions,
@@ -226,6 +237,9 @@ const editFormRef = ref<FormInstance>()
 const editFormModel = reactive<UpdateOwnProfilePayload>({
   degree: '',
   grade: '',
+  gender: '',
+  nationality: '',
+  admissionDate: '',
   political: '',
   marry: '',
   apartment: '',
@@ -258,17 +272,19 @@ const punishRows = computed(() =>
   ownPunishList.value.map((item) => ({
     ...item,
     category: mapCodeToLabel(punishTypeMap, item.category),
-  })),
+  }))
 )
 
 const scholarshipRows = computed(() =>
   ownScholarshipList.value.map((item) => ({
     ...item,
     type: mapCodeToLabel(fundTypeMap, item.type),
-  })),
+  }))
 )
 
 const selectFields: EditFieldConfig[] = [
+  { key: 'gender', label: '性别', options: genderOptions },
+  { key: 'nationality', label: '民族', options: ethnicOptions },
   { key: 'marry', label: '婚姻状况', options: marryOptions },
   { key: 'major', label: '专业', options: majorOptions },
   { key: 'degree', label: '学历', options: degreeOptions },
@@ -414,6 +430,9 @@ const getPersonalInfoValue = (item: PersonalInfoItem) => {
 const syncEditForm = () => {
   editFormModel.degree = ownProfile.value.degree || ''
   editFormModel.grade = ownProfile.value.grade || ''
+  editFormModel.gender = ownProfile.value.gender || ''
+  editFormModel.nationality = ownProfile.value.nationality || ''
+  editFormModel.admissionDate = ownProfile.value.admissionDate || ''
   editFormModel.political = ownProfile.value.political || ''
   editFormModel.marry = ownProfile.value.marry || ''
   editFormModel.apartment = ownProfile.value.apartment || ''
@@ -432,7 +451,7 @@ watch(
   () => {
     syncEditForm()
   },
-  { immediate: true, deep: true },
+  { immediate: true, deep: true }
 )
 
 const openEditDialog = () => {
@@ -447,7 +466,11 @@ const saveProfileEdit = async () => {
 
   await editFormRef.value.validate()
   try {
-    const response = await userStore.updateOwnProfile({ ...editFormModel })
+    const payload: UpdateOwnProfilePayload = { ...editFormModel }
+    // if (payload.admissionDate && !payload.admissionDate.includes(' ')) {
+    //   payload.admissionDate = `${payload.admissionDate} 00:00:00`
+    // }
+    const response = await userStore.updateOwnProfile(payload)
     if (response.code === 200) {
       ElMessage.success('信息更新成功')
       editDialogVisible.value = false

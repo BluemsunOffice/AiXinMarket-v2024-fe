@@ -246,6 +246,7 @@ export const CAMPUS_MAP: NumberCodeMap = {
 export const GENDER_MAP: NumberCodeMap = {
   0: '男',
   1: '女',
+  2:'未知'
 } as const
 
 // 政治面貌
@@ -286,6 +287,8 @@ export const degreeOptions = makeOptionsFromMap(DEGREE_MAP)
 export const politicalOptions = makeOptionsFromMap(POLITICALSTATUS_MAP)
 export const collegeOptions = makeOptionsFromMap(COLLEGE_MAP)
 export const majorOptions = makeOptionsFromMap(MAJOR_MAP)
+export const genderOptions = makeOptionsFromMap(GENDER_MAP)
+export const ethnicOptions = makeOptionsFromMap(ETHNICITY_MAP)
 
 // 历史兼容格式化函数（保留原导出）
 export const formatEthnicity = createFormatter(ethnicMap, '未知')

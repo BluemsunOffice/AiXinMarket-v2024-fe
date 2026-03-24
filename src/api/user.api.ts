@@ -123,6 +123,9 @@ export interface UpdateOwnProfilePayload {
   email: string
   status: string
   birthday: string
+  gender?: string
+  nationality?: string
+  admissionDate?: string
 }
 
 export interface AddProjectPayload {
