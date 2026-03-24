@@ -49,7 +49,9 @@ export const useOrderStore = defineStore('order', () => {
   ])
 
   const statusTitle = computed(() => {
-    return statusOptions.value.find((option) => option.value === statusFilter.value)?.label || '订单状态'
+    return (
+      statusOptions.value.find((option) => option.value === statusFilter.value)?.label || '订单状态'
+    )
   })
 
   const checkableSelectedOrders = computed(() => {
@@ -164,7 +166,8 @@ export const useOrderStore = defineStore('order', () => {
     return typeMap[String(status)] || 'primary'
   }
 
-  const isOrderCheckable = (status: string | AdminOrderStatus) => String(status) === CHECKABLE_ORDER_STATUS
+  const isOrderCheckable = (status: string | AdminOrderStatus) =>
+    String(status) === CHECKABLE_ORDER_STATUS
 
   const setStatusFilter = async (status: number | null) => {
     statusFilter.value = status
@@ -179,7 +182,8 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   const checkSingleOrder = async (orderId: string) => {
-    const targetOrder = orders.value.find((order) => order.id === orderId) || selectedOrderMap.value[orderId]
+    const targetOrder =
+      orders.value.find((order) => order.id === orderId) || selectedOrderMap.value[orderId]
     if (targetOrder && !isOrderCheckable(targetOrder.status)) {
       ElMessage.warning('该订单当前状态不可核销')
       return

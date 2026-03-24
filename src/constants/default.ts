@@ -118,7 +118,7 @@ export const COLLEGE_MAP: NumberCodeMap = {
 
 // 专业字典常量
 export const MAJOR_MAP: NumberCodeMap = {
-    0: '教育学',
+  0: '教育学',
   1: '学前教育（公费师范）',
   2: '小学教育（公费师范）',
   4: '心理学',

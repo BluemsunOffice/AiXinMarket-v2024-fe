@@ -6,7 +6,8 @@
         <div class="header-title-wrap">
           <h2>订单列表</h2>
           <p v-if="selectedOrderIds.length" class="selection-summary">
-            当前已跨页选中 {{ selectedOrderIds.length }} 条，可核销 {{ checkableSelectedOrders.length }} 条
+            当前已跨页选中 {{ selectedOrderIds.length }} 条，可核销
+            {{ checkableSelectedOrders.length }} 条
           </p>
           <p v-else class="selection-summary is-empty">当前未选择订单</p>
         </div>
@@ -81,7 +82,11 @@
           <span class="preview-count">共 {{ checkableSelectedOrders.length }} 条待核销</span>
           <div>
             <el-button @click="closeBatchCheckPreview">取消</el-button>
-            <el-button type="primary" :disabled="!checkableSelectedOrders.length" @click="checkSelectedOrders">
+            <el-button
+              type="primary"
+              :disabled="!checkableSelectedOrders.length"
+              @click="checkSelectedOrders"
+            >
               确认核销
             </el-button>
           </div>

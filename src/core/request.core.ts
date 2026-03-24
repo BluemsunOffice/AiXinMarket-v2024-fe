@@ -56,9 +56,7 @@ export class RequestCore {
       (response: AxiosResponse<ApiResponse>) => {
         console.log(`[Response] ${response.config.url}`, response.data)
 
-        const responseBody = response.data as
-          | (ApiResponse & { msg?: string })
-          | undefined
+        const responseBody = response.data as (ApiResponse & { msg?: string }) | undefined
 
         // 业务状态码 401（例如：{ code: 401, data: null, msg: "认证失败，无法访问系统资源" }）
         if (responseBody?.code === 401) {

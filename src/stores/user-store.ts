@@ -82,7 +82,7 @@ export const useUserStore = defineStore('user', () => {
   const initLoginState = async () => {
     initRemember()
     if (!(await isLoggedIn())) {
-      clearAuth();
+      clearAuth()
     }
   }
   const detectDeviceType = () => {
