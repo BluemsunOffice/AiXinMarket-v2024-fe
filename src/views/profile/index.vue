@@ -118,14 +118,22 @@
             />
           </el-form-item>
 
-          <el-form-item label="入学时间" prop="admissionDate">
+          <!-- <el-form-item label="入学时间" prop="admissionDate">
             <el-date-picker
               v-model="editFormModel.admissionDate"
               type="date"
               value-format="YYYY-MM-DD"
               placeholder="请选择入学时间"
             />
-          </el-form-item>
+          </el-form-item> -->
+          <el-form-item label="入学时间" prop="admissionDate">
+          <el-date-picker
+            v-model="editFormModel.admissionDate"
+            type="date"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="请选择入学时间"
+          />
+        </el-form-item>
 
           <el-form-item label="手机号" prop="telephone">
             <el-input v-model="editFormModel.telephone" placeholder="请输入手机号" />
