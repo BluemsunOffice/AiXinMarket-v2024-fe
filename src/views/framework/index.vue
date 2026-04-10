@@ -57,7 +57,7 @@
         <section v-if="currentPage === 'personalCenter'" class="personal-container">
           <personal-box
             :student-id="fundUserProfile?.studentId || userProfile.userId"
-            :name="userProfile.userName || userProfile.nickName"
+            :name="userProfile.nickName || userProfile.nickName"
             :role="userRole"
             :avatar-url="userProfile.avatar"
             @avatar-changed="handleUploadAvatar"
