@@ -36,6 +36,7 @@
         :is-order-checkable="isOrderCheckable"
         @selection-change="updateSelection"
         @check-one="checkSingleOrder"
+        @cancel-one="cancelSingleOrder"
         @view-detail="openDetailDialog"
       />
 
@@ -155,6 +156,7 @@ const {
   searchOrders,
   exportOrderFile,
   checkSingleOrder,
+  cancelSingleOrder,
   openBatchCheckPreview,
   closeBatchCheckPreview,
   checkSelectedOrders,

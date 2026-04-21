@@ -281,6 +281,29 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
+  const cancelSingleOrder = async (orderId: string) => {
+    const targetOrder =
+      orders.value.find((order) => order.id === orderId) || selectedOrderMap.value[orderId]
+    if (targetOrder && !isOrderCheckable(targetOrder.status)) {
+      ElMessage.warning('该订单当前状态不可取消')
+      return
+    }
+
+    try {
+      const response = await orderApi.cancelUserOrder(orderId)
+      if (response.code === 200) {
+        ElMessage.success('取消成功')
+        delete selectedOrderMap.value[orderId]
+        selectedOrderIds.value = selectedOrderIds.value.filter((id) => id !== orderId)
+        await fetchOrders()
+        return
+      }
+      ElMessage.error(response.msg || '取消失败')
+    } catch (error) {
+      ElMessage.error('取消失败，请稍后重试')
+    }
+  }
+
   const openBatchCheckPreview = () => {
     if (!selectedOrderIds.value.length) {
       ElMessage.warning('请先选择订单')
@@ -499,6 +522,7 @@ export const useOrderStore = defineStore('order', () => {
     searchOrders,
     exportOrderFile,
     checkSingleOrder,
+    cancelSingleOrder,
     openBatchCheckPreview,
     closeBatchCheckPreview,
     checkSelectedOrders,

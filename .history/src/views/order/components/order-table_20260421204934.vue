@@ -185,7 +185,7 @@ const handleSelectionChange = (rows: AdminOrderItem[]) => {
   align-items: center;
   justify-content: flex-start;
   flex-wrap: nowrap;
-  gap: 18px;
+  gap: 15px;
   white-space: nowrap;
   width: 100%;
 }
