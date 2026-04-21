@@ -33,7 +33,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column label="操作" min-width="240" fixed="right">
+    <el-table-column label="操作" min-width="300" fixed="right">
       <template #default="scope">
         <div class="action-row">
           <el-popconfirm
@@ -183,16 +183,8 @@ const handleSelectionChange = (rows: AdminOrderItem[]) => {
 .action-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   flex-wrap: nowrap;
-  gap: 18px;
+  gap: 10px;
   white-space: nowrap;
-  width: 100%;
-}
-
-.action-row :deep(.el-button) {
-  padding-left: 0;
-  padding-right: 0;
-  margin: 0;
 }
 </style>
