@@ -8,6 +8,17 @@
           <h2>进货记录</h2>
           <p>查看商品补货流水与库存变化</p>
         </div>
+        <div class="header-actions">
+          <el-input
+            :model-value="keyword"
+            class="search-input"
+            placeholder="请输入商品名称进行模糊搜索"
+            clearable
+            @update:model-value="handleKeywordChange"
+            @keyup.enter="handleSearch"
+          />
+          <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
+        </div>
       </header>
 
       <el-table :data="items" border v-loading="loading" class="record-table">
@@ -69,17 +80,27 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { Search } from '@element-plus/icons-vue'
 import NavBar from '@/components/nav-bar/index.vue'
 import { useRecordStore } from '@/stores/record-store'
 
 const recordStore = useRecordStore()
-const { loading, items, total, pager, detailVisible, detailLoading, detail, increaseAmount } =
+const { loading, items, total, pager, keyword, detailVisible, detailLoading, detail, increaseAmount } =
   storeToRefs(recordStore)
 
-const { fetchRecords, changePage, openDetail, closeDetail } = recordStore
+const { fetchRecords, changePage, updateKeyword, searchRecords, openDetail, closeDetail } =
+  recordStore
 
 const handlePageChange = (newPage: number) => {
   changePage(newPage)
+}
+
+const handleKeywordChange = (value: string | number | null | undefined) => {
+  updateKeyword(String(value ?? ''))
+}
+
+const handleSearch = () => {
+  searchRecords()
 }
 
 onMounted(() => {
@@ -106,6 +127,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
@@ -123,6 +145,16 @@ onMounted(() => {
 
 .record-table :deep(.el-table__cell) {
   font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input {
+  width: 260px;
 }
 
 .record-image {
@@ -155,6 +187,19 @@ onMounted(() => {
 
   .record-header h2 {
     font-size: 20px;
+  }
+
+  .record-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .search-input {
+    flex: 1;
   }
 
   .pagination-wrap {

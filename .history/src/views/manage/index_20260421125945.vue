@@ -10,15 +10,15 @@
         </div>
 
         <div class="header-actions">
-          <el-input
-            :model-value="keyword"
-            class="search-input"
-            placeholder="请输入商品名称进行模糊搜索"
-            clearable
-            @update:model-value="handleKeywordChange"
-            @keyup.enter="handleSearch"
-          />
-          <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
+            <el-input
+    v-model="searchName"
+    placeholder="请输入商品名称"
+    clearable
+    class="search-input"
+    @keyup.enter="handleSearch"
+    @clear="handleSearch"
+  />
+    <el-button :icon="Search" @click="handleSearch">搜索</el-button>
           <el-popconfirm title="确认删除选中的商品吗？" @confirm="handleBatchDelete">
             <template #reference>
               <el-button type="danger" :icon="Delete">批量删除</el-button>
@@ -76,7 +76,7 @@
           :page-size="pager.pageSize"
           layout="prev,pager,next,jumper,total"
           :total="total"
-          @current-change="changePage"
+          @current-change="handlePageChange"
         />
       </div>
     </section>
@@ -184,7 +184,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Delete, Edit, Plus, Search, Upload } from '@element-plus/icons-vue'
+import { Delete, Edit, Plus, Upload, Search, } from '@element-plus/icons-vue'
 import NavBar from '@/components/nav-bar/index.vue'
 import { useManageGoodsStore } from '@/stores/manage-goods-store'
 import type { GoodsCurrencyType, GoodsType, ManageGoodsItem } from '@/api/manage-goods.api'
@@ -197,7 +197,6 @@ const {
   total,
   pager,
   selectedIds,
-  keyword,
   formDialogVisible,
   restockDialogVisible,
   submitting,
@@ -210,8 +209,6 @@ const {
 const {
   fetchGoods,
   changePage,
-  updateKeyword,
-  searchGoods,
   setSelectedRows,
   deleteGoods,
   openCreateDialog,
@@ -223,7 +220,7 @@ const {
 } = manageGoodsStore
 
 const imageInputRef = ref<HTMLInputElement | null>(null)
-
+const searchName = ref('')
 const goodsTypeMap: Record<GoodsType, string> = {
   '0': '日用品',
   '1': '服装',
@@ -257,15 +254,23 @@ const handleDeleteOne = async (id: string) => {
 const handleBatchDelete = async () => {
   await deleteGoods(selectedIds.value)
 }
-
-const handleKeywordChange = (value: string | number | null | undefined) => {
-  updateKeyword(String(value ?? ''))
+const handleSearch = async () => {
+  pager.value.pageNum = 1
+  await fetchGoods({
+    pageNum: 1,
+    pageSize: pager.value.pageSize,
+    name: searchName.value.trim(),
+  })
 }
 
-const handleSearch = () => {
-  searchGoods()
+const handlePageChange = async (page: number) => {
+  pager.value.pageNum = page
+  await fetchGoods({
+    pageNum: page,
+    pageSize: pager.value.pageSize,
+    name: searchName.value.trim(),
+  })
 }
-
 const triggerImageInput = () => {
   imageInputRef.value?.click()
 }
@@ -282,7 +287,11 @@ const handleImageChange = async (event: Event) => {
 }
 
 onMounted(() => {
-  fetchGoods()
+ fetchGoods({
+    pageNum: pager.value.pageNum,
+    pageSize: pager.value.pageSize,
+    name: searchName.value.trim(),
+  })
 })
 </script>
 
@@ -323,12 +332,7 @@ onMounted(() => {
 
 .header-actions {
   display: flex;
-  align-items: center;
   gap: 8px;
-}
-
-.search-input {
-  width: 260px;
 }
 
 .manage-table :deep(.el-table__cell) {
@@ -385,12 +389,10 @@ onMounted(() => {
 
   .header-actions {
     width: 100%;
-    flex-wrap: wrap;
   }
 
-  .search-input {
+  .header-actions .el-button {
     flex: 1;
-    min-width: 180px;
   }
 
   .pagination-wrap {
