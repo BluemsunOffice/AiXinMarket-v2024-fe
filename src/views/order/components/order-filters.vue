@@ -1,5 +1,16 @@
 <template>
   <div class="order-filters">
+    <el-input
+      :model-value="keyword"
+      class="search-input"
+      placeholder="请输入商品名称模糊搜索"
+      clearable
+      @update:model-value="handleKeywordChange"
+      @keyup.enter="emit('search')"
+      @clear="emit('search')"
+    />
+    <el-button type="primary" class="search-btn" @click="emit('search')">搜索</el-button>
+
     <el-dropdown>
       <el-button type="primary" class="filter-btn">
         {{ currentStatus }}
@@ -48,6 +59,9 @@
         批量核销
       </el-button>
     </el-tooltip>
+    <el-button type="primary" :loading="exportLoading" @click="emit('export-file')">
+      导出文件
+    </el-button>
   </div>
 </template>
 
@@ -59,15 +73,20 @@ import type { ManageOrderDirection } from '@/api/order.api'
 
 defineProps<{
   statusTitle: string
+  keyword: string
+  exportLoading: boolean
   canBatchCheck: boolean
   statusOptions: FilterOption<number | null>[]
   sortOptions: FilterOption<ManageOrderDirection>[]
 }>()
 
 const emit = defineEmits<{
+  'keyword-change': [value: string]
+  search: []
   'status-change': [value: number | null]
   'sort-change': [value: ManageOrderDirection]
   'batch-check-preview': []
+  'export-file': []
 }>()
 
 const currentStatus = ref<string>('全部状态')
@@ -82,16 +101,39 @@ const handleSortChange = (option: FilterOption<ManageOrderDirection>) => {
   currentSort.value = option.label ?? '排序方式'
   emit('sort-change', option.value)
 }
+
+const handleKeywordChange = (value: string | number | null | undefined) => {
+  emit('keyword-change', String(value ?? ''))
+}
 </script>
 
 <style scoped>
 .order-filters {
   display: flex;
   align-items: center;
-  gap: 12px;
+  column-gap: 12px;
+  row-gap: 12px;
+  flex-wrap: wrap;
+}
+
+.order-filters > * {
+  margin: 0 !important;
+}
+
+.order-filters :deep(.el-tooltip__trigger) {
+  display: inline-flex;
+  margin: 0 !important;
 }
 
 .filter-btn {
+  padding: 10px 16px;
+}
+
+.search-input {
+  width: 240px;
+}
+
+.search-btn {
   padding: 10px 16px;
 }
 </style>

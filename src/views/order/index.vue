@@ -13,9 +13,14 @@
         </div>
         <OrderFilters
           :status-title="statusTitle"
+          :keyword="keyword"
+          :export-loading="exportingOrderFile"
           :can-batch-check="canBatchCheck"
           :status-options="statusOptions"
           :sort-options="sortOptions"
+          @keyword-change="setKeyword"
+          @search="searchOrders"
+          @export-file="exportOrderFile"
           @status-change="setStatusFilter"
           @sort-change="setSortFilter"
           @batch-check-preview="openBatchCheckPreview"
@@ -124,6 +129,8 @@ const {
   statusOptions,
   sortOptions,
   statusTitle,
+  keyword,
+  exportingOrderFile,
   selectedOrderIds,
   checkableSelectedOrders,
   invalidSelectedOrders,
@@ -144,6 +151,9 @@ const {
   isOrderCheckable,
   setStatusFilter,
   setSortFilter,
+  setKeyword,
+  searchOrders,
+  exportOrderFile,
   checkSingleOrder,
   openBatchCheckPreview,
   closeBatchCheckPreview,

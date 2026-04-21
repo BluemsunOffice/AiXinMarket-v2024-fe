@@ -21,6 +21,7 @@ export const useRecordStore = defineStore('record', () => {
   const loading = ref(false)
   const items = ref<RestockRecordItem[]>([])
   const total = ref(0)
+  const keyword = ref('')
 
   const pager = reactive({
     pageNum: 1,
@@ -41,6 +42,7 @@ export const useRecordStore = defineStore('record', () => {
       const response = await manageGoodsApi.getRestockList({
         pageNum: pager.pageNum,
         pageSize: pager.pageSize,
+        name: keyword.value.trim() || undefined,
       })
 
       if (response.code === 200) {
@@ -63,6 +65,15 @@ export const useRecordStore = defineStore('record', () => {
 
   const changePage = async (pageNum: number) => {
     pager.pageNum = pageNum
+    await fetchRecords()
+  }
+
+  const updateKeyword = (value: string) => {
+    keyword.value = value
+  }
+
+  const searchRecords = async () => {
+    pager.pageNum = 1
     await fetchRecords()
   }
 
@@ -96,6 +107,7 @@ export const useRecordStore = defineStore('record', () => {
     loading,
     items,
     total,
+    keyword,
     pager,
     detailVisible,
     detailLoading,
@@ -104,6 +116,8 @@ export const useRecordStore = defineStore('record', () => {
 
     fetchRecords,
     changePage,
+    updateKeyword,
+    searchRecords,
     openDetail,
     closeDetail,
   }

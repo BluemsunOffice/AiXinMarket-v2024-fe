@@ -23,7 +23,6 @@ const CHECKABLE_ORDER_STATUS: AdminOrderStatus = '0'
 export const useOrderStore = defineStore('order', () => {
   const orders = ref<AdminOrderItem[]>([])
   const loading = ref(false)
-  const exportingOrderFile = ref(false)
   const selectedOrderIds = ref<string[]>([])
   const selectedOrderMap = ref<Record<string, AdminOrderItem>>({})
 
@@ -213,49 +212,6 @@ export const useOrderStore = defineStore('order', () => {
   const searchOrders = async () => {
     paging.pageNum = 1
     await fetchOrders()
-  }
-
-  const getExportFileName = (disposition: string | undefined) => {
-    if (!disposition) {
-      return 'orders.xlsx'
-    }
-
-    const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i)
-    if (utf8Match?.[1]) {
-      return decodeURIComponent(utf8Match[1])
-    }
-
-    const normalMatch = disposition.match(/filename="?([^"]+)"?/i)
-    if (normalMatch?.[1]) {
-      return decodeURIComponent(normalMatch[1])
-    }
-
-    return 'orders.xlsx'
-  }
-
-  const exportOrderFile = async () => {
-    exportingOrderFile.value = true
-    try {
-      const response = await orderApi.exportOrders()
-      const blob = response.data instanceof Blob ? response.data : new Blob([response.data || ''])
-      const disposition = (response.headers?.['content-disposition'] ||
-        response.headers?.['Content-Disposition']) as string | undefined
-      const fileName = getExportFileName(disposition)
-
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = fileName
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-      ElMessage.success('导出成功')
-    } catch (error) {
-      ElMessage.error('导出失败，请稍后重试')
-    } finally {
-      exportingOrderFile.value = false
-    }
   }
 
   const checkSingleOrder = async (orderId: string) => {
@@ -470,7 +426,6 @@ export const useOrderStore = defineStore('order', () => {
   return {
     orders,
     loading,
-    exportingOrderFile,
     paging,
     statusOptions,
     sortOptions,
@@ -497,7 +452,6 @@ export const useOrderStore = defineStore('order', () => {
     setSortFilter,
     setKeyword,
     searchOrders,
-    exportOrderFile,
     checkSingleOrder,
     openBatchCheckPreview,
     closeBatchCheckPreview,

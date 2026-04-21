@@ -46,6 +46,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
   const loading = ref(false)
   const total = ref(0)
   const selectedIds = ref<string[]>([])
+  const keyword = ref('')
 
   const pager = reactive({
     pageNum: 1,
@@ -75,6 +76,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
       const response = await manageGoodsApi.getGoodsList({
         pageNum: pager.pageNum,
         pageSize: pager.pageSize,
+        name: keyword.value.trim() || undefined,
       })
       if (response.code === 200) {
         goodsList.value = response.rows || []
@@ -95,6 +97,15 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
 
   const changePage = async (pageNum: number) => {
     pager.pageNum = pageNum
+    await fetchGoods()
+  }
+
+  const updateKeyword = (value: string) => {
+    keyword.value = value
+  }
+
+  const searchGoods = async () => {
+    pager.pageNum = 1
     await fetchGoods()
   }
 
@@ -275,6 +286,7 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
     loading,
     total,
     selectedIds,
+    keyword,
     pager,
     formDialogVisible,
     restockDialogVisible,
@@ -286,6 +298,8 @@ export const useManageGoodsStore = defineStore('manageGoods', () => {
 
     fetchGoods,
     changePage,
+    updateKeyword,
+    searchGoods,
     setSelectedRows,
     deleteGoods,
     openCreateDialog,

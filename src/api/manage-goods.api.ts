@@ -58,6 +58,7 @@ export interface RestockPayload {
 export interface RestockListParams {
   pageNum: number
   pageSize: number
+  name?: string
 }
 
 export interface RestockRecordItem {

@@ -54,10 +54,23 @@ export interface OrderListQuery {
   isAsc?: ManageOrderDirection
 }
 
+export interface OrderAdminQuery {
+  pageSize: number
+  pageNum: number
+  goodsName?: string
+  isAsc?: ManageOrderDirection
+  orderByColumn?: string
+}
+
 export interface OrderInfoPageQuery {
   orderId: string
   pageSize: number
   pageNum: number
+}
+
+export interface OrderExportPayload {
+  status?: number
+  userId?: number
 }
 
 export interface UserOrderListQuery {
@@ -76,6 +89,16 @@ export const orderApi = {
     get('/market/order/adminlist', params).then(
       (response) => response as unknown as PagedRows<AdminOrderItem>,
     ),
+
+  getAdminQuery: (params: OrderAdminQuery): Promise<PagedRows<AdminOrderItem>> =>
+    get('/market/order/adminquery', params).then(
+      (response) => response as unknown as PagedRows<AdminOrderItem>,
+    ),
+
+  exportOrders: (payload: OrderExportPayload = {}) =>
+    request.post('/market/order/export', payload, {
+      responseType: 'blob',
+    }),
 
   getOrderInfoPage: (params: OrderInfoPageQuery): Promise<PagedRows<OrderInfoItem>> =>
     get('/market/orderInfo/page', params).then(
