@@ -57,7 +57,7 @@ export interface OrderListQuery {
 export interface OrderAdminQuery {
   pageSize: number
   pageNum: number
-  goodsName?: string
+  username?: string
   isAsc?: ManageOrderDirection
   orderByColumn?: string
 }

@@ -119,7 +119,7 @@ export const useOrderStore = defineStore('order', () => {
         ? await orderApi.getAdminQuery({
             pageNum: paging.pageNum,
             pageSize: paging.pageSize,
-            goodsName: trimmedKeyword,
+            username: trimmedKeyword,
             isAsc: sortFilter.value,
             orderByColumn: 'createTime',
           })
