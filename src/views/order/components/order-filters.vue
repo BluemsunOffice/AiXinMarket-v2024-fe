@@ -3,7 +3,7 @@
     <el-input
       :model-value="keyword"
       class="search-input"
-      placeholder="请输入商品名称模糊搜索"
+      placeholder="请输入用户名模糊搜索"
       clearable
       @update:model-value="handleKeywordChange"
       @keyup.enter="emit('search')"
